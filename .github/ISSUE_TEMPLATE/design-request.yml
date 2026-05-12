@@ -1,0 +1,35 @@
+name: Design or content request
+description: Request a copy/UX/layout change.
+title: "[design] "
+labels: ["design", "enhancement"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Which page (or feature)?
+      placeholder: pricing.html, search.html, the nav bar, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: What change do you want?
+      placeholder: Make the hero CTA bigger. Add a section explaining how dealer-direct works. Move the email field above the password.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why? (Optional context — analytics, user feedback, brand)
+  - type: textarea
+    id: mocks
+    attributes:
+      label: Mockups, screenshots, or reference links
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Low (nice to have)
+        - Medium (this sprint if possible)
+        - High (blocking something else)
