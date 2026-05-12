@@ -1,0 +1,47 @@
+# Throttle.toys — production .htaccess
+
+# 1. Force HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2. Strip .html for clean URLs (e.g. /pricing instead of /pricing.html)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^([^.]+)$ $1.html [NC,L]
+
+# 2b. Short-link listing pages: /v/abc123 → /search.html (JS reads URL and opens listing)
+RewriteRule ^v/[A-Za-z0-9]{4,8}/?$ /search.html [L]
+
+# 3. 404 handler
+ErrorDocument 404 /404.html
+
+# 4. Long cache for static assets, short for HTML
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresByType text/html "access plus 5 minutes"
+</IfModule>
+
+# 5. Compress text responses
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+# 6. Security headers
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# 7. Block access to dotfiles
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>

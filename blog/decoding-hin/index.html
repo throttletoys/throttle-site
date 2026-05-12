@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var qs=new URLSearchParams(location.search);if(qs.has("desktop")||localStorage.getItem("throttle_force_desktop")==="1")return;var ua=navigator.userAgent||"";var isMobile=/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);var smallScreen=window.matchMedia("(max-width:768px)").matches;if((isMobile||smallScreen)&&!location.pathname.startsWith("/m/")){var path=location.pathname==="/"?"/m/":"/m"+location.pathname;location.replace(path+location.search+location.hash)}}catch(e){}})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Decoding HIN: what every boat buyer should check before signing — Throttle</title>
+<meta name="description" content="A 12-character Hull ID Number tells you a boat's manufacturer, build month, and model year. Here's how to decode one — and how to spot a re-titled hull.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://throttle.toys/blog/decoding-hin">
+<link rel="stylesheet" href="/assets/throttle.css?v=2">
+</head>
+<body>
+
+<header class="t-header">
+  <a class="t-logo" href="/">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><linearGradient id="lg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#7CF1FF"/><stop offset="1" stop-color="#4cd6e8"/></linearGradient></defs>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/>
+      <circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/>
+      <circle cx="16" cy="16" r="4" fill="url(#lg)"/>
+      <path d="M16 2 L16 8 M16 24 L16 30" stroke="url(#lg)" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Throttle
+  </a>
+  <nav class="t-nav">
+    <a href="/blog">What's new</a>
+    <a href="/roadmap">Roadmap</a>
+    <a href="/pricing">Pricing</a>
+  </nav>
+  <div class="t-actions">
+    <a class="t-btn t-btn--ghost" href="/signin">Login</a>
+    <a class="t-btn" href="/search">Browse →</a>
+  </div>
+</header>
+
+<article class="t-article">
+  <p class="t-article-meta"><a href="/blog">← Journal</a><span>Buyer's guide</span><span>4 min read</span></p>
+  <h1>Decoding HIN: what every boat buyer should check before signing</h1>
+  <p>Every US-titled boat built since 1972 has a 12-character Hull Identification Number stamped into the starboard transom. It's the boat-world equivalent of a VIN — but smaller, harder to find, and less well understood. Three minutes with the right cheat sheet and you can pull a boat's manufacturer, build month, build year, and model year out of those twelve characters before you ever touch the title.</p>
+
+  <h2>Where to find the HIN</h2>
+  <p>USCG regulations require the HIN to be permanently affixed to the upper-right (starboard) side of the transom, two inches from the top. Most builders also stamp a duplicate inside the boat — under a console, in the bilge, behind the helm panel. If the transom HIN looks freshly etched or in a different font from the duplicate, walk away — re-stamping is the most common red flag in re-titled boats.</p>
+
+  <h2>The 12-character format (US current)</h2>
+  <p>The format we care about for any post-1984 US-built hull is:</p>
+  <pre style="background:var(--bg-2); padding: 14px 18px; border-radius: 10px; border:1px solid var(--line); font-family:'SF Mono',ui-monospace,Menlo,monospace; font-size:14px; color:var(--txt); overflow-x:auto;">M I C  S S S S S  M Y  Y Y
+└─┬─┘  └──┬───┘  ├┘  └┬┘
+  │       │      │    └── Model year (last two digits)
+  │       │      └─────── Build year (last digit) + Built month (letter)
+  │       └────────────── Manufacturer's serial number
+  └────────────────────── Manufacturer ID Code (3 letters from USCG)</pre>
+
+  <h2>What you can pull out of those 12 characters</h2>
+  <p>The Manufacturer ID Code (first three letters) is registered with the USCG. SER is Sea Ray. BWC is Boston Whaler. SDB is Sea-Doo. There's a public lookup, and Throttle's HIN decoder runs against the same registry — drop a HIN into the search bar on the home page and we'll match the MIC for you in under a second.</p>
+  <p>The next five characters are the manufacturer's own serial number. They tell you nothing on their own, but together with the MIC they uniquely identify the hull. If you ever see a HIN duplicated across two listings, one of them is committing fraud.</p>
+  <p>The next two characters are the build month and build year — letters A through M (skipping I) for January through December, then a single digit for the year. Important: the "year" letter only gives you the last digit, so a "9" could be 2009, 2019, or 1999. The model-year suffix at the end disambiguates.</p>
+  <p>The last two characters are the model year (the year stamped on the title). For most builders this matches the calendar build year — but premium hulls launched in late summer often carry a model year one ahead of their build date.</p>
+
+  <h2>Three things to actually check before signing</h2>
+  <h3>1. Match the title to the HIN, character for character.</h3>
+  <p>Sounds basic, but it's the single most-skipped step at boat closings. The title number is meaningless if it doesn't match the hull. Photograph both, compare, and if there's a discrepancy ask the seller to clear it before any money moves.</p>
+  <h3>2. Check the model year against the build year.</h3>
+  <p>If the HIN says built in October 2018 but the title is a 2020 model, that's not necessarily fraud — but it is unusual, and you should know. A boat that sat unsold for two model years often comes with bills you don't see at first.</p>
+  <h3>3. Re-stamp evidence.</h3>
+  <p>HINs are supposed to be molded or stamped, not engraved over an old number. If you see grinding marks, paint over the HIN area, or a HIN that's a different depth than the rest of the gelcoat, request a marine survey before you write a check.</p>
+
+  <h2>Want us to decode one for you?</h2>
+  <p>Drop a 12-character HIN into the <a href="/">home page search bar</a> — Throttle decodes it instantly, looks up the manufacturer, and shows what comparable hulls are listed for right now.</p>
+
+  <p style="margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--txt-3); font-size: 13px;">More from the journal: <a href="/blog">Throttle's journal →</a></p>
+</article>
+
+<footer class="t-foot">
+  <div class="t-foot-cols">
+    <div class="t-foot-col"><p>The Throttle journal — written by people who ride.</p></div>
+    <div class="t-foot-col"><h4>Browse</h4><a href="/search?cat=boats">Boats</a><a href="/search?cat=utv">Side-by-Sides</a><a href="/search?cat=aircraft">Aircraft</a></div>
+    <div class="t-foot-col"><h4>Account</h4><a href="/signin">Login</a><a href="/signup">Create account</a></div>
+    <div class="t-foot-col"><h4>Throttle</h4><a href="/blog">What's new</a><a href="/roadmap">Roadmap</a><a href="/pricing">Pricing</a></div>
+    <div class="t-foot-col"><h4>Legal</h4><a href="/terms">Terms</a><a href="/privacy">Privacy</a></div>
+  </div>
+  <div class="t-foot-bottom"><span>© 2026 Throttle.</span><span>Made for people who actually ride.</span></div>
+</footer>
+
+</body>
+</html>

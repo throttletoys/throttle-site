@@ -1,0 +1,15 @@
+{
+  "name": "Throttle — see the whole market",
+  "short_name": "Throttle",
+  "start_url": "/m/",
+  "scope": "/m/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#08090b",
+  "background_color": "#08090b",
+  "description": "Free dealer-direct marketplace for boats, PWCs, side-by-sides, ATVs, dirt bikes & aircraft.",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "categories": ["shopping", "lifestyle", "automotive"]
+}

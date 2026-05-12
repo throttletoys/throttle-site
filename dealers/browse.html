@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var qs=new URLSearchParams(location.search);if(qs.has("desktop")||localStorage.getItem("throttle_force_desktop")==="1")return;var ua=navigator.userAgent||"";var isMobile=/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);var smallScreen=window.matchMedia("(max-width:768px)").matches;if((isMobile||smallScreen)&&!location.pathname.startsWith("/m/")){var path=location.pathname==="/"?"/m/":"/m"+location.pathname;location.replace(path+location.search+location.hash)}}catch(e){}}())</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connected dealers — Throttle</title>
+<meta name="description" content="Browse all dealers connected to Throttle — boats, PWCs, side-by-sides, ATVs, motorcycles, dirt bikes, and aircraft.">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/throttle.css?v=2">
+<style>
+.dir{padding:40px 24px}
+.dir-wrap{max-width:1200px;margin:0 auto}
+.dir-head{display:flex;justify-content:space-between;align-items:end;gap:14px;margin-bottom:24px;flex-wrap:wrap}
+.dir-head h1{margin:0;font-size:30px;letter-spacing:-.025em;font-weight:800}
+.dir-head .t-eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--txt-3);font-weight:700;margin-bottom:6px;display:block}
+.dir-search{display:flex;gap:8px;align-items:center;background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:6px;max-width:420px;width:100%}
+.dir-search input{flex:1;background:transparent;border:0;outline:0;color:var(--txt);font:inherit;padding:10px 12px}
+.dir-search input::placeholder{color:var(--txt-3)}
+.dir-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.dir-filters button{background:var(--bg-2);border:1px solid var(--line);color:var(--txt-2);padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer}
+.dir-filters button:hover{color:var(--txt);border-color:var(--line-2)}
+.dir-filters button.is-on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.dir-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.dir-card{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:22px;transition:border-color .15s ease,transform .15s ease}
+.dir-card:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.dir-card .name{font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--txt);margin:0 0 4px}
+.dir-card .meta{color:var(--txt-3);font-size:12px;margin-bottom:10px}
+.dir-card .stats{display:flex;gap:16px;margin-top:10px}
+.dir-card .stats .stat{font-size:12px;color:var(--txt-2)}
+.dir-card .stats .stat strong{color:var(--txt);font-size:14px;font-weight:800;display:block}
+.dir-card .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.dir-card .badges span{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--bg-2);border:1px solid var(--line);padding:3px 7px;border-radius:6px;color:var(--txt-2)}
+</style>
+</head>
+<body>
+<header class="t-header">
+  <a class="t-logo" href="/" aria-label="Throttle home">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><linearGradient id="lg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#7CF1FF"/><stop offset="1" stop-color="#4cd6e8"/></linearGradient></defs>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/><circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/><circle cx="16" cy="16" r="4" fill="url(#lg)"/><path d="M16 2 L16 8 M16 24 L16 30" stroke="url(#lg)" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Throttle
+  </a>
+  <nav class="t-nav" aria-label="Main">
+    <a href="/blog">What's new</a><a href="/roadmap">Roadmap</a><a href="/pricing">Pricing</a><a href="/dealers">For dealers</a>
+  </nav>
+  <div class="t-actions">
+    <a class="t-btn t-btn--ghost" id="t-account-link" href="/signin" data-signin-text="Login" data-account-text="My account"><span id="t-account-text">Login</span></a>
+    <a class="t-btn" href="/search">Browse →</a>
+  </div>
+</header>
+<section class="dir"><div class="dir-wrap">
+  <div class="dir-head">
+    <div>
+      <span class="t-eyebrow">Dealer directory</span>
+      <h1>Connected dealers</h1>
+    </div>
+    <label class="dir-search">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--txt-3);margin-left:6px;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="dir-q" type="search" placeholder="Search by dealer, brand, or city" autocomplete="off">
+    </label>
+  </div>
+
+  <div class="dir-filters" id="dir-filters">
+    <button data-cat="" class="is-on">All</button>
+    <button data-cat="boats">Boats</button>
+    <button data-cat="pwc">PWCs</button>
+    <button data-cat="utv">Side-by-Sides</button>
+    <button data-cat="atv">ATVs</button>
+    <button data-cat="motorcycle">Motorcycles</button>
+    <button data-cat="dirtbike">Dirt Bikes</button>
+    <button data-cat="snowmobile">Snowmobiles</button>
+    <button data-cat="aircraft">Aircraft</button>
+  </div>
+
+  <div id="dir-grid" class="dir-grid">
+    <div class="dir-card" style="opacity:.6"><h3 class="name">Loading dealers…</h3><p class="meta">Pulling from /assets/dealers-directory.json</p></div>
+  </div>
+
+  <div style="margin-top:36px;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--bg-1);text-align:center;">
+    <h3 style="margin:0 0 8px;font-size:17px;font-weight:700;">Don't see your dealership?</h3>
+    <p style="margin:0 0 14px;color:var(--txt-2);">Free in beta — we onboard most dealers in under 48 hours.</p>
+    <a class="t-btn" href="/dealers">Get listed →</a>
+  </div>
+</div></section>
+<script>
+(function(){
+  const grid=document.getElementById('dir-grid'), q=document.getElementById('dir-q');
+  let dealers=[], filterCat='', filterQ='';
+  function escapeHTML(s){return String(s).replace(/[&<>"\']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+  function render(){
+    const list=dealers.filter(d=>{
+      if(filterCat && !(d.cats||[]).includes(filterCat)) return false;
+      if(filterQ){
+        const hay=((d.name||'')+' '+(d.city||'')+' '+(d.state||'')+' '+((d.brands||[]).join(' '))).toLowerCase();
+        if(!hay.includes(filterQ)) return false;
+      }
+      return true;
+    });
+    if(!list.length){grid.innerHTML='<div class="dir-card" style="opacity:.6;text-align:center;"><h3 class="name">No matches.</h3><p class="meta">Try clearing filters or a different search.</p></div>';return}
+    grid.innerHTML=list.slice(0,200).map(d=>`
+      <a class="dir-card" href="/search?dealer=${encodeURIComponent(d.id||d.name)}">
+        <h3 class="name">${escapeHTML(d.name||'—')}</h3>
+        <div class="meta">${escapeHTML([d.city,d.state].filter(Boolean).join(', '))}</div>
+        <div class="stats">
+          <div class="stat"><strong>${d.listings||'—'}</strong>Live listings</div>
+          <div class="stat"><strong>${(d.cats||[]).length||'—'}</strong>Categories</div>
+        </div>
+        <div class="badges">${(d.brands||[]).slice(0,4).map(b=>`<span>${escapeHTML(b)}</span>`).join('')}</div>
+      </a>
+    `).join('');
+  }
+  fetch('/assets/dealers-directory.json',{cache:'no-store'}).then(r=>r.ok?r.json():[]).then(d=>{
+    dealers=Array.isArray(d)?d:(d.dealers||[]);render();
+  }).catch(()=>{
+    grid.innerHTML='<div class="dir-card" style="opacity:.6;text-align:center;"><h3 class="name">Directory unavailable</h3><p class="meta">Try again in a moment, or check /search to browse listings.</p></div>';
+  });
+  document.getElementById('dir-filters').addEventListener('click',e=>{
+    if(e.target.tagName!=='BUTTON')return;
+    document.querySelectorAll('#dir-filters button').forEach(b=>b.classList.toggle('is-on',b===e.target));
+    filterCat=e.target.dataset.cat||'';render();
+  });
+  q.addEventListener('input',e=>{filterQ=(e.target.value||'').toLowerCase().trim();render()});
+})();
+</script>
+<footer class="t-foot">
+  <div class="t-foot-cols">
+    <div class="t-foot-col"><a class="t-logo" href="/" style="margin-bottom: 12px;"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/><circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/><circle cx="16" cy="16" r="4" fill="url(#lg)"/></svg> Throttle</a><p>See the whole market — for everything you ride.</p></div>
+    <div class="t-foot-col"><h4>Browse</h4><a href="/search?cat=boats">Boats</a><a href="/search?cat=pwc">PWCs</a><a href="/search?cat=utv">Side-by-Sides</a><a href="/search?cat=atv">ATVs</a><a href="/search?cat=motorcycle">Motorcycles</a><a href="/search?cat=dirtbike">Dirt Bikes</a><a href="/search?cat=snowmobile">Snowmobiles</a><a href="/search?cat=aircraft">Aircraft</a></div>
+    <div class="t-foot-col"><h4>Account</h4><a href="/signin">Login</a><a href="/signup">Create account</a><a href="/account">My account</a><a href="/account/messages">Messages</a><a href="/account/listings">Saved listings</a><a href="/list">Sell something</a></div>
+    <div class="t-foot-col"><h4>Throttle</h4><a href="/blog">What's new</a><a href="/roadmap">Roadmap</a><a href="/pricing">Pricing</a><a href="/dealers">For dealers</a><a href="/about">About</a><a href="/reviews">Reviews</a></div>
+    <div class="t-foot-col"><h4>Legal</h4><a href="/terms">Terms</a><a href="/privacy">Privacy</a></div>
+  </div>
+  <div class="t-foot-bottom"><span>© 2026 Throttle. Beta release.</span><span>Made for people who actually ride.</span></div>
+</footer>
+<script>(function(){try{var u=JSON.parse(localStorage.getItem("throttle_user")||"null");var l=document.getElementById("t-account-link"),t=document.getElementById("t-account-text");if(u&&(u.email||u.name)&&l){l.href="/account";t.textContent=l.dataset.accountText||"My account"}}catch(e){}})();</script>
+
+</body>
+</html>

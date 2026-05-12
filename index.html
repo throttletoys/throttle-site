@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var qs=new URLSearchParams(location.search);if(qs.has("desktop")||localStorage.getItem("throttle_force_desktop")==="1")return;var ua=navigator.userAgent||"";var isMobile=/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);var smallScreen=window.matchMedia("(max-width:768px)").matches;if((isMobile||smallScreen)&&!location.pathname.startsWith("/m/")){var path=location.pathname==="/"?"/m/":"/m"+location.pathname;location.replace(path+location.search+location.hash)}}catch(e){}})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Throttle — find your dream toy. See the whole market.</title>
+<meta name="description" content="Throttle is a free, dealer-direct marketplace and value engine for boats, jet skis, side-by-sides, ATVs, motorcycles, dirt bikes, snowmobiles, 3-wheelers, race cars, and aircraft. Decode any HIN, VIN, or N-Number — or just search a make and model.">
+<meta property="og:title" content="Throttle — find your dream toy. See the whole market.">
+<meta property="og:description" content="Decode any HIN, VIN, or N-Number. See what it's worth. Browse the whole market across 11 categories.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://throttle.toys/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://throttle.toys/">
+<link rel="preconnect" href="https://api.throttle.toys">
+<link rel="preconnect" href="https://vpic.nhtsa.dot.gov">
+<link rel="stylesheet" href="/assets/throttle.css?v=2">
+<style>
+  /* page-only tweaks; everything reusable lives in throttle.css */
+  .t-hero-secondary { margin-top: 22px; color: var(--txt-3); font-size: 13px; }
+  .t-hero-secondary a { color: var(--txt-2); border-bottom: 1px dotted var(--line-2); padding-bottom: 1px; }
+  .t-hero-secondary a:hover { color: var(--txt); border-bottom-color: var(--acc); }
+  .t-hero-cats { margin-top: 22px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .t-hero-cats a { background: var(--bg-2); border: 1px solid var(--line); color: var(--txt-2); padding: 6px 14px; border-radius: 999px; font-size: 13px; transition: all .12s ease; }
+  .t-hero-cats a:hover { color: var(--txt); border-color: var(--line-2); background: var(--bg-3); }
+  .t-pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .t-pillar { padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-1); }
+  .t-pillar .t-pillar-icon { width: 36px; height: 36px; display: inline-grid; place-items: center; background: color-mix(in srgb, var(--acc) 14%, transparent); color: var(--acc); border-radius: 9px; margin-bottom: 14px; font-size: 18px; }
+  .t-pillar h3 { margin: 0 0 8px; font-size: 17px; letter-spacing: -0.01em; color: var(--txt); }
+  .t-pillar p { margin: 0; color: var(--txt-2); font-size: 14px; line-height: 1.55; }
+  .t-account-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--bad); display: none; }
+  .t-account-dot.is-on { display: block; }
+  .t-account-btn { position: relative; }
+</style>
+</head>
+<body>
+
+<header class="t-header">
+  <a class="t-logo" href="/" aria-label="Throttle home">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="lg" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#7CF1FF"/>
+          <stop offset="1" stop-color="#4cd6e8"/>
+        </linearGradient>
+      </defs>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/>
+      <circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/>
+      <circle cx="16" cy="16" r="4" fill="url(#lg)"/>
+      <path d="M16 2 L16 8 M16 24 L16 30" stroke="url(#lg)" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Throttle
+  </a>
+  <nav class="t-nav" aria-label="Main">
+    <a href="/blog">What's new</a>
+    <a href="/roadmap">Roadmap</a>
+    <a href="/pricing">Pricing</a>
+  </nav>
+  <div class="t-actions">
+    <a class="t-btn t-btn--ghost t-account-btn" id="t-account-link" href="/signin" data-signin-text="Login" data-account-text="My account">
+      <span id="t-account-text">Login</span>
+      <span class="t-account-dot" id="t-account-dot" aria-hidden="true"></span>
+    </a>
+    <a class="t-btn" href="/search">Browse →</a>
+  </div>
+</header>
+
+<section class="t-hero">
+  <span class="t-pill t-fade-in"><span class="t-dot"></span>Free dealer-direct marketplace · in beta</span>
+  <h1 class="t-fade-in" data-delay="1">Find your dream toy.<br/><span class="muted">See the whole market.</span></h1>
+  <p class="t-fade-in" data-delay="2">Drop in a HIN, VIN, or N-Number to decode it and see what it's worth. Or just search a make and model — we'll pull the live market across 11 categories.</p>
+  <form class="t-search-form t-fade-in" data-delay="3" id="t-search-form" autocomplete="off" role="search" aria-label="Search the whole market">
+    <input id="t-search-input" name="q" type="text" inputmode="latin" spellcheck="false" autocapitalize="characters" placeholder="HIN · VIN · N-Number · or '2024 Sea Ray SDX 250'" aria-label="HIN, VIN, N-Number, or search query"/>
+    <button class="t-btn" type="submit" id="t-search-submit">Search →</button>
+  </form>
+  <div class="t-search-hint t-fade-in" data-delay="3" id="t-search-hint">12-char HIN · 17-char VIN · N-Number · or any make / model</div>
+  <div class="t-decode" id="t-decode" aria-live="polite"></div>
+  <p class="t-hero-secondary t-fade-in" data-delay="4">Or just <a href="/search">browse the whole inventory →</a></p>
+  <div class="t-hero-cats t-fade-in" data-delay="4" aria-label="Quick category jump">
+    <a href="/search?cat=boats">Boats</a>
+    <a href="/search?cat=pwc">PWCs</a>
+    <a href="/search?cat=utv">Side-by-Sides</a>
+    <a href="/search?cat=atv">ATVs</a>
+    <a href="/search?cat=motorcycle">Motorcycles</a>
+    <a href="/search?cat=dirtbike">Dirt Bikes</a>
+    <a href="/search?cat=snowmobile">Snowmobiles</a>
+    <a href="/search?cat=3wheel">3-Wheelers</a>
+    <a href="/search?cat=racecar">Race Cars</a>
+    <a href="/search?cat=aircraft">Aircraft</a>
+  </div>
+</section>
+
+<section class="t-section">
+  <div class="t-wrap">
+    <div class="t-section-head">
+      <div>
+        <p class="t-eyebrow">The whole market</p>
+        <h2>Browse by category</h2>
+      </div>
+      <a class="t-section-link" href="/search">See everything →</a>
+    </div>
+    <div class="t-cats">
+      <a class="t-cat" href="/search?cat=boats"><span class="t-cat-name">Boats</span><span class="t-cat-sub">Bowriders, fishing, cruisers, wake boats, pontoons.</span><span class="t-cat-arrow">Browse boats →</span></a>
+      <a class="t-cat" href="/search?cat=pwc"><span class="t-cat-name">PWCs · Jet Skis</span><span class="t-cat-sub">Sea-Doo, WaveRunner, Kawasaki Jet Ski.</span><span class="t-cat-arrow">Browse PWCs →</span></a>
+      <a class="t-cat" href="/search?cat=utv"><span class="t-cat-name">Side-by-Sides</span><span class="t-cat-sub">RZR, Maverick, Talon, Teryx, Wolverine.</span><span class="t-cat-arrow">Browse UTVs →</span></a>
+      <a class="t-cat" href="/search?cat=atv"><span class="t-cat-name">ATVs</span><span class="t-cat-sub">Sportsman, Outlander, Grizzly, Foreman.</span><span class="t-cat-arrow">Browse ATVs →</span></a>
+      <a class="t-cat" href="/search?cat=motorcycle"><span class="t-cat-name">Motorcycles</span><span class="t-cat-sub">Indian, Harley, BMW, Ducati, Triumph, Yamaha, Honda.</span><span class="t-cat-arrow">Browse motorcycles →</span></a>
+      <a class="t-cat" href="/search?cat=dirtbike"><span class="t-cat-name">Dirt Bikes</span><span class="t-cat-sub">CRF, YZ, KX, KTM SX-F, Husqvarna FC, Beta RR.</span><span class="t-cat-arrow">Browse dirt bikes →</span></a>
+      <a class="t-cat" href="/search?cat=snowmobile"><span class="t-cat-name">Snowmobiles</span><span class="t-cat-sub">Polaris, Ski-Doo, Yamaha, Arctic Cat — Indy, RMK, Summit.</span><span class="t-cat-arrow">Browse snowmobiles →</span></a>
+      <a class="t-cat" href="/search?cat=3wheel"><span class="t-cat-name">3-Wheelers</span><span class="t-cat-sub">Slingshot, Spyder, Ryker, Vanderhall.</span><span class="t-cat-arrow">Browse 3-wheelers →</span></a>
+      <a class="t-cat" href="/search?cat=racecar"><span class="t-cat-name">Race &amp; Track Cars</span><span class="t-cat-sub">KTM X-Bow, Radical, Caterham, Ariel Atom, Praga.</span><span class="t-cat-arrow">Browse race cars →</span></a>
+      <a class="t-cat" href="/search?cat=aircraft"><span class="t-cat-name">Aircraft</span><span class="t-cat-sub">Cessna, Piper, Cirrus, Beechcraft, Pilatus, Gulfstream.</span><span class="t-cat-arrow">Browse aircraft →</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="t-section">
+  <div class="t-wrap">
+    <div class="t-section-head">
+      <div>
+        <p class="t-eyebrow">Live data</p>
+        <h2>What the market's doing</h2>
+        <p class="t-sub">Refreshed every few minutes from dealer feeds, OEM inventory, and Throttle-listed inventory.</p>
+      </div>
+    </div>
+    <div class="t-market" id="t-market">
+      <div class="t-stat"><div class="t-label">Active listings</div><div class="t-value" id="ms-total">—</div><div class="t-meta">Across 11 categories</div></div>
+      <div class="t-stat"><div class="t-label">Categories live</div><div class="t-value" id="ms-cats">—</div><div class="t-meta">With real dealer inventory</div></div>
+      <div class="t-stat"><div class="t-label">Median price</div><div class="t-value" id="ms-median">—</div><div class="t-meta" id="ms-median-meta">Across all live categories</div></div>
+      <div class="t-stat"><div class="t-label">Dealers connected</div><div class="t-value" id="ms-dealers">—</div><div class="t-meta">Pushing live inventory</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="t-section">
+  <div class="t-wrap">
+    <div class="t-section-head">
+      <div>
+        <p class="t-eyebrow">From the journal</p>
+        <h2>What's new</h2>
+        <p class="t-sub">New toys hitting the market, reviews of standout listings, and what we're building next.</p>
+      </div>
+      <a class="t-section-link" href="/blog">See all posts →</a>
+    </div>
+    <div class="t-posts">
+      <a class="t-post" href="/blog">
+        <div class="t-post-thumb"></div>
+        <div class="t-post-body">
+          <div class="t-post-tag">Reviews</div>
+          <h3>2024 KTM 250 Duke at Wild West Motoplex — what the market thinks</h3>
+          <p>The cheapest live KTM 250 Duke we're tracking just dropped in Katy, TX. Here's how the price compares to MSRP, retention, and what to look for in the listing.</p>
+          <div class="t-post-meta">3 min read</div>
+        </div>
+      </a>
+      <a class="t-post" href="/blog">
+        <div class="t-post-thumb"></div>
+        <div class="t-post-body">
+          <div class="t-post-tag">New toys</div>
+          <h3>2026 Sea-Doo lineup hits dealers — RXP-X 325 vs GP1800R SVHO</h3>
+          <p>Sea-Doo's flagship and Yamaha's GP1800R SVHO are now both at dealer floors. Spec-by-spec — power, hull, electronics — and which one holds value better.</p>
+          <div class="t-post-meta">5 min read</div>
+        </div>
+      </a>
+      <a class="t-post" href="/blog">
+        <div class="t-post-thumb"></div>
+        <div class="t-post-body">
+          <div class="t-post-tag">Buyer's guide</div>
+          <h3>Decoding HIN: what every boat buyer should check before signing</h3>
+          <p>Hull ID Numbers can tell you the year, manufacturer, and country of origin in 12 characters — and flag a re-titled or salvaged hull. Here's the cheat sheet.</p>
+          <div class="t-post-meta">4 min read</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="t-section">
+  <div class="t-wrap">
+    <div class="t-section-head">
+      <div>
+        <p class="t-eyebrow">Why Throttle</p>
+        <h2>Built for buyers, not lead-buyers.</h2>
+      </div>
+    </div>
+    <div class="t-pillars">
+      <div class="t-pillar">
+        <div class="t-pillar-icon">⚡</div>
+        <h3>One search, the whole market.</h3>
+        <p>Dealer feeds, OEM inventory, Throttle-listed sellers — all in one search. Filter by make, model, region, price, condition, or hours.</p>
+      </div>
+      <div class="t-pillar">
+        <div class="t-pillar-icon">⌗</div>
+        <h3>Honest market value.</h3>
+        <p>Per-category retention curves, sold-listing trends, and "below market" detection — so you know what something's actually worth before you ask.</p>
+      </div>
+      <div class="t-pillar">
+        <div class="t-pillar-icon">✓</div>
+        <h3>No leads sold. No dealer ads.</h3>
+        <p>Buyers and sellers connect directly. Free for individual sellers and free for dealers in beta. Throttle+ supporters get hot deals and sold-listing history.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="t-foot">
+  <div class="t-foot-cols">
+    <div class="t-foot-col">
+      <a class="t-logo" href="/" style="margin-bottom: 12px;">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <use href="#lg"/><circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/>
+          <circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/>
+          <circle cx="16" cy="16" r="4" fill="url(#lg)"/>
+        </svg>
+        Throttle
+      </a>
+      <p>See the whole market — for everything you ride.</p>
+    </div>
+    <div class="t-foot-col">
+      <h4>Browse</h4>
+      <a href="/search?cat=boats">Boats</a>
+      <a href="/search?cat=pwc">PWCs</a>
+      <a href="/search?cat=utv">Side-by-Sides</a>
+      <a href="/search?cat=atv">ATVs</a>
+      <a href="/search?cat=motorcycle">Motorcycles</a>
+      <a href="/search?cat=dirtbike">Dirt Bikes</a>
+      <a href="/search?cat=snowmobile">Snowmobiles</a>
+      <a href="/search?cat=aircraft">Aircraft</a>
+    </div>
+    <div class="t-foot-col">
+      <h4>Account</h4>
+      <a href="/signin">Login</a>
+      <a href="/signup">Create account</a>
+      <a href="/account">My account</a>
+      <a href="/account/messages">Messages</a>
+      <a href="/account/listings">Saved listings</a>
+      <a href="/list">Sell something</a>
+    </div>
+    <div class="t-foot-col">
+      <h4>Throttle</h4>
+      <a href="/blog">What's new</a>
+      <a href="/roadmap">Roadmap</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/dealers">For dealers</a>
+      <a href="/about">About</a>
+    </div>
+    <div class="t-foot-col">
+      <h4>Legal</h4>
+      <a href="/terms">Terms</a>
+      <a href="/privacy">Privacy</a>
+    </div>
+  </div>
+  <div class="t-foot-bottom">
+    <span>© 2026 Throttle. Beta release.</span>
+    <span>Made for people who actually ride.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  const $ = (s, r=document) => r.querySelector(s);
+  const API_BASE = "https://api.throttle.toys";
+
+  // ---------- Auth state in nav (returning users see "My account") ----------
+  function refreshAccountState(){
+    const user = (function(){
+      try {
+        return JSON.parse(localStorage.getItem("throttle_user") || "null");
+      } catch(e) { return null; }
+    })();
+    const link = $("#t-account-link");
+    const text = $("#t-account-text");
+    const dot  = $("#t-account-dot");
+    if (user && (user.email || user.name)) {
+      link.href = "/account";
+      text.textContent = link.dataset.accountText || "My account";
+      // Optional: unread message count from localStorage cache or API
+      const unread = parseInt(localStorage.getItem("throttle_unread") || "0", 10);
+      if (unread > 0) dot.classList.add("is-on");
+    } else {
+      link.href = "/signin";
+      text.textContent = link.dataset.signinText || "Login";
+    }
+  }
+  refreshAccountState();
+
+  // ---------- Smart search (HIN / VIN / N-Number / free text) ----------
+  function classifyInput(raw){
+    const v = (raw || "").trim().toUpperCase().replace(/[\s-]/g, "");
+    if (!v) return { kind: "empty" };
+    // N-Number: starts with N, 2-6 alphanumeric chars, no I/O
+    if (/^N[A-Z0-9]{1,5}$/.test(v) && !/[IO]/.test(v)) return { kind: "nnumber", value: v };
+    // VIN: exactly 17 alphanumeric, no I/O/Q
+    if (/^[A-HJ-NPR-Z0-9]{17}$/.test(v)) return { kind: "vin", value: v };
+    // HIN (US current format): 12 chars, first 3 letters (MIC), then alphanumeric
+    if (/^[A-Z]{3}[A-Z0-9]{9}$/.test(v) && v.length === 12) return { kind: "hin", value: v };
+    return { kind: "freetext", value: raw.trim() };
+  }
+
+  function showDecode(html){
+    const el = $("#t-decode");
+    el.innerHTML = html;
+    el.classList.add("is-open");
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  function clearDecode(){
+    const el = $("#t-decode");
+    el.classList.remove("is-open");
+    el.innerHTML = "";
+  }
+
+  async function decodeVIN(vin){
+    const url = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/${encodeURIComponent(vin)}?format=json`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error("vPIC unavailable");
+    const j = await r.json();
+    return j.Results && j.Results[0];
+  }
+  async function decodeNNumber(n){
+    try {
+      const r = await fetch(`https://api.adsbdb.com/v0/aircraft/${encodeURIComponent(n)}`);
+      if (!r.ok) return null;
+      const j = await r.json();
+      return j.response && j.response.aircraft;
+    } catch(e) { return null; }
+  }
+  // HIN decoder: extract MIC + month + year (USCG current format)
+  function decodeHIN(hin){
+    const MIC = {"SER":"Sea Ray","BWC":"Boston Whaler","BAY":"Bayliner","CHP":"Chaparral","CRN":"Crownline","CBT":"Cobalt","RGP":"Regal","TRK":"Tracker","LUN":"Lund","BEN":"Bennington","MBC":"Mastercraft","MAL":"Malibu","YAM":"Yamaha","SDB":"Sea-Doo","KAW":"Kawasaki","BRP":"Bombardier (Sea-Doo)","WLC":"Wellcraft","GRD":"Grady-White"};
+    const HIN_MONTH = {A:"January",B:"February",C:"March",D:"April",E:"May",F:"June",G:"July",H:"August",J:"September",K:"October",L:"November",M:"December"};
+    if (hin.length !== 12) throw new Error("HIN must be 12 characters");
+    const mic = hin.slice(0, 3);
+    const monthLetter = hin.slice(8, 9);
+    const yearDigit = hin.slice(9, 10);
+    const modelYearDigits = hin.slice(10, 12);
+    return {
+      manufacturer: MIC[mic] || mic + " (unknown manufacturer code)",
+      builtMonth: HIN_MONTH[monthLetter] || monthLetter,
+      builtYearDigit: yearDigit,
+      modelYear: "20" + modelYearDigits
+    };
+  }
+
+  function fmt$(n){ return n == null || isNaN(n) ? "—" : "$" + Math.round(n).toLocaleString(); }
+  function escapeHTML(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+
+  $("#t-search-form").addEventListener("submit", async function(e){
+    e.preventDefault();
+    const raw = $("#t-search-input").value;
+    const k = classifyInput(raw);
+    if (k.kind === "empty") { $("#t-search-input").focus(); return; }
+
+    if (k.kind === "freetext") {
+      // Free text → /search with q param. The search page parses ?q= and applies filters.
+      window.location.href = "/search?q=" + encodeURIComponent(k.value);
+      return;
+    }
+
+    // Decode in place
+    showDecode(`<div class="t-decode-head"><div><div class="t-decode-kind">Decoding ${escapeHTML(k.kind.toUpperCase())}</div><h3 class="t-decode-title">${escapeHTML(k.value)}</h3></div></div><p style="color:var(--txt-3);">One sec…</p>`);
+
+    try {
+      if (k.kind === "vin") {
+        const r = await decodeVIN(k.value);
+        if (!r || !r.Make) throw new Error("No data for that VIN");
+        const make = r.Make || "—", model = r.Model || "—", year = r.ModelYear || "—", typ = r.VehicleType || "";
+        showDecode(`
+          <div class="t-decode-head"><div><div class="t-decode-kind">VIN decoded</div><h3 class="t-decode-title">${escapeHTML(year)} ${escapeHTML(make)} ${escapeHTML(model)}</h3></div></div>
+          <dl class="t-decode-grid">
+            <div><dt>Year</dt><dd>${escapeHTML(year)}</dd></div>
+            <div><dt>Make</dt><dd>${escapeHTML(make)}</dd></div>
+            <div><dt>Model</dt><dd>${escapeHTML(model)}</dd></div>
+            <div><dt>Type</dt><dd>${escapeHTML(typ)}</dd></div>
+          </dl>
+          <div class="t-decode-actions">
+            <a class="t-btn" href="/search?q=${encodeURIComponent(year + " " + make + " " + model)}">See this on the market →</a>
+            <a class="t-btn t-btn--ghost" href="/list?vin=${encodeURIComponent(k.value)}">List one for sale</a>
+          </div>
+        `);
+      } else if (k.kind === "hin") {
+        const d = decodeHIN(k.value);
+        showDecode(`
+          <div class="t-decode-head"><div><div class="t-decode-kind">HIN decoded</div><h3 class="t-decode-title">${escapeHTML(d.modelYear)} ${escapeHTML(d.manufacturer)}</h3></div></div>
+          <dl class="t-decode-grid">
+            <div><dt>Manufacturer</dt><dd>${escapeHTML(d.manufacturer)}</dd></div>
+            <div><dt>Model year</dt><dd>${escapeHTML(d.modelYear)}</dd></div>
+            <div><dt>Built</dt><dd>${escapeHTML(d.builtMonth)} 201${escapeHTML(d.builtYearDigit)}–202${escapeHTML(d.builtYearDigit)}</dd></div>
+          </dl>
+          <div class="t-decode-actions">
+            <a class="t-btn" href="/search?q=${encodeURIComponent(d.manufacturer + " " + d.modelYear)}&cat=boats">See ${escapeHTML(d.manufacturer)} on the market →</a>
+            <a class="t-btn t-btn--ghost" href="/list?hin=${encodeURIComponent(k.value)}">List one for sale</a>
+          </div>
+        `);
+      } else if (k.kind === "nnumber") {
+        const a = await decodeNNumber(k.value);
+        if (!a) throw new Error("No FAA registry data for that N-Number");
+        const ac = a.aircraft || a;
+        const owner = a.registered_owner || ac.owner || "Owner data restricted";
+        const type = ac.type || ac.icao_type_code || "—";
+        const mfr = ac.manufacturer || "—";
+        showDecode(`
+          <div class="t-decode-head"><div><div class="t-decode-kind">N-Number decoded</div><h3 class="t-decode-title">${escapeHTML(k.value)} — ${escapeHTML(mfr)} ${escapeHTML(type)}</h3></div></div>
+          <dl class="t-decode-grid">
+            <div><dt>Manufacturer</dt><dd>${escapeHTML(mfr)}</dd></div>
+            <div><dt>Type</dt><dd>${escapeHTML(type)}</dd></div>
+            <div><dt>Registered owner</dt><dd>${escapeHTML(owner)}</dd></div>
+          </dl>
+          <div class="t-decode-actions">
+            <a class="t-btn" href="/search?q=${encodeURIComponent(mfr + " " + type)}&cat=aircraft">See ${escapeHTML(mfr)} on the market →</a>
+            <a class="t-btn t-btn--ghost" href="/list?nnumber=${encodeURIComponent(k.value)}">List one for sale</a>
+          </div>
+        `);
+      }
+    } catch(err) {
+      showDecode(`
+        <div class="t-decode-head"><div><div class="t-decode-kind">Decode failed</div><h3 class="t-decode-title">${escapeHTML(k.value)}</h3></div></div>
+        <p class="t-decode-error">${escapeHTML(err.message)}.</p>
+        <div class="t-decode-actions">
+          <a class="t-btn t-btn--ghost" href="/search?q=${encodeURIComponent(k.value)}">Try a free-text search instead →</a>
+        </div>
+      `);
+    }
+  });
+
+  // Update hint as user types so they see what we'll do
+  const hintEl = $("#t-search-hint");
+  $("#t-search-input").addEventListener("input", function(e){
+    const k = classifyInput(e.target.value);
+    const labels = { vin: "✓ Looks like a VIN — we'll decode via NHTSA", hin: "✓ Looks like a HIN — we'll decode via USCG MIC table", nnumber: "✓ Looks like an N-Number — we'll decode via FAA registry", freetext: "We'll search the market for that", empty: "12-char HIN · 17-char VIN · N-Number · or any make / model" };
+    hintEl.textContent = labels[k.kind] || labels.empty;
+  });
+
+  // ---------- Market data: pull live counts from /api/listings ----------
+  fetch(API_BASE + "/api/listings", { cache: "no-store" })
+    .then(r => r.ok ? r.json() : [])
+    .then(items => {
+      if (!Array.isArray(items)) items = [];
+      const total = items.length;
+      const cats = new Set(items.map(i => i.cat).filter(Boolean));
+      const dealers = new Set(items.map(i => i.src).filter(s => s && s !== "Throttle"));
+      const prices = items.map(i => i.price).filter(p => p && p > 0).sort((a,b) => a - b);
+      const median = prices.length ? prices[Math.floor(prices.length/2)] : null;
+      $("#ms-total").textContent = total ? total.toLocaleString() : "Coming soon";
+      $("#ms-cats").textContent = cats.size ? cats.size + " / 10" : "—";
+      $("#ms-median").textContent = fmt$(median);
+      $("#ms-dealers").textContent = dealers.size || "1+";
+    })
+    .catch(() => { /* leave dashes — never break the page */ });
+})();
+</script>
+</body>
+</html>

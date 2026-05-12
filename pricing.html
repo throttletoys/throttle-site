@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var qs=new URLSearchParams(location.search);if(qs.has("desktop")||localStorage.getItem("throttle_force_desktop")==="1")return;var ua=navigator.userAgent||"";var isMobile=/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);var smallScreen=window.matchMedia("(max-width:768px)").matches;if((isMobile||smallScreen)&&!location.pathname.startsWith("/m/")){var path=location.pathname==="/"?"/m/":"/m"+location.pathname;location.replace(path+location.search+location.hash)}}catch(e){}})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Throttle pricing — free for the basics, supporters get more</title>
+<meta name="description" content="Throttle is free for buyers and individual sellers. Throttle+ supporters get hot-deal alerts, sold-listing history, value-trend charts, and unlimited saves. $5 weekly, $15 monthly, $60 yearly, or $250 once for life.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://throttle.toys/pricing">
+<link rel="stylesheet" href="/assets/throttle.css?v=2">
+<style>
+  .t-pricing-toggle { display: inline-flex; gap: 0; background: var(--bg-2); border: 1px solid var(--line); padding: 4px; border-radius: 999px; margin: 24px 0 36px; }
+  .t-pricing-toggle button { background: transparent; border: 0; color: var(--txt-2); padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; transition: all .12s ease; cursor: pointer; }
+  .t-pricing-toggle button.is-on { background: var(--bg); color: var(--txt); box-shadow: 0 1px 0 0 rgba(255,255,255,.04) inset; }
+  .t-pricing-toggle button:hover:not(.is-on) { color: var(--txt); }
+  .t-faq { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px 32px; }
+  .t-faq dt { color: var(--txt); font-size: 16px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .t-faq dd { color: var(--txt-2); font-size: 14px; line-height: 1.6; margin: 0 0 12px; }
+</style>
+</head>
+<body>
+
+<header class="t-header">
+  <a class="t-logo" href="/">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><linearGradient id="lg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#7CF1FF"/><stop offset="1" stop-color="#4cd6e8"/></linearGradient></defs>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/>
+      <circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/>
+      <circle cx="16" cy="16" r="4" fill="url(#lg)"/>
+      <path d="M16 2 L16 8 M16 24 L16 30" stroke="url(#lg)" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Throttle
+  </a>
+  <nav class="t-nav">
+    <a href="/blog">What's new</a>
+    <a href="/roadmap">Roadmap</a>
+    <a href="/pricing" class="active">Pricing</a>
+  </nav>
+  <div class="t-actions">
+    <a class="t-btn t-btn--ghost" href="/signin">Login</a>
+    <a class="t-btn" href="/search">Browse →</a>
+  </div>
+</header>
+
+<section class="t-hero" style="padding: 80px var(--gutter) 40px;">
+  <span class="t-pill"><span class="t-dot"></span>Free during launch · paid tiers ship soon</span>
+  <h1 style="margin-top: 16px;">Free for the basics.<br/><span class="muted">Throttle+ for the rest.</span></h1>
+  <p>Buyers always browse free. Sellers list free. Dealers onboard free. Throttle+ supporters help fund the project — and get the tools to actually beat the market.</p>
+</section>
+
+<section class="t-section" style="padding-top: 0; border-top: 0;">
+  <div class="t-wrap">
+    <div class="t-tiers">
+
+      <div class="t-tier">
+        <div class="t-tier-label">Free forever</div>
+        <h3>Throttle</h3>
+        <div class="t-tier-price">$0<span class="t-period"> / always</span></div>
+        <p class="t-tier-desc">For browsing the market and listing your own toy.</p>
+        <ul>
+          <li>Search 11 categories nationwide</li>
+          <li>Free HIN, VIN, and N-Number decoding</li>
+          <li>Throttle-listed and dealer-direct inventory</li>
+          <li>Free for individual sellers</li>
+          <li>Save up to 10 listings</li>
+          <li>Send messages to sellers</li>
+        </ul>
+        <a class="t-btn t-btn--ghost t-btn--lg" href="/search">Start browsing</a>
+      </div>
+
+      <div class="t-tier">
+        <div class="t-tier-label">Trial</div>
+        <h3>Weekly</h3>
+        <div class="t-tier-price">$5<span class="t-period"> / week</span></div>
+        <p class="t-tier-desc">Try Throttle+ for a single hot weekend of shopping.</p>
+        <ul>
+          <li>Hot-deal detection (below-market price)</li>
+          <li>Sold-listing history</li>
+          <li>Unlimited saves</li>
+          <li>Price-drop alerts</li>
+          <li>Cancel anytime — no auto-renew gotchas</li>
+        </ul>
+        <a class="t-btn t-btn--ghost t-btn--lg" href="/signin?plan=weekly">Try for a week</a>
+      </div>
+
+      <div class="t-tier is-featured">
+        <div class="t-tier-label">Most popular</div>
+        <h3>Monthly</h3>
+        <div class="t-tier-price">$15<span class="t-period"> / month</span></div>
+        <p class="t-tier-desc">Throttle+ on a regular schedule. Cancel anytime.</p>
+        <ul>
+          <li>Everything in Weekly</li>
+          <li>Value-trend charts per make / model</li>
+          <li>VIN history and HIN re-title flagging</li>
+          <li>Region-specific market reports</li>
+          <li>Priority dealer messaging</li>
+        </ul>
+        <a class="t-btn t-btn--lg" href="/signin?plan=monthly">Go monthly</a>
+      </div>
+
+      <div class="t-tier">
+        <div class="t-tier-label">Save 67%</div>
+        <h3>Yearly</h3>
+        <div class="t-tier-price">$60<span class="t-period"> / year</span></div>
+        <p class="t-tier-desc">Equivalent to $5/mo. For folks who shop year-round.</p>
+        <ul>
+          <li>Everything in Monthly</li>
+          <li>One yearly payment, no monthly card hits</li>
+          <li>Founding-supporter badge on profile</li>
+          <li>Lock today's price for 12 months</li>
+        </ul>
+        <a class="t-btn t-btn--ghost t-btn--lg" href="/signin?plan=yearly">Pay yearly</a>
+      </div>
+
+      <div class="t-tier">
+        <div class="t-tier-label">One time</div>
+        <h3>Lifetime</h3>
+        <div class="t-tier-price">$250<span class="t-period"> · once</span></div>
+        <p class="t-tier-desc">Pay once, get Throttle+ forever. Real lifetime — not "lifetime of the company."</p>
+        <ul>
+          <li>Everything in Yearly</li>
+          <li>Lifetime founding-supporter status</li>
+          <li>Early access to every new feature we ship</li>
+          <li>"Beta supporter" pin on profile</li>
+          <li>If we ever sell, you keep your access</li>
+        </ul>
+        <a class="t-btn t-btn--gold t-btn--lg" href="/signin?plan=lifetime">Pay once</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="t-section">
+  <div class="t-wrap">
+    <div class="t-section-head">
+      <div>
+        <p class="t-eyebrow">Common questions</p>
+        <h2>Frequently asked</h2>
+      </div>
+    </div>
+    <dl class="t-faq">
+      <div>
+        <dt>Is Throttle really free for sellers?</dt>
+        <dd>Yes. If you're an individual seller, listing on Throttle is free. Forever. No "introductory" period. Dealers also onboard free during the beta.</dd>
+      </div>
+      <div>
+        <dt>What's "hot-deal detection"?</dt>
+        <dd>Per category we run a retention curve and a regional adjustment. If a listing's price falls more than 15% below the predicted market value for that year/make/model, we flag it as hot. Throttle+ users see those flags.</dd>
+      </div>
+      <div>
+        <dt>Why charge for sold-listing history?</dt>
+        <dd>Sold prices are the single best signal of what something is actually worth — and aggregating them across BoatTrader, Cycle Trader, dealer feeds, and Throttle's own listings is the expensive part of the operation. Throttle+ helps fund that.</dd>
+      </div>
+      <div>
+        <dt>Lifetime really means lifetime?</dt>
+        <dd>If you pay $250 once, you have Throttle+ for as long as Throttle exists. If we ever shut down or get acquired, the new operator inherits your access. Worst case (we vanish), you've paid roughly the equivalent of 16 months — which is fair.</dd>
+      </div>
+      <div>
+        <dt>Can I switch plans?</dt>
+        <dd>Yes. Upgrade prorates. Downgrades take effect at the next billing cycle. Lifetime is a one-way trip — no refund — but you can switch from any other tier to Lifetime at any time and we credit unused subscription time.</dd>
+      </div>
+      <div>
+        <dt>What payment methods?</dt>
+        <dd>Stripe — credit card, Apple Pay, Google Pay, and Link. Lifetime can be paid by card or ACH.</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<footer class="t-foot">
+  <div class="t-foot-cols">
+    <div class="t-foot-col">
+      <p>Throttle is built for people who actually ride.</p>
+    </div>
+    <div class="t-foot-col">
+      <h4>Browse</h4>
+      <a href="/search?cat=boats">Boats</a>
+      <a href="/search?cat=utv">Side-by-Sides</a>
+      <a href="/search?cat=motorcycle">Motorcycles</a>
+      <a href="/search?cat=dirtbike">Dirt Bikes</a>
+      <a href="/search?cat=aircraft">Aircraft</a>
+    </div>
+    <div class="t-foot-col">
+      <h4>Account</h4>
+      <a href="/signin">Login</a>
+      <a href="/signup">Create account</a>
+      <a href="/list">Sell something</a>
+    </div>
+    <div class="t-foot-col">
+      <h4>Throttle</h4>
+      <a href="/blog">What's new</a>
+      <a href="/roadmap">Roadmap</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/about">About</a>
+    </div>
+    <div class="t-foot-col">
+      <h4>Legal</h4>
+      <a href="/terms">Terms</a>
+      <a href="/privacy">Privacy</a>
+    </div>
+  </div>
+  <div class="t-foot-bottom">
+    <span>© 2026 Throttle. Beta release.</span>
+    <span>Made for people who actually ride.</span>
+  </div>
+</footer>
+
+
+<script>
+// Throttle+ gate: signed-in users go to a "confirm + activate" flow, others go to signup.
+(function(){
+  function plan(href){ try { return new URL(href, location.origin).searchParams.get("plan"); } catch(e){ return null; } }
+  function getUser(){ try { return JSON.parse(localStorage.getItem("throttle_user")||"null"); } catch(e){ return null; } }
+  document.querySelectorAll('a[href^="/signin?plan="]').forEach(a => {
+    a.addEventListener("click", function(ev){
+      const p = plan(a.href); if(!p) return;
+      const u = getUser();
+      const ret = encodeURIComponent("/search");
+      if(!u || !u.email){
+        ev.preventDefault();
+        location.href = "/signup?plan=" + p + "&return=" + ret;
+      } else {
+        ev.preventDefault();
+        // signed in → call upgrade endpoint directly
+        const API = (window.THROTTLE_API_BASE || "https://api.throttle.toys").replace(/\/$/,"");
+        fetch(API + "/api/auth/upgrade", {
+          method: "POST", credentials: "include",
+          headers: {"content-type":"application/json"},
+          body: JSON.stringify({ plan: p })
+        }).then(r => r.ok ? r.json() : Promise.reject(r))
+          .then(j => {
+            u.throttle_plus = j.plan || p;
+            localStorage.setItem("throttle_user", JSON.stringify(u));
+            localStorage.setItem("throttle_pro", "1");
+            alert("Throttle+ activated. Welcome aboard.");
+            location.href = "/account";
+          })
+          .catch(e => {
+            if(e && e.status === 401){
+              location.href = "/signin?plan=" + p + "&return=/account";
+            } else {
+              alert("Couldn't activate — try again or contact support.");
+            }
+          });
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

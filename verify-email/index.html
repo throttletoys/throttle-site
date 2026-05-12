@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var qs=new URLSearchParams(location.search);if(qs.has("desktop")||localStorage.getItem("throttle_force_desktop")==="1")return;var ua=navigator.userAgent||"";var isMobile=/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);var smallScreen=window.matchMedia("(max-width:768px)").matches;if((isMobile||smallScreen)&&!location.pathname.startsWith("/m/")){var path=location.pathname==="/"?"/m/":"/m"+location.pathname;location.replace(path+location.search+location.hash)}}catch(e){}}())</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verify your email — Throttle</title>
+<meta name="description" content="Verify the email address on your Throttle account.">
+<meta name="robots" content="noindex,follow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/throttle.css?v=2">
+<link rel="stylesheet" href="/assets/auth.css">
+</head>
+<body>
+<header class="t-header">
+  <a class="t-logo" href="/" aria-label="Throttle home">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><linearGradient id="lg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#7CF1FF"/><stop offset="1" stop-color="#4cd6e8"/></linearGradient></defs>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/>
+      <circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/>
+      <circle cx="16" cy="16" r="4" fill="url(#lg)"/>
+      <path d="M16 2 L16 8 M16 24 L16 30" stroke="url(#lg)" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Throttle
+  </a>
+  <nav class="t-nav" aria-label="Main">
+    <a href="/blog">What's new</a>
+    <a href="/roadmap">Roadmap</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/dealers">For dealers</a>
+  </nav>
+  <div class="t-actions">
+    <a class="t-btn t-btn--ghost" id="t-account-link" href="/signin" data-signin-text="Login" data-account-text="My account"><span id="t-account-text">Login</span></a>
+    <a class="t-btn" href="/search">Browse →</a>
+  </div>
+</header>
+<section class="auth-page"><div class="t-wrap">
+  <div class="auth-card">
+    <h1>Verify your email</h1>
+    <p class="sub">We sent a verification link to your inbox. Click it to activate your account.</p>
+    <div id="msg" class="auth-msg" hidden></div>
+    <div style="text-align:center;font-size:48px;margin:18px 0;">📬</div>
+    <p style="color:var(--txt-2);font-size:14px;text-align:center;">Didn't get it? Check your spam folder, or</p>
+    <button class="t-btn t-btn--ghost" id="resend" style="width:100%;padding:12px 16px;font-size:15px;">Resend verification email</button>
+    <div class="links" style="margin-top:14px;justify-content:center;">
+      <a href="/signin">Back to sign in</a>
+    </div>
+  </div>
+</div></section>
+<script>
+(function(){
+  const API_BASE=(window.THROTTLE_API_BASE||'https://api.throttle.toys').replace(/\/$/,'');
+  const msg=document.getElementById('msg'), btn=document.getElementById('resend');
+  const params=new URLSearchParams(location.search);
+  const email=params.get('email')||'', token=params.get('token')||'';
+  function show(t,k){msg.hidden=false;msg.className='auth-msg '+(k||'info');msg.textContent=t}
+  if(token){
+    show('Verifying your email…','info');
+    fetch(API_BASE+'/api/auth/verify?token='+encodeURIComponent(token)).then(r=>r.json()).then(j=>{
+      if(j.ok){show('Verified! You can now sign in.','success');setTimeout(()=>{location.href='/signin'},1200)}
+      else{show(j.error||'Verification failed.','error')}
+    }).catch(()=>show('Network error — try again.','error'));
+  }
+  btn.addEventListener('click', async ()=>{
+    if(!email){show('We need your email to resend. Sign up first.','error');return}
+    btn.disabled=true; btn.textContent='Sending…';
+    try {
+      const r=await fetch(API_BASE+'/api/auth/resend',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email})});
+      if(r.ok){show('Sent. Check your inbox.','success')} else{show('Could not resend. Try again later.','error')}
+    } catch(err){show('Network error — try again.','error')}
+    finally{btn.disabled=false;btn.textContent='Resend verification email'}
+  });
+})();
+</script>
+<footer class="t-foot">
+  <div class="t-foot-cols">
+    <div class="t-foot-col">
+      <a class="t-logo" href="/" style="margin-bottom: 12px;">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/>
+          <circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/>
+          <circle cx="16" cy="16" r="4" fill="url(#lg)"/>
+        </svg>
+        Throttle
+      </a>
+      <p>See the whole market — for everything you ride.</p>
+    </div>
+    <div class="t-foot-col">
+      <h4>Browse</h4>
+      <a href="/search?cat=boats">Boats</a><a href="/search?cat=pwc">PWCs</a><a href="/search?cat=utv">Side-by-Sides</a><a href="/search?cat=atv">ATVs</a><a href="/search?cat=motorcycle">Motorcycles</a><a href="/search?cat=dirtbike">Dirt Bikes</a><a href="/search?cat=snowmobile">Snowmobiles</a><a href="/search?cat=aircraft">Aircraft</a>
+    </div>
+    <div class="t-foot-col">
+      <h4>Account</h4>
+      <a href="/signin">Login</a><a href="/signup">Create account</a><a href="/account">My account</a><a href="/account/messages">Messages</a><a href="/account/listings">Saved listings</a><a href="/list">Sell something</a>
+    </div>
+    <div class="t-foot-col">
+      <h4>Throttle</h4>
+      <a href="/blog">What's new</a><a href="/roadmap">Roadmap</a><a href="/pricing">Pricing</a><a href="/dealers">For dealers</a><a href="/about">About</a><a href="/reviews">Reviews</a>
+    </div>
+    <div class="t-foot-col">
+      <h4>Legal</h4>
+      <a href="/terms">Terms</a><a href="/privacy">Privacy</a>
+    </div>
+  </div>
+  <div class="t-foot-bottom">
+    <span>© 2026 Throttle. Beta release.</span>
+    <span>Made for people who actually ride.</span>
+  </div>
+</footer>
+<script>
+(function(){
+  try {
+    var u = JSON.parse(localStorage.getItem("throttle_user") || "null");
+    var link = document.getElementById("t-account-link");
+    var text = document.getElementById("t-account-text");
+    if (u && (u.email || u.name) && link) {
+      link.href = "/account";
+      text.textContent = link.dataset.accountText || "My account";
+    }
+  } catch(e){}
+})();
+</script>
+<script defer src="/assets/auth-nav.js"></script>
+</body>
+</html>

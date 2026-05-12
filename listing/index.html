@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var qs=new URLSearchParams(location.search);if(qs.has("desktop")||localStorage.getItem("throttle_force_desktop")==="1")return;var ua=navigator.userAgent||"";var isMobile=/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);var smallScreen=window.matchMedia("(max-width:768px)").matches;if((isMobile||smallScreen)&&!location.pathname.startsWith("/m/")){var path=location.pathname==="/"?"/m/":"/m"+location.pathname;location.replace(path+location.search+location.hash)}}catch(e){}}())</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Listing — Throttle</title>
+<meta name="description" content="View this listing on Throttle.">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/throttle.css?v=2">
+<style>
+.det{padding:40px 24px}
+.det-wrap{max-width:1200px;margin:0 auto}
+.det-back{color:var(--txt-2);font-size:13px;margin-bottom:18px;display:inline-block}
+.det-back:hover{color:var(--txt)}
+.det-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:30px;align-items:start}
+@media (max-width:900px){.det-grid{grid-template-columns:1fr}}
+.det-gallery{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.det-hero{aspect-ratio:16/10;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 30%,var(--bg-3)),var(--bg-2));position:relative}
+.det-hero .badge{position:absolute;top:14px;left:14px;background:rgba(8,9,11,.7);backdrop-filter:blur(8px);color:var(--acc);font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;padding:6px 10px;border-radius:999px}
+.det-thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:6px}
+.det-thumbs .thumb{aspect-ratio:1;background:var(--bg-2);border-radius:8px;border:1px solid var(--line)}
+.det-side{display:flex;flex-direction:column;gap:14px}
+.det-card{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:22px}
+.det-cat{color:var(--acc);font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px}
+.det-title{font-size:28px;letter-spacing:-.02em;margin:0 0 8px;font-weight:800;line-height:1.15}
+.det-loc{color:var(--txt-2);font-size:14px;margin-bottom:18px}
+.det-price{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
+.det-price .v{font-size:34px;letter-spacing:-.02em;font-weight:800}
+.det-price .msrp{color:var(--txt-3);font-size:13px;text-decoration:line-through}
+.det-verdict{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good)}
+.det-cta{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.det-cta .t-btn{flex:1;justify-content:center}
+.det-specs{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 22px;margin-top:6px}
+.det-specs dt{color:var(--txt-3);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.det-specs dd{margin:0;color:var(--txt);font-size:14.5px;font-weight:600}
+.det-section{margin-top:30px}
+.det-section h2{font-size:18px;letter-spacing:-.01em;margin:0 0 12px;font-weight:700}
+.det-prose{color:var(--txt-2);font-size:14.5px;line-height:1.7;white-space:pre-wrap}
+.det-dealer{display:flex;align-items:center;gap:14px}
+.det-dealer .avatar{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc-2));display:grid;place-items:center;color:var(--acc-ink);font-weight:800;font-size:18px}
+.det-dealer h4{margin:0;font-size:14.5px;font-weight:700}
+.det-dealer .meta{color:var(--txt-3);font-size:12px}
+</style>
+</head>
+<body>
+<header class="t-header">
+  <a class="t-logo" href="/" aria-label="Throttle home">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><linearGradient id="lg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#7CF1FF"/><stop offset="1" stop-color="#4cd6e8"/></linearGradient></defs>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/><circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/><circle cx="16" cy="16" r="4" fill="url(#lg)"/><path d="M16 2 L16 8 M16 24 L16 30" stroke="url(#lg)" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Throttle
+  </a>
+  <nav class="t-nav" aria-label="Main">
+    <a href="/blog">What's new</a><a href="/roadmap">Roadmap</a><a href="/pricing">Pricing</a><a href="/dealers">For dealers</a>
+  </nav>
+  <div class="t-actions">
+    <a class="t-btn t-btn--ghost" id="t-account-link" href="/signin" data-signin-text="Login" data-account-text="My account"><span id="t-account-text">Login</span></a>
+    <a class="t-btn" href="/search">Browse →</a>
+  </div>
+</header>
+<section class="det"><div class="det-wrap">
+  <a class="det-back" href="/search">← Back to results</a>
+  <div class="det-grid">
+    <div>
+      <div class="det-gallery">
+        <div class="det-hero" id="det-hero"><span class="badge" id="det-badge">Below market</span></div>
+        <div class="det-thumbs"><div class="thumb"></div><div class="thumb"></div><div class="thumb"></div><div class="thumb"></div></div>
+      </div>
+
+      <div class="det-section">
+        <h2>About this listing</h2>
+        <p class="det-prose" id="det-desc">Loading…</p>
+      </div>
+
+      <div class="det-section">
+        <h2>Specs</h2>
+        <dl class="det-specs" id="det-specs">
+          <div><dt>Year</dt><dd id="d-year">—</dd></div>
+          <div><dt>Make</dt><dd id="d-make">—</dd></div>
+          <div><dt>Model</dt><dd id="d-model">—</dd></div>
+          <div><dt>Condition</dt><dd id="d-cond">—</dd></div>
+          <div><dt>Hours / Miles</dt><dd id="d-hours">—</dd></div>
+          <div><dt>HIN/VIN</dt><dd id="d-vin">—</dd></div>
+        </dl>
+      </div>
+
+      <div class="det-section">
+        <h2>Similar listings</h2>
+        <div class="t-cats" id="det-similar"><div class="t-cat"><span class="t-cat-name">Loading…</span><span class="t-cat-sub">Pulling related models nearby.</span></div></div>
+      </div>
+    </div>
+
+    <div class="det-side">
+      <div class="det-card">
+        <div class="det-cat" id="det-cat">—</div>
+        <h1 class="det-title" id="det-title">Loading…</h1>
+        <div class="det-loc" id="det-loc">—</div>
+        <div class="det-price"><span class="v" id="det-price">—</span><span class="msrp" id="det-msrp"></span></div>
+        <div class="det-verdict" id="det-verdict">— vs. market</div>
+        <div class="det-cta">
+          <button class="t-btn" id="det-msg">Message dealer</button>
+          <button class="t-btn t-btn--ghost" id="det-save">★ Save</button>
+        </div>
+      </div>
+
+      <div class="det-card">
+        <h2 style="font-size:14px;margin:0 0 12px;color:var(--txt-3);letter-spacing:.14em;text-transform:uppercase;">Listed by</h2>
+        <div class="det-dealer">
+          <div class="avatar" id="d-dealer-av">D</div>
+          <div>
+            <h4 id="d-dealer-name">—</h4>
+            <div class="meta" id="d-dealer-meta">—</div>
+          </div>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px;">
+          <a class="t-btn t-btn--ghost" id="d-dealer-link" href="#" style="font-size:12.5px;padding:8px 14px;">View dealer page →</a>
+        </div>
+      </div>
+
+      <div class="det-card" style="background:linear-gradient(160deg,color-mix(in srgb,var(--acc) 8%,var(--bg-1)),var(--bg-1));">
+        <h2 style="font-size:14px;margin:0 0 6px;color:var(--acc);letter-spacing:.14em;text-transform:uppercase;font-weight:800;">Throttle value</h2>
+        <p style="margin:0;color:var(--txt-2);font-size:13px;line-height:1.55;">Compared against <span id="d-comp-n">—</span> live listings of the same year/model in the region. Median: <strong id="d-comp-med">—</strong>.</p>
+      </div>
+    </div>
+  </div>
+</div></section>
+<script>
+(function(){
+  const API_BASE=(window.THROTTLE_API_BASE||'https://api.throttle.toys').replace(/\/$/,'');
+  const id=new URLSearchParams(location.search).get('id');
+  function fmt$(n){return n==null||isNaN(n)?'—':'$'+Math.round(n).toLocaleString()}
+  function set(id,v){const el=document.getElementById(id);if(el)el.textContent=v}
+  if(!id){set('det-title','Listing not found');set('det-desc','This listing may have sold or been removed. Browse similar models in /search.');return}
+  fetch(API_BASE+'/api/listings/'+encodeURIComponent(id)).then(r=>r.ok?r.json():null).then(l=>{
+    if(!l){set('det-title','Listing not found');set('det-desc','This listing may have sold or been removed.');return}
+    set('det-cat',(l.cat||'').toUpperCase());
+    set('det-title',[l.year,l.make,l.model].filter(Boolean).join(' '));
+    set('det-loc',[l.city,l.state].filter(Boolean).join(', ') + (l.src?' · '+l.src:''));
+    set('det-price',fmt$(l.price));
+    if(l.msrp)set('det-msrp',fmt$(l.msrp)+' MSRP');
+    if(l.verdict)set('det-verdict',l.verdict);
+    set('det-desc',l.description||'No description provided.');
+    set('d-year',l.year||'—');set('d-make',l.make||'—');set('d-model',l.model||'—');
+    set('d-cond',l.condition||'—');set('d-hours',l.hours||l.miles||'—');set('d-vin',l.vin||l.hin||'—');
+    if(l.dealer){set('d-dealer-name',l.dealer.name||'Throttle seller');set('d-dealer-meta',(l.dealer.city||'')+' · '+(l.dealer.review||'—')+' ★');document.getElementById('d-dealer-av').textContent=(l.dealer.name||'?')[0].toUpperCase();}
+    if(l.value){set('d-comp-n',l.value.n||'—');set('d-comp-med',fmt$(l.value.median));}
+    if(l.image){document.getElementById('det-hero').style.backgroundImage='url('+l.image+')';document.getElementById('det-hero').style.backgroundSize='cover';document.getElementById('det-hero').style.backgroundPosition='center';}
+  });
+  document.getElementById('det-msg').addEventListener('click',()=>{location.href='/account/messages?to='+encodeURIComponent(id)});
+  document.getElementById('det-save').addEventListener('click',function(){
+    try{var s=JSON.parse(localStorage.getItem('throttle_saved')||'[]');if(s.indexOf(id)===-1){s.push(id);localStorage.setItem('throttle_saved',JSON.stringify(s));this.textContent='✓ Saved'}}catch(e){}
+  });
+})();
+</script>
+<footer class="t-foot">
+  <div class="t-foot-cols">
+    <div class="t-foot-col"><a class="t-logo" href="/" style="margin-bottom: 12px;"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/><circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/><circle cx="16" cy="16" r="4" fill="url(#lg)"/></svg> Throttle</a><p>See the whole market — for everything you ride.</p></div>
+    <div class="t-foot-col"><h4>Browse</h4><a href="/search?cat=boats">Boats</a><a href="/search?cat=pwc">PWCs</a><a href="/search?cat=utv">Side-by-Sides</a><a href="/search?cat=atv">ATVs</a><a href="/search?cat=motorcycle">Motorcycles</a><a href="/search?cat=dirtbike">Dirt Bikes</a><a href="/search?cat=snowmobile">Snowmobiles</a><a href="/search?cat=aircraft">Aircraft</a></div>
+    <div class="t-foot-col"><h4>Account</h4><a href="/signin">Login</a><a href="/signup">Create account</a><a href="/account">My account</a><a href="/account/messages">Messages</a><a href="/account/listings">Saved listings</a><a href="/list">Sell something</a></div>
+    <div class="t-foot-col"><h4>Throttle</h4><a href="/blog">What's new</a><a href="/roadmap">Roadmap</a><a href="/pricing">Pricing</a><a href="/dealers">For dealers</a><a href="/about">About</a><a href="/reviews">Reviews</a></div>
+    <div class="t-foot-col"><h4>Legal</h4><a href="/terms">Terms</a><a href="/privacy">Privacy</a></div>
+  </div>
+  <div class="t-foot-bottom"><span>© 2026 Throttle. Beta release.</span><span>Made for people who actually ride.</span></div>
+</footer>
+<script>(function(){try{var u=JSON.parse(localStorage.getItem("throttle_user")||"null");var l=document.getElementById("t-account-link"),t=document.getElementById("t-account-text");if(u&&(u.email||u.name)&&l){l.href="/account";t.textContent=l.dataset.accountText||"My account"}}catch(e){}})();</script>
+
+</body>
+</html>

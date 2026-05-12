@@ -1,0 +1,47 @@
+/* Shared styles for /account/* dashboard pages. */
+.acct-page{padding:36px 0 70px}
+.acct-page .wrap{max-width:1180px}
+.acct-grid{display:grid;grid-template-columns:240px 1fr;gap:28px}
+@media(max-width:780px){.acct-grid{grid-template-columns:1fr}}
+.acct-side{display:flex;flex-direction:column;gap:4px;position:sticky;top:74px}
+.acct-side a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--txt-2);font-weight:600;font-size:14px;border:1px solid transparent}
+.acct-side a:hover{background:var(--bg-2);color:var(--txt)}
+.acct-side a.active{background:var(--bg-1);border-color:var(--line);color:var(--acc)}
+.acct-side .who{padding:14px 12px;border-bottom:1px solid var(--line);margin-bottom:10px;font-size:12px;color:var(--txt-3);letter-spacing:.04em}
+.acct-side .who b{color:var(--txt);display:block;font-size:13px;letter-spacing:-.01em;margin-top:4px}
+.acct-main{min-width:0}
+.acct-main h1{font-size:28px;letter-spacing:-.02em;margin:0 0 6px}
+.acct-main .sub{color:var(--txt-2);margin:0 0 22px;font-size:14px}
+.acct-empty{border:1px dashed var(--line);border-radius:14px;padding:40px 24px;text-align:center;color:var(--txt-3)}
+.acct-empty h3{color:var(--txt);font-size:16px;margin:0 0 8px}
+.tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+.tabs button{background:transparent;border:0;color:var(--txt-2);padding:10px 14px;font-weight:600;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit}
+.tabs button.active{color:var(--acc);border-bottom-color:var(--acc)}
+.msg-list{display:flex;flex-direction:column;gap:6px}
+.msg-row{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg-1);border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:border-color .12s;color:inherit}
+.msg-row:hover{border-color:var(--line-2);text-decoration:none}
+.msg-row .avatar{flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc-2));color:var(--acc-ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.msg-row .body{flex:1;min-width:0}
+.msg-row .top{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--txt-2)}
+.msg-row .top b{color:var(--txt);font-weight:700;letter-spacing:-.01em}
+.msg-row .preview{color:var(--txt-2);font-size:13px;line-height:1.4;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-row.unread .top b::before{content:'';width:6px;height:6px;background:var(--acc);border-radius:50%;display:inline-block;margin-right:6px;vertical-align:1px}
+.msg-row .when{color:var(--txt-3);font-size:11px;white-space:nowrap}
+.listing-row{display:flex;gap:14px;align-items:center;padding:12px 14px;background:var(--bg-1);border:1px solid var(--line);border-radius:12px}
+.listing-row .img{width:80px;height:60px;border-radius:8px;background:var(--bg-2) center/cover no-repeat;flex:0 0 80px}
+.listing-row .body{flex:1;min-width:0}
+.listing-row .ttl{font-weight:700;color:var(--txt);font-size:14px;letter-spacing:-.01em}
+.listing-row .meta{color:var(--txt-3);font-size:12px;margin-top:3px}
+.listing-row .price{color:var(--acc);font-weight:700;font-size:15px;margin-left:auto}
+.listing-row .pill{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--line-2);color:var(--txt-2);background:var(--bg-2);margin-left:8px}
+.listing-row .pill.sold{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,transparent);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.listing-row .pill.live{color:var(--good);border-color:color-mix(in srgb,var(--good) 35%,transparent);background:color-mix(in srgb,var(--good) 12%,transparent)}
+.settings-card{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:14px}
+.settings-card h3{margin:0 0 6px;font-size:16px;color:var(--txt);letter-spacing:-.01em}
+.settings-card .sub{margin:0 0 14px;color:var(--txt-2);font-size:13px}
+.settings-card .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.settings-card .grid2{grid-template-columns:1fr}}
+.settings-card label{display:block;font-size:12px;color:var(--txt-2);margin-bottom:4px;font-weight:600}
+.settings-card input{width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;outline:0;color:var(--txt);font:inherit}
+.settings-card input:focus{border-color:var(--acc-2);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 25%,transparent)}
+.settings-card .actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}

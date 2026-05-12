@@ -1,0 +1,3059 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var qs=new URLSearchParams(location.search);if(qs.has("desktop")||localStorage.getItem("throttle_force_desktop")==="1")return;var ua=navigator.userAgent||"";var isMobile=/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);var smallScreen=window.matchMedia("(max-width:768px)").matches;if((isMobile||smallScreen)&&!location.pathname.startsWith("/m/")){var path=location.pathname==="/"?"/m/":"/m"+location.pathname;location.replace(path+location.search+location.hash)}}catch(e){}})();</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Search — Throttle</title>
+<meta name="description" content="Find your dream toy. Search the whole market across 11 categories — boats, PWCs, side-by-sides, ATVs, motorcycles, dirt bikes, snowmobiles, 3-wheelers, trailers, race cars, and aircraft." />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://api.throttle.toys" />
+<link rel="preconnect" href="https://vpic.nhtsa.dot.gov" />
+<link rel="preconnect" href="https://api.adsbdb.com" />
+<link rel="stylesheet" href="/assets/throttle.css?v=2" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  /* =====================================================================
+     SEARCH-PAGE STYLES — extends /assets/throttle.css design tokens.
+     ===================================================================== */
+
+  :root {
+    --map-bg: #0c1418;
+    --tile-url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png";
+  }
+
+  /* ---------- Sub-header / search strip ---------- */
+  .s-hero {
+    padding: 36px var(--gutter) 24px;
+    border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(900px 220px at 50% -20%, color-mix(in srgb, var(--acc) 12%, transparent), transparent 70%);
+  }
+  .s-hero-inner { max-width: 1080px; margin: 0 auto; }
+  .s-hero h1 {
+    margin: 0 0 6px; font-size: clamp(22px, 3vw, 28px); letter-spacing: -0.02em;
+    font-weight: 700; text-align: center;
+  }
+  .s-hero h1 .muted { color: var(--txt-2); font-weight: 600; }
+  .s-hero p {
+    color: var(--txt-3); font-size: 13px; margin: 0 auto 18px;
+    text-align: center; max-width: 60ch;
+  }
+
+  /* Big single search bar — copies look from index hero */
+  .s-search {
+    display: flex; align-items: center;
+    background: var(--bg-1); border: 1px solid var(--line-2);
+    border-radius: 14px; padding: 6px;
+    box-shadow: var(--shadow);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .s-search:focus-within { border-color: var(--acc-2); box-shadow: var(--shadow-acc), var(--shadow); }
+  .s-search input {
+    flex: 1; background: transparent; border: 0; outline: 0;
+    padding: 14px 18px; color: var(--txt); font-size: 16px;
+    font-family: inherit;
+  }
+  .s-search input::placeholder { color: var(--txt-3); }
+  .s-search .s-kind {
+    padding: 6px 10px; margin-left: 4px; background: var(--bg-3); border: 1px solid var(--line-2);
+    border-radius: 8px; color: var(--txt-2); font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; font-weight: 700;
+  }
+  .s-search-hint {
+    margin: 10px 0 0; text-align: center; color: var(--txt-3);
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
+  }
+
+  /* Category chips */
+  .s-cats {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin-top: 18px;
+  }
+  .s-cats button {
+    border: 1px solid var(--line); background: var(--bg-1);
+    color: var(--txt-2); padding: 7px 14px; border-radius: 999px;
+    font-weight: 600; font-size: 13px; transition: all .12s ease;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .s-cats button:hover { color: var(--txt); border-color: var(--line-2); background: var(--bg-2); }
+  .s-cats button.is-active {
+    background: var(--acc); color: var(--acc-ink); border-color: var(--acc);
+  }
+
+  /* ---------- Toolbar ---------- */
+  .s-toolbar {
+    position: sticky; top: 64px; z-index: 9;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px var(--gutter);
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .s-toolbar .s-count { color: var(--txt-2); font-size: 14px; font-weight: 500; }
+  .s-toolbar .s-count b { color: var(--txt); font-weight: 700; }
+  .s-toolbar .s-spacer { flex: 1; }
+  .s-toolbar select, .s-toolbar .s-tool-btn {
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: 10px; color: var(--txt); padding: 8px 12px;
+    font: inherit; font-size: 13px; font-weight: 500;
+  }
+  .s-toolbar select:hover, .s-toolbar .s-tool-btn:hover { background: var(--bg-2); border-color: var(--line-2); }
+  .s-toolbar .s-tool-btn {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  }
+  .s-toolbar .s-tool-btn.is-active { color: var(--acc); border-color: color-mix(in srgb, var(--acc) 50%, var(--line-2)); }
+  .s-toolbar .s-status {
+    color: var(--txt-3); font-size: 11px; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .s-toolbar .s-status .s-pulse {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--good);
+    animation: s-pulse 1.6s infinite;
+  }
+  .s-toolbar .s-status.is-warn .s-pulse { background: var(--warn); }
+  @keyframes s-pulse { 0%{box-shadow:0 0 0 0 rgba(93,211,158,.6)} 70%{box-shadow:0 0 0 7px rgba(93,211,158,0)} 100%{box-shadow:0 0 0 0 rgba(93,211,158,0)} }
+
+  /* ---------- Layout ---------- */
+  .s-layout {
+    display: grid; grid-template-columns: 1fr;
+    max-width: var(--maxw); margin: 0 auto; padding: 0;
+  }
+  @media (min-width: 1024px) {
+    .s-layout { grid-template-columns: 280px 1fr; gap: 0; }
+    .s-layout.has-tools { grid-template-columns: 280px 1fr 380px; }
+  }
+
+  /* ---------- Filters sidebar / drawer ---------- */
+  .s-filters {
+    background: var(--bg);
+    border-right: 1px solid var(--line);
+    padding: 22px 20px;
+  }
+  @media (max-width: 1023px) {
+    .s-filters {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(380px, 92vw); z-index: 50;
+      transform: translateX(100%); transition: transform .25s ease;
+      box-shadow: -20px 0 60px -20px rgba(0,0,0,.6);
+      border-right: 0; border-left: 1px solid var(--line);
+      overflow-y: auto;
+    }
+    .s-filters.is-open { transform: translateX(0); }
+    .s-filters::before {
+      content: "Filters"; display: block; font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--txt-3); font-weight: 700; margin-bottom: 16px;
+    }
+  }
+  .s-filters h3 {
+    margin: 0 0 10px; font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--txt-3); font-weight: 700;
+  }
+  .s-filters h3:not(:first-child) { margin-top: 22px; }
+
+  /* ---------- Price × Usage heatmap ---------- */
+  .s-heat {
+    margin-top: 12px;
+  }
+  .s-heat-tip {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 12px 12px; margin: 0 0 14px;
+    background: color-mix(in srgb, var(--acc) 7%, transparent);
+    border: 1px solid color-mix(in srgb, var(--acc) 26%, transparent);
+    border-radius: 10px;
+    font-size: 12.5px; color: var(--txt-2); line-height: 1.5;
+  }
+  .s-heat-tip svg { flex: 0 0 16px; margin-top: 2px; color: var(--acc); }
+  .s-heat-tip b { color: var(--txt); font-weight: 600; display: block; }
+  .s-heat-tip button.s-heat-tip-x {
+    background: transparent; border: 0; color: var(--txt-3); cursor: pointer;
+    margin-left: auto; padding: 0 0 0 4px; font-size: 18px; line-height: 1;
+  }
+  .s-heat-tip button.s-heat-tip-x:hover { color: var(--txt); }
+  .s-heat-legend {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 11px; color: var(--txt-3); margin: 0 0 8px;
+    font-weight: 600; letter-spacing: 0.06em;
+  }
+  .s-heat-legend .s-heat-grad {
+    display: inline-flex; gap: 2px;
+  }
+  .s-heat-legend .s-heat-grad i {
+    width: 14px; height: 12px; border-radius: 3px;
+    background: var(--bg-3);
+  }
+  .s-heat-grid {
+    display: grid;
+    grid-template-columns: 36px repeat(7, 1fr);
+    gap: 3px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  .s-heat-grid .s-heat-lbl-y {
+    font-size: 10.5px; color: var(--txt-2); text-align: right;
+    align-self: center; padding-right: 4px; white-space: nowrap;
+  }
+  .s-heat-grid .s-heat-cell {
+    aspect-ratio: 1.4 / 1;
+    border-radius: 4px;
+    background: var(--bg-2);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform .12s ease, border-color .12s ease;
+  }
+  .s-heat-grid .s-heat-cell:hover {
+    border-color: var(--acc);
+    transform: scale(1.08);
+  }
+  .s-heat-grid .s-heat-cell.is-empty {
+    cursor: default; background: var(--bg-2); opacity: .55;
+  }
+  .s-heat-grid .s-heat-cell.is-empty:hover { transform: none; border-color: transparent; }
+  .s-heat-grid .s-heat-cell.is-selected {
+    outline: 2px solid var(--acc);
+    outline-offset: 1px;
+  }
+  .s-heat-grid .s-heat-cell.is-hot {
+    background: var(--gold); /* highest-density cell in the grid */
+  }
+  .s-heat-xlabels {
+    display: grid;
+    grid-template-columns: 36px repeat(7, 1fr);
+    gap: 3px;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  .s-heat-xlabels span {
+    font-size: 10.5px; text-align: center; color: var(--acc); font-weight: 600;
+  }
+  .s-heat-xlabels span:first-child { visibility: hidden; }
+  .s-heat-xlabels span.is-new { color: var(--gold); }
+  .s-heat-clear {
+    display: none;
+    margin-top: 10px; width: 100%;
+    background: transparent; border: 1px solid var(--line-2); color: var(--txt-2);
+    padding: 7px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;
+  }
+  .s-heat-clear.is-on { display: block; }
+  .s-heat-clear:hover { background: var(--bg-2); color: var(--txt); }
+  .s-heat-empty {
+    padding: 20px 14px; background: var(--bg-2); border: 1px dashed var(--line-2);
+    border-radius: 10px; color: var(--txt-3); text-align: center; font-size: 12.5px;
+  }
+  .s-field { margin-bottom: 10px; }
+  .s-field label {
+    display: block; font-size: 12px; color: var(--txt-2); margin-bottom: 5px; font-weight: 500;
+  }
+  .s-field input, .s-field select {
+    width: 100%; background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: 8px; padding: 9px 11px; outline: 0; color: var(--txt); font-size: 14px;
+  }
+  .s-field input:focus, .s-field select:focus {
+    border-color: var(--acc-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 22%, transparent);
+  }
+  .s-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .s-check {
+    display: flex; align-items: center; gap: 8px; color: var(--txt-2);
+    font-size: 13px; margin-top: 6px;
+  }
+  .s-check input { width: 16px; height: 16px; accent-color: var(--acc); }
+  .s-pro-tag {
+    font-size: 9px; letter-spacing: 0.12em; background: var(--gold); color: #1c1500;
+    padding: 1px 5px; border-radius: 4px; font-weight: 800; margin-left: 5px;
+  }
+  .s-saved { margin-top: 8px; }
+  .s-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--bg-2); border: 1px solid var(--line-2);
+    border-radius: 999px; padding: 4px 10px; font-size: 12px;
+    color: var(--txt-2); margin: 4px 4px 0 0; cursor: pointer;
+  }
+  .s-chip:hover { background: var(--bg-3); color: var(--txt); }
+  .s-chip button { background: transparent; border: 0; color: var(--txt-3); padding: 0 0 0 4px; }
+  .s-chip button:hover { color: var(--bad); }
+  .s-clear-row { display: flex; gap: 6px; margin-top: 14px; }
+  .s-clear-row button { flex: 1; }
+  .s-drawer-close {
+    position: sticky; top: 0; float: right; margin: -8px -8px 0 0;
+    background: transparent; border: 0; color: var(--txt-3); padding: 6px;
+    font-size: 20px; cursor: pointer; line-height: 1;
+  }
+  @media (min-width: 1024px) { .s-drawer-close { display: none; } }
+  .s-scrim {
+    position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 49;
+    opacity: 0; pointer-events: none; transition: opacity .2s ease;
+  }
+  .s-scrim.is-on { opacity: 1; pointer-events: auto; }
+
+  /* ---------- Listing grid ---------- */
+  .s-results { padding: 18px var(--gutter) 32px; }
+  .s-grid {
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  @media (max-width: 600px) {
+    .s-grid { grid-template-columns: 1fr; gap: 14px; }
+  }
+  .s-card {
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden;
+    display: flex; flex-direction: column; cursor: pointer;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    position: relative;
+  }
+  .s-card:hover {
+    transform: translateY(-3px); border-color: var(--line-2);
+    box-shadow: 0 16px 40px -20px rgba(0,0,0,.7);
+  }
+  .s-card.is-throttle { border-color: color-mix(in srgb, var(--acc) 60%, var(--line)); }
+  .s-card.is-throttle::after {
+    content: ""; position: absolute; inset: 0; border-radius: var(--radius);
+    pointer-events: none; box-shadow: 0 0 0 1px color-mix(in srgb, var(--acc) 35%, transparent) inset;
+  }
+  .s-card .s-img {
+    aspect-ratio: 4/3; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, var(--bg-2), var(--bg-3));
+  }
+  .s-card .s-img img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform .4s ease;
+  }
+  .s-card:hover .s-img img { transform: scale(1.04); }
+  .s-card .s-img-fallback {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .s-card .s-img-fallback .s-emoji { font-size: 64px; line-height: 1; filter: drop-shadow(0 6px 14px rgba(0,0,0,.4)); }
+  .s-card .s-img-fallback .s-yr { color: var(--txt-3); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; margin-top: 8px; font-weight: 600; }
+  .s-card .s-img::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,.55) 100%);
+    pointer-events: none;
+  }
+  /* badges on image */
+  .s-card .s-badges-tl {
+    position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; z-index: 2;
+  }
+  .s-card .s-badges-tr {
+    position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 2;
+  }
+  .s-card .s-badges-bl {
+    position: absolute; left: 10px; bottom: 10px; right: 10px; display: flex; gap: 6px; align-items: center; z-index: 2;
+  }
+  .s-src {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    background: rgba(20,23,28,.85); color: var(--txt-2); border: 1px solid var(--line-2);
+    backdrop-filter: blur(6px);
+  }
+  .s-src.is-throttle { background: var(--acc); color: var(--acc-ink); border-color: transparent; }
+  .s-src.is-throttle svg { width: 11px; height: 11px; flex: 0 0 11px; }
+  .s-src[data-src="BoatTrader"]   { background: #1f4ea8; color: #fff; border-color: transparent; }
+  .s-src[data-src="YachtWorld"]   { background: #0a2a5e; color: #fff; border-color: transparent; }
+  .s-src[data-src="ATV Trader"]   { background: #d4521b; color: #fff; border-color: transparent; }
+  .s-src[data-src="Cycle Trader"] { background: #a82626; color: #fff; border-color: transparent; }
+  .s-src[data-src="PWC Trader"]   { background: #0e7c8b; color: #fff; border-color: transparent; }
+  .s-src[data-src="Trade-A-Plane"]{ background: #a47919; color: #fff; border-color: transparent; }
+  .s-src[data-src="Controller"]   { background: #1d4d2e; color: #fff; border-color: transparent; }
+  .s-src[data-src="Dealer Direct"]{ background: #3a4452; color: #fff; border-color: transparent; }
+  .s-src[data-src="Facebook"]     { background: #1664c4; color: #fff; border-color: transparent; }
+  .s-src[data-src="Craigslist"]   { background: #5a3680; color: #fff; border-color: transparent; }
+
+  .s-tag {
+    display: inline-flex; align-items: center;
+    font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    background: rgba(20,23,28,.85); color: var(--txt-2); border: 1px solid var(--line-2);
+    backdrop-filter: blur(6px);
+  }
+  .s-tag.is-hot { background: var(--gold); color: #1c1500; border-color: transparent; }
+  .s-tag.is-new { background: var(--good); color: #06231a; border-color: transparent; }
+  .s-tag.is-sold { background: var(--bad); color: #fff; border-color: transparent; }
+  .s-dom {
+    color: var(--txt-2); font-size: 11px; font-weight: 600;
+    background: rgba(20,23,28,.7); padding: 3px 8px; border-radius: 6px;
+    backdrop-filter: blur(6px);
+  }
+
+  .s-card .s-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .s-card .s-title {
+    font-weight: 700; font-size: 15px; letter-spacing: -0.01em;
+    color: var(--txt); line-height: 1.3;
+    /* Clamp to 2 lines */
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .s-card .s-pricerow {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  }
+  .s-card .s-price {
+    color: var(--acc); font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+    font-feature-settings: "tnum" 1;
+  }
+  .s-card .s-savings {
+    font-size: 11px; font-weight: 700; color: var(--good);
+    background: color-mix(in srgb, var(--good) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--good) 30%, transparent);
+    padding: 2px 6px; border-radius: 5px;
+  }
+  .s-card .s-savings.is-bad {
+    color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, transparent);
+    border-color: color-mix(in srgb, var(--bad) 30%, transparent);
+  }
+  .s-card .s-meta { color: var(--txt-2); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .s-card .s-meta .s-dotsep { color: var(--txt-3); }
+  .s-card .s-loc {
+    color: var(--txt-3); font-size: 12px; display: flex; align-items: center; gap: 4px;
+  }
+  .s-card .s-loc svg { width: 12px; height: 12px; opacity: 0.6; }
+
+  .s-empty {
+    grid-column: 1 / -1;
+    padding: 60px 20px; text-align: center; color: var(--txt-3);
+    background: var(--bg-1); border: 1px dashed var(--line-2); border-radius: var(--radius);
+  }
+  .s-empty .s-empty-emoji { font-size: 48px; margin-bottom: 12px; opacity: 0.6; }
+  .s-empty h3 { color: var(--txt); margin: 0 0 6px; font-weight: 700; font-size: 18px; }
+  .s-empty p { margin: 0; font-size: 14px; }
+  .s-empty .t-btn { margin-top: 14px; }
+
+  /* ---------- Tools drawer (right side) ---------- */
+  .s-tools {
+    background: var(--bg);
+    border-left: 1px solid var(--line);
+    display: none;
+  }
+  .s-layout.has-tools .s-tools { display: flex; flex-direction: column; }
+  @media (max-width: 1023px) {
+    .s-tools {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(420px, 95vw); z-index: 50; display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform .25s ease;
+      box-shadow: -20px 0 60px -20px rgba(0,0,0,.6);
+    }
+    .s-layout.has-tools .s-tools { transform: translateX(0); }
+  }
+  .s-tools-head {
+    display: flex; align-items: center; border-bottom: 1px solid var(--line);
+    background: var(--bg-1); padding: 4px;
+  }
+  .s-tools-head button {
+    flex: 1; background: transparent; border: 0; color: var(--txt-2);
+    padding: 12px 6px; font-weight: 600; font-size: 12.5px;
+    border-radius: 8px; transition: all .12s ease;
+  }
+  .s-tools-head button:hover { color: var(--txt); }
+  .s-tools-head button.is-active { color: var(--acc-ink); background: var(--acc); }
+  .s-tools-close {
+    background: transparent; border: 0; color: var(--txt-3);
+    padding: 8px 12px; font-size: 20px; cursor: pointer; line-height: 1;
+  }
+  @media (min-width: 1024px) { .s-tools-close { display: none; } }
+  .s-tools-body { flex: 1; overflow-y: auto; padding: 18px; }
+  #s-map { height: 360px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--map-bg); }
+  .leaflet-container { background: var(--map-bg); }
+  .s-legend {
+    display: flex; flex-wrap: wrap; gap: 12px; color: var(--txt-2);
+    font-size: 12px; margin-top: 10px;
+  }
+  .s-legend i {
+    display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+    margin-right: 6px; vertical-align: middle;
+  }
+  .s-pricebox {
+    border: 1px solid var(--line); border-radius: 12px; padding: 16px;
+    background: var(--bg-1); margin-top: 14px;
+  }
+  .s-pricebox .s-pricerow {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px;
+  }
+  .s-pricebox .s-v {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px; text-align: center;
+  }
+  .s-pricebox .s-v small {
+    color: var(--txt-3); display: block; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px;
+  }
+  .s-pricebox .s-v b { font-size: 18px; letter-spacing: -0.01em; }
+  .s-pricebox .s-v.is-mid b { color: var(--acc); }
+  .s-kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 13px; margin-top: 10px; }
+  .s-kv dt { color: var(--txt-3); }
+  .s-kv dd { margin: 0; color: var(--txt); }
+  .s-section-ttl {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--txt-3); margin: 16px 0 8px; display: flex; justify-content: space-between; align-items: center;
+    font-weight: 700;
+  }
+  canvas { max-width: 100%; }
+
+  /* ---------- Modals (matches existing site style) ---------- */
+  .s-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,.65);
+    display: none; align-items: center; justify-content: center;
+    z-index: 60; padding: 20px;
+  }
+  .s-modal.is-on { display: flex; }
+  .s-modal .s-modal-box {
+    width: min(880px, 96vw); max-height: 90vh; overflow-y: auto;
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .s-modal .s-modal-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 16px 20px; border-bottom: 1px solid var(--line);
+  }
+  .s-modal .s-modal-head h2 { margin: 0; font-size: 18px; font-weight: 700; }
+  .s-modal .s-modal-head .s-mprice { color: var(--acc); font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .s-modal .s-modal-body { padding: 18px 20px; }
+  .s-modal .s-modal-body.is-split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 720px) { .s-modal .s-modal-body.is-split { grid-template-columns: 1fr; } }
+  .s-modal .s-modal-img {
+    aspect-ratio: 4/3; border-radius: 12px; overflow: hidden; position: relative;
+    background: linear-gradient(135deg, var(--bg-2), var(--bg-3));
+  }
+  .s-modal .s-modal-img img { width: 100%; height: 100%; object-fit: cover; }
+  .s-modal .s-modal-img .s-img-fallback {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .s-modal .s-modal-img .s-emoji { font-size: 96px; filter: drop-shadow(0 8px 18px rgba(0,0,0,.4)); }
+
+  .s-pill {
+    display: inline-block; padding: 3px 8px; border-radius: 999px;
+    font-size: 11px; background: var(--bg-3); border: 1px solid var(--line-2);
+    color: var(--txt-2); margin-right: 4px;
+  }
+  .s-pill.is-good { color: var(--good); border-color: color-mix(in srgb, var(--good) 40%, transparent); background: color-mix(in srgb, var(--good) 8%, transparent); }
+  .s-pill.is-bad  { color: var(--bad);  border-color: color-mix(in srgb, var(--bad) 40%, transparent);  background: color-mix(in srgb, var(--bad) 8%, transparent); }
+  .s-pill.is-gold { color: #1c1500; background: var(--gold); border-color: transparent; font-weight: 800; }
+
+  /* Plans grid inside upgrade modal */
+  .s-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+  @media (max-width: 720px) { .s-plans { grid-template-columns: 1fr; } }
+  .s-plan {
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 20px;
+    background: var(--bg-2);
+  }
+  .s-plan.is-pro {
+    border-color: var(--gold);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 12%, var(--bg-2)), var(--bg-2));
+    position: relative;
+  }
+  .s-plan.is-pro::before {
+    content: "SUPPORTER"; position: absolute; top: -10px; left: 20px;
+    background: var(--gold); color: #1c1500; font-size: 10px; font-weight: 800;
+    padding: 3px 9px; border-radius: 5px; letter-spacing: 0.1em;
+  }
+  .s-plan h4 { margin: 0 0 6px; font-size: 18px; letter-spacing: -0.01em; }
+  .s-plan .s-pricelarge { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin: 6px 0; }
+  .s-plan .s-pricelarge small { font-size: 13px; color: var(--txt-2); font-weight: 500; }
+  .s-plan ul { list-style: none; padding: 0; margin: 10px 0; color: var(--txt-2); font-size: 13px; }
+  .s-plan ul li { padding: 6px 0; padding-left: 20px; position: relative; border-bottom: 1px solid var(--line); }
+  .s-plan ul li:last-child { border-bottom: 0; }
+  .s-plan ul li::before { content: "✓"; position: absolute; left: 0; top: 6px; color: var(--good); font-weight: 800; }
+  .s-plan.is-pro ul li::before { color: var(--gold); }
+  .s-plan .t-btn { width: 100%; margin-top: 6px; }
+
+  /* Form grid for list-your-toy / message-seller / dealer */
+  .s-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 520px) { .s-form { grid-template-columns: 1fr; } }
+  .s-form .s-full { grid-column: 1 / -1; }
+  .s-form label { display: block; font-size: 12px; color: var(--txt-2); margin-bottom: 4px; }
+  .s-form input, .s-form select, .s-form textarea {
+    width: 100%; background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: 8px; padding: 9px 11px; outline: 0; color: var(--txt); font-size: 14px;
+  }
+  .s-form textarea { min-height: 100px; resize: vertical; }
+
+  /* ---------- Footer ---------- */
+  .s-foot {
+    padding: 28px var(--gutter); border-top: 1px solid var(--line);
+    color: var(--txt-3); font-size: 12px; text-align: center;
+  }
+  .s-foot a { color: var(--txt-2); }
+
+  /* Decoder mini panel */
+  .s-decoder {
+    margin: 14px auto 0; max-width: 1080px;
+    display: none;
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: 12px; padding: 16px;
+  }
+  .s-decoder.is-open { display: block; }
+  .s-decoder h4 {
+    font-size: 11px; letter-spacing: 0.14em; color: var(--acc);
+    text-transform: uppercase; margin: 0 0 6px; font-weight: 700;
+  }
+  .s-decoder dl { margin: 8px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px 24px; }
+  .s-decoder dt { color: var(--txt-3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+  .s-decoder dd { margin: 0; color: var(--txt); font-size: 14px; font-weight: 600; }
+
+  /* ---------- Histogram range cells (price / mileage) ---------- */
+  .s-hist { margin: 4px 0 14px; user-select: none; }
+  .s-hist-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .s-hist-head .s-hist-title {
+    font-size: 12px; color: var(--txt-2); font-weight: 600;
+  }
+  .s-hist-head .s-hist-vals {
+    font-size: 12px; color: var(--txt); font-weight: 700; font-feature-settings: "tnum" 1;
+  }
+  .s-hist-bars {
+    display: flex; align-items: flex-end; gap: 2px;
+    height: 60px; padding: 4px 6px 0;
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: 8px 8px 0 0; border-bottom: 0;
+    position: relative;
+  }
+  .s-hist-bar {
+    flex: 1; background: var(--bg-3); border-radius: 2px 2px 0 0;
+    min-height: 3px; transition: background .15s ease;
+    cursor: pointer;
+  }
+  .s-hist-bar.is-in {
+    background: linear-gradient(180deg, var(--acc) 0%, color-mix(in srgb, var(--acc-2) 80%, var(--bg-1)) 100%);
+  }
+  .s-hist-bar:hover { filter: brightness(1.2); }
+  .s-hist-range {
+    position: relative; height: 28px;
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-top: 0; border-radius: 0 0 8px 8px;
+    padding: 0 8px;
+  }
+  .s-hist-track {
+    position: absolute; top: 11px; left: 8px; right: 8px; height: 4px;
+    background: var(--bg-3); border-radius: 999px;
+  }
+  .s-hist-fill {
+    position: absolute; top: 0; height: 100%;
+    background: var(--acc); border-radius: 999px;
+  }
+  .s-hist-range input[type="range"] {
+    position: absolute; top: 6px; left: 8px; right: 8px;
+    width: calc(100% - 16px); height: 16px;
+    -webkit-appearance: none; appearance: none;
+    background: transparent; pointer-events: none; margin: 0;
+  }
+  .s-hist-range input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--acc); border: 2px solid var(--bg);
+    pointer-events: auto; cursor: grab;
+    box-shadow: 0 2px 6px rgba(0,0,0,.4);
+  }
+  .s-hist-range input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; }
+  .s-hist-range input[type="range"]::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--acc); border: 2px solid var(--bg);
+    pointer-events: auto; cursor: grab;
+    box-shadow: 0 2px 6px rgba(0,0,0,.4);
+  }
+  .s-hist-range input[type="range"]::-moz-range-track { background: transparent; border: 0; }
+  .s-hist-edges {
+    display: flex; justify-content: space-between;
+    margin-top: 4px; font-size: 10px; color: var(--txt-3);
+    letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  }
+
+  /* ---------- Plus-locked content (blurred preview + badge) ---------- */
+  .s-plus-lock {
+    position: relative; border-radius: 10px; padding: 12px;
+    background: var(--bg-2); border: 1px dashed var(--line-2);
+    cursor: pointer; transition: border-color .15s ease, background .15s ease;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .s-plus-lock:hover {
+    border-color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 8%, var(--bg-2));
+  }
+  .s-plus-lock .s-plus-content {
+    filter: blur(2.5px); opacity: 0.55; pointer-events: none;
+    transition: filter .2s ease;
+  }
+  .s-plus-lock:hover .s-plus-content { filter: blur(1.5px); opacity: 0.75; }
+  .s-plus-lock .s-plus-badge {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--gold); color: #1c1500;
+    font-size: 9px; letter-spacing: 0.14em; font-weight: 800;
+    padding: 3px 7px; border-radius: 5px; text-transform: uppercase;
+    z-index: 2;
+  }
+  .s-plus-lock .s-plus-cta {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--gold); font-weight: 700; font-size: 11px;
+    padding: 6px 12px; background: rgba(8,9,11,.85);
+    border: 1px solid var(--gold); border-radius: 6px;
+    pointer-events: none; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .s-plus-lock .s-plus-cta svg { width: 11px; height: 11px; }
+
+  /* Full-pane plus lock — used inside drawer panes like Trend */
+  .s-plus-pane {
+    position: relative; min-height: 360px; border-radius: 12px;
+    border: 1px dashed var(--line-2); background: var(--bg-1);
+    overflow: hidden; cursor: pointer;
+  }
+  .s-plus-pane:hover { border-color: var(--gold); }
+  .s-plus-pane .s-plus-content {
+    filter: blur(4px); opacity: 0.5; pointer-events: none; padding: 16px;
+  }
+  .s-plus-pane .s-plus-overlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px;
+    background: linear-gradient(180deg, transparent 0%, rgba(8,9,11,0.6) 60%, rgba(8,9,11,0.8) 100%);
+    text-align: center; padding: 20px;
+  }
+  .s-plus-pane .s-plus-overlay .s-plus-badge {
+    position: static; transform: none;
+  }
+  .s-plus-pane .s-plus-overlay h4 {
+    margin: 4px 0 0; font-size: 18px; font-weight: 700; color: var(--txt);
+  }
+  .s-plus-pane .s-plus-overlay p {
+    margin: 0 0 8px; color: var(--txt-2); font-size: 13px; max-width: 38ch;
+  }
+
+  /* ---------- Quick filter chips above grid ---------- */
+  .s-quick {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    padding: 14px var(--gutter) 0;
+    max-width: var(--maxw); margin: 0 auto;
+  }
+  .s-quick-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--bg-1); border: 1px solid var(--line);
+    color: var(--txt-2); padding: 6px 12px; border-radius: 999px;
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+    transition: all .12s ease;
+  }
+  .s-quick-chip:hover { color: var(--txt); border-color: var(--line-2); background: var(--bg-2); }
+  .s-quick-chip.is-active { background: var(--acc); color: var(--acc-ink); border-color: var(--acc); }
+  .s-quick-chip.is-active svg { color: var(--acc-ink); }
+  .s-quick-chip svg { width: 12px; height: 12px; opacity: 0.7; }
+  .s-quick-clear {
+    margin-left: auto; color: var(--txt-3); font-size: 12px;
+    background: transparent; border: 0; padding: 6px 10px; cursor: pointer;
+  }
+  .s-quick-clear:hover { color: var(--bad); }
+
+  /* ---------- Rich detail modal (visor.vin-style) ---------- */
+  .s-detail-box { width: min(1080px, 96vw); }
+  .s-detail-grid {
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 22px;
+  }
+  @media (max-width: 820px) { .s-detail-grid { grid-template-columns: 1fr; } }
+  .s-gallery {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .s-gallery-main {
+    aspect-ratio: 4/3; border-radius: 12px; overflow: hidden; position: relative;
+    background: linear-gradient(135deg, var(--bg-2), var(--bg-3));
+  }
+  .s-gallery-main img, .s-gallery-main .s-img-fallback img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .s-gallery-thumbs {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 6px;
+  }
+  .s-gallery-thumbs button {
+    aspect-ratio: 4/3; border: 1px solid var(--line); border-radius: 6px;
+    overflow: hidden; padding: 0; background: var(--bg-2); cursor: pointer;
+  }
+  .s-gallery-thumbs button.is-active { border-color: var(--acc); box-shadow: 0 0 0 2px color-mix(in srgb, var(--acc) 30%, transparent); }
+  .s-gallery-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .s-detail-side {
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .s-detail-price-block {
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 18px;
+  }
+  .s-detail-price-block .s-price-large {
+    font-size: 32px; font-weight: 700; letter-spacing: -0.02em; color: var(--acc);
+    line-height: 1.1; font-feature-settings: "tnum" 1;
+  }
+  .s-detail-price-block .s-price-sub {
+    font-size: 13px; color: var(--txt-2); margin-top: 4px;
+  }
+  .s-detail-price-block .s-action-row {
+    display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;
+  }
+  .s-detail-price-block .s-action-row .t-btn { flex: 1; min-width: 130px; }
+
+  .s-share-box {
+    background: var(--bg-1); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .s-share-box label {
+    font-size: 10px; letter-spacing: 0.14em; color: var(--txt-3);
+    text-transform: uppercase; font-weight: 700;
+  }
+  .s-share-box input {
+    flex: 1; background: transparent; border: 0; color: var(--acc);
+    font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 13px; outline: 0;
+  }
+  .s-share-copy {
+    background: var(--bg-3); border: 1px solid var(--line-2); color: var(--txt);
+    padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .s-share-copy:hover { background: var(--acc); color: var(--acc-ink); border-color: var(--acc); }
+  .s-share-copy.is-copied { background: var(--good); color: #06231a; border-color: transparent; }
+
+  .s-detail-section {
+    background: var(--bg-1); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px;
+  }
+  .s-detail-section h4 {
+    margin: 0 0 12px; font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--txt-3); font-weight: 700;
+  }
+  .s-spec-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px 18px;
+  }
+  .s-spec-grid .s-spec-item {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .s-spec-grid dt {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--txt-3); font-weight: 600;
+  }
+  .s-spec-grid dd {
+    margin: 0; font-size: 15px; font-weight: 600; color: var(--txt);
+  }
+
+  .s-market-pos {
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px; margin-top: 8px;
+  }
+  .s-market-pos-head {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  }
+  .s-market-pos-head .s-mp-label {
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--txt-3); font-weight: 700;
+  }
+  .s-market-pos-head .s-mp-verdict {
+    font-size: 13px; font-weight: 700;
+  }
+  .s-mp-verdict.is-good { color: var(--good); }
+  .s-mp-verdict.is-warn { color: var(--warn); }
+  .s-mp-verdict.is-bad  { color: var(--bad); }
+  .s-mp-bar {
+    position: relative; height: 8px; background: var(--bg-3); border-radius: 999px;
+    margin: 12px 0 4px; overflow: hidden;
+  }
+  .s-mp-bar .s-mp-fill {
+    position: absolute; left: 0; top: 0; height: 100%;
+    background: linear-gradient(90deg, var(--good) 0%, var(--warn) 50%, var(--bad) 100%);
+    opacity: 0.3;
+  }
+  .s-mp-bar .s-mp-dot {
+    position: absolute; top: -3px; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--txt); border: 2px solid var(--bg);
+    transform: translateX(-50%);
+  }
+  .s-mp-bar-labels {
+    display: flex; justify-content: space-between; font-size: 10px; color: var(--txt-3);
+    letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  }
+
+  .s-detail-meta-row {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    color: var(--txt-2); font-size: 13px;
+  }
+  .s-detail-meta-row .s-dotsep { color: var(--txt-3); }
+
+  .s-detail-foot {
+    display: flex; align-items: center; gap: 10px; padding-top: 10px;
+    border-top: 1px solid var(--line); margin-top: 4px;
+    color: var(--txt-3); font-size: 12px; flex-wrap: wrap;
+  }
+  .s-detail-foot button.s-report-btn {
+    background: transparent; border: 1px solid var(--line-2);
+    color: var(--txt-3); padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    font-size: 12px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .s-detail-foot button.s-report-btn:hover {
+    color: var(--bad); border-color: var(--bad);
+  }
+  .s-detail-foot .s-listed-id {
+    font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11px; color: var(--txt-3);
+  }
+</style>
+</head>
+<body>
+
+<!-- Shared site header -->
+<header class="t-header">
+  <a class="t-logo" href="/" aria-label="Throttle home">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="lg" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#7CF1FF"/>
+          <stop offset="1" stop-color="#4cd6e8"/>
+        </linearGradient>
+      </defs>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/>
+      <circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/>
+      <circle cx="16" cy="16" r="4" fill="url(#lg)"/>
+      <path d="M16 2 L16 8 M16 24 L16 30" stroke="url(#lg)" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Throttle
+  </a>
+  <nav class="t-nav" aria-label="Main">
+    <a href="/search" class="active">Search</a>
+    <a href="/dealers.html">Dealers</a>
+    <a href="/blog">What's new</a>
+    <a href="/pricing">Pricing</a>
+  </nav>
+  <div class="t-actions">
+    <button class="t-btn t-btn--ghost" id="nav-list-btn">＋ List your toy</button>
+    <button class="t-btn t-btn--gold" id="nav-upgrade-btn">Throttle+ · $15/mo</button>
+    <a class="t-btn t-btn--ghost" id="nav-account-link" href="/signin">Login</a>
+  </div>
+</header>
+
+<!-- Search hero -->
+<section class="s-hero">
+  <div class="s-hero-inner">
+    <h1>Find your <span class="muted">dream toy.</span></h1>
+    <p>Search 11 categories — or drop in a HIN, VIN, or N-Number to decode it.</p>
+
+    <form class="s-search" id="s-search-form" role="search" autocomplete="off">
+      <input
+        id="s-search-input"
+        name="q"
+        type="text"
+        spellcheck="false"
+        placeholder="Search by make / model — or paste a HIN, VIN, or N-Number…"
+        aria-label="Search"
+      />
+      <span class="s-kind" id="s-search-kind">search</span>
+      <button type="submit" class="t-btn">Search</button>
+    </form>
+    <div class="s-search-hint" id="s-search-hint">try “2024 Sea Ray SDX 250” · paste a 17-char VIN · or pick a category in the filters →</div>
+
+    <!-- Inline decode panel — only opens after a HIN/VIN/N-Number is decoded -->
+    <div class="s-decoder" id="s-decoder" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- Sticky toolbar: count, sort, filters/map toggles -->
+<div class="s-toolbar" role="region" aria-label="Search controls">
+  <div class="s-count"><b id="s-count">—</b> results</div>
+  <span class="s-status" id="s-status" title="Live source health"><span class="s-pulse"></span><span id="s-status-text">checking sources…</span></span>
+  <div class="s-spacer"></div>
+  <select id="s-sort" aria-label="Sort results">
+    <option value="rel">Best match</option>
+    <option value="price-asc">Price: low to high</option>
+    <option value="price-desc">Price: high to low</option>
+    <option value="year-desc">Newest year</option>
+    <option value="dom-asc">Freshest listings</option>
+    <option value="dom-desc">Longest on market</option>
+  </select>
+  <button class="s-tool-btn" id="s-filters-btn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+    Filters
+  </button>
+  <button class="s-tool-btn" id="s-tools-btn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    Map &amp; Value
+  </button>
+</div>
+
+<!-- Main layout: filters (left) / grid (center) / tools (right, toggleable) -->
+<div class="s-layout" id="s-layout">
+
+  <!-- Filters sidebar / drawer -->
+  <aside class="s-filters" id="s-filters">
+    <button class="s-drawer-close" id="s-filters-close" aria-label="Close filters">×</button>
+
+    <h3>Category</h3>
+    <div class="s-field">
+      <label>Toy type</label>
+      <select id="f-cat" aria-label="Toy category">
+        <option value="all">✨ All Toys</option>
+        <option value="boats">⚓ Boats</option>
+        <option value="pwc">🌊 PWCs</option>
+        <option value="utv">🛞 Side-by-Sides</option>
+        <option value="atv">🏔 ATVs</option>
+        <option value="motorcycle">🏁 Motorcycles</option>
+        <option value="dirtbike">🏍 Dirt Bikes</option>
+        <option value="snowmobile">🛷 Snowmobiles</option>
+        <option value="3wheel">🛺 3-Wheelers</option>
+        <option value="trailers">🚚 Trailers</option>
+        <option value="racecar">🏎 Race Cars</option>
+        <option value="aircraft">✈ Aircraft</option>
+      </select>
+    </div>
+
+    <h3>Make &amp; Model</h3>
+    <div class="s-field">
+      <label>Make</label>
+      <select id="f-make"><option value="">Any</option></select>
+    </div>
+    <div class="s-field">
+      <label>Model</label>
+      <select id="f-model"><option value="">Any</option></select>
+    </div>
+
+    <h3>Price</h3>
+    <div class="s-hist" id="hist-price">
+      <div class="s-hist-head">
+        <span class="s-hist-title">Drag to narrow by price</span>
+        <span class="s-hist-vals" id="hist-price-vals">—</span>
+      </div>
+      <div class="s-hist-bars" aria-hidden="true"></div>
+      <div class="s-hist-range">
+        <div class="s-hist-track"><div class="s-hist-fill"></div></div>
+        <input type="range" data-h="price" data-t="lo" />
+        <input type="range" data-h="price" data-t="hi" />
+      </div>
+      <div class="s-hist-edges"><span id="hist-price-lo">$0</span><span id="hist-price-hi">$200k</span></div>
+    </div>
+
+    <h3 id="hist-usage-label">Mileage / Hours</h3>
+    <div class="s-hist" id="hist-usage">
+      <div class="s-hist-head">
+        <span class="s-hist-title" id="hist-usage-title">Drag to narrow by usage</span>
+        <span class="s-hist-vals" id="hist-usage-vals">—</span>
+      </div>
+      <div class="s-hist-bars" aria-hidden="true"></div>
+      <div class="s-hist-range">
+        <div class="s-hist-track"><div class="s-hist-fill"></div></div>
+        <input type="range" data-h="usage" data-t="lo" />
+        <input type="range" data-h="usage" data-t="hi" />
+      </div>
+      <div class="s-hist-edges"><span id="hist-usage-lo">0</span><span id="hist-usage-hi">—</span></div>
+    </div>
+
+    <h3 id="heat-title">Price × Mileage</h3>
+    <div class="s-heat" id="s-heat">
+      <div class="s-heat-tip" id="s-heat-tip">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h0"/></svg>
+        <div>
+          <b>Pro tip</b>
+          Click any cell to filter results by that price &amp; <span id="heat-usage-word">mileage</span> range.
+        </div>
+        <button class="s-heat-tip-x" id="s-heat-tip-x" aria-label="Dismiss tip">×</button>
+      </div>
+      <div class="s-heat-legend">
+        <span>None</span>
+        <span class="s-heat-grad">
+          <i style="background:var(--bg-2)"></i>
+          <i style="background:color-mix(in srgb, var(--acc) 28%, var(--bg-2))"></i>
+          <i style="background:color-mix(in srgb, var(--acc) 60%, var(--bg-2))"></i>
+          <i style="background:var(--acc)"></i>
+        </span>
+        <span>Most</span>
+      </div>
+      <div class="s-heat-grid" id="s-heat-grid" role="grid" aria-label="Price by usage heatmap"></div>
+      <div class="s-heat-xlabels" id="s-heat-xlabels" aria-hidden="true"></div>
+      <button class="s-heat-clear" id="s-heat-clear" type="button">Clear cell selection</button>
+    </div>
+
+    <h3>Year</h3>
+    <div class="s-field s-row2">
+      <div><label>From</label><input id="f-year-from" type="number" placeholder="2010"/></div>
+      <div><label>To</label><input id="f-year-to" type="number" placeholder="2026"/></div>
+    </div>
+
+    <h3>Condition &amp; Region</h3>
+    <div class="s-field">
+      <label>Condition</label>
+      <select id="f-cond">
+        <option value="">Any</option>
+        <option>New</option><option>Used</option><option>Certified</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label>Region</label>
+      <select id="f-region">
+        <option value="">All US</option>
+        <option>West</option><option>Mountain</option><option>Midwest</option>
+        <option>South</option><option>Northeast</option>
+      </select>
+    </div>
+    <div class="s-check"><input id="f-throttle" type="checkbox"/><label for="f-throttle">Throttle listings only</label></div>
+
+    <!-- Hidden inputs kept for snapshot compatibility -->
+    <input type="hidden" id="f-price-min" />
+    <input type="hidden" id="f-price-max" />
+
+    <h3>Plus-only filters</h3>
+    <div class="s-plus-lock" id="lock-hot" data-feature="Hot Deals">
+      <span class="s-plus-badge">Plus</span>
+      <div class="s-plus-content">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-2);font-weight:500">
+          <input type="checkbox" disabled style="width:16px;height:16px;accent-color:var(--gold)"/>
+          🔥 Hot Deals only (≥15% under market)
+        </label>
+      </div>
+      <span class="s-plus-cta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+        Unlock with Throttle+
+      </span>
+    </div>
+    <div class="s-plus-lock" id="lock-sold" data-feature="Sold listings">
+      <span class="s-plus-badge">Plus</span>
+      <div class="s-plus-content">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-2);font-weight:500">
+          <input type="checkbox" disabled style="width:16px;height:16px;accent-color:var(--gold)"/>
+          📊 Include sold listings (price history)
+        </label>
+      </div>
+      <span class="s-plus-cta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+        Unlock with Throttle+
+      </span>
+    </div>
+    <div class="s-plus-lock" id="lock-alerts" data-feature="Price-drop alerts">
+      <span class="s-plus-badge">Plus</span>
+      <div class="s-plus-content">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-2);font-weight:500">
+          <input type="checkbox" disabled style="width:16px;height:16px;accent-color:var(--gold)"/>
+          🔔 Alert me on price drops
+        </label>
+      </div>
+      <span class="s-plus-cta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+        Unlock with Throttle+
+      </span>
+    </div>
+
+    <!-- Hidden checkboxes the filter logic still reads -->
+    <input type="hidden" id="f-hot-state" />
+    <input type="hidden" id="f-sold-state" />
+    <input type="checkbox" id="f-hot" style="display:none"/>
+    <input type="checkbox" id="f-sold" style="display:none"/>
+
+    <div class="s-clear-row">
+      <button class="t-btn t-btn--ghost" id="s-clear-btn">Clear all</button>
+      <button class="t-btn" id="s-save-btn">＋ Save</button>
+    </div>
+    <div style="font-size:11px;color:var(--txt-3);margin-top:6px" id="s-saved-quota">0 / 3 saved on free</div>
+    <div class="s-saved" id="s-saved"></div>
+  </aside>
+
+  <!-- Listing grid -->
+  <main class="s-results">
+    <div class="s-quick" id="s-quick" aria-label="Active filters">
+      <!-- Active filter chips render here -->
+    </div>
+    <div style="height:6px"></div>
+    <div class="s-grid" id="s-grid"></div>
+  </main>
+
+  <!-- Tools drawer (map / value / decoded / trend) -->
+  <aside class="s-tools" id="s-tools">
+    <div class="s-tools-head">
+      <button data-tab="map" class="is-active">Map</button>
+      <button data-tab="value">Value</button>
+      <button data-tab="decode">Decoded</button>
+      <button data-tab="trend">Trend</button>
+      <button class="s-tools-close" id="s-tools-close" aria-label="Close tools">×</button>
+    </div>
+
+    <div class="s-tools-body" id="s-tools-body">
+      <!-- MAP -->
+      <div data-pane="map">
+        <div id="s-map"></div>
+        <div class="s-legend">
+          <span><i style="background:var(--acc)"></i>Throttle</span>
+          <span><i style="background:var(--txt-2)"></i>External</span>
+          <span><i style="background:var(--warn)"></i>Sold</span>
+        </div>
+        <div class="s-section-ttl">Market pulse</div>
+        <dl id="s-pulse" class="s-kv"></dl>
+      </div>
+
+      <!-- VALUE -->
+      <div data-pane="value" hidden>
+        <div class="s-field">
+          <label>Year</label>
+          <select id="v-year"></select>
+        </div>
+        <div class="s-field">
+          <label>Make / Model</label>
+          <select id="v-make-model"></select>
+        </div>
+        <div class="s-field">
+          <label>Condition</label>
+          <select id="v-cond">
+            <option>Excellent</option><option selected>Good</option><option>Fair</option>
+          </select>
+        </div>
+        <button class="t-btn" id="v-go" style="width:100%">Estimate value</button>
+
+        <div class="s-pricebox">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div>
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--txt-3);text-transform:uppercase;font-weight:700">Estimated market value</div>
+              <div id="v-title" style="font-weight:700;margin-top:4px">Pick a year &amp; model →</div>
+            </div>
+            <div id="v-cond-badge" class="s-pill">—</div>
+          </div>
+          <div class="s-pricerow">
+            <div class="s-v"><small>Low</small><b id="v-low">—</b></div>
+            <div class="s-v is-mid"><small>Avg</small><b id="v-avg">—</b></div>
+            <div class="s-v"><small>High</small><b id="v-high">—</b></div>
+          </div>
+        </div>
+        <div class="s-section-ttl">Depreciation curve</div>
+        <canvas id="v-chart" height="220"></canvas>
+        <div class="s-section-ttl">Methodology</div>
+        <div style="color:var(--txt-2);font-size:12px;line-height:1.6">
+          Estimates blend curated MSRP/retention curves per category with live pulls from connected sources. Aircraft retention reflects long-cycle markets where well-maintained airframes hold &gt;50% value past 20 years.
+        </div>
+      </div>
+
+      <!-- DECODE -->
+      <div data-pane="decode" hidden>
+        <div id="s-decode-content" style="color:var(--txt-2)">
+          Paste a HIN, VIN, or N-Number into the search bar above — we'll automatically decode it. You can also try a sample:
+          <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="t-btn t-btn--ghost s-sample" data-v="SERV1234E323">HIN sample</button>
+            <button class="t-btn t-btn--ghost s-sample" data-v="4XAUH7EA8RA111111">VIN sample</button>
+            <button class="t-btn t-btn--ghost s-sample" data-v="N172SP">N-Number sample</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TREND -->
+      <div data-pane="trend" hidden>
+        <div id="s-trend-content"></div>
+      </div>
+
+      <!-- TREND default state shown when locked -->
+      <template id="s-trend-locked-tpl">
+        <div class="s-plus-pane">
+          <div class="s-plus-content">
+            <div class="s-section-ttl">24-month sold price trend</div>
+            <canvas id="s-trend-locked-chart" height="200"></canvas>
+            <div class="s-section-ttl">Recent comparable sales</div>
+            <table style="width:100%;font-size:13px;border-collapse:collapse">
+              <tr style="color:var(--txt-3);text-align:left;border-bottom:1px solid var(--line)"><th style="padding:6px 0">Year</th><th>Hrs</th><th>Sold</th><th>Days</th></tr>
+              <tr style="border-bottom:1px solid var(--line)"><td style="padding:6px 0">2023</td><td>120</td><td style="color:var(--good)">$48,200</td><td>34d</td></tr>
+              <tr style="border-bottom:1px solid var(--line)"><td style="padding:6px 0">2022</td><td>280</td><td style="color:var(--good)">$42,500</td><td>21d</td></tr>
+              <tr style="border-bottom:1px solid var(--line)"><td style="padding:6px 0">2021</td><td>410</td><td style="color:var(--good)">$38,900</td><td>52d</td></tr>
+            </table>
+          </div>
+          <div class="s-plus-overlay">
+            <span class="s-plus-badge">Throttle+</span>
+            <h4>See what these sold for.</h4>
+            <p>24-month price trend, sold history, and recent comparable sales — unlock with Throttle+ from $5/week.</p>
+            <button class="t-btn t-btn--gold" id="s-trend-unlock">Unlock Throttle+ →</button>
+          </div>
+        </div>
+      </template>
+    </div>
+  </aside>
+</div>
+
+<!-- Scrim for drawers -->
+<div class="s-scrim" id="s-scrim"></div>
+
+<!-- ============================================================ -->
+<!-- MODALS                                                        -->
+<!-- ============================================================ -->
+
+<!-- Listing detail -->
+<div class="s-modal" id="m-detail" role="dialog" aria-modal="true">
+  <div class="s-modal-box">
+    <div class="s-modal-head">
+      <h2 id="m-detail-title">—</h2>
+      <div class="s-mprice" id="m-detail-price">—</div>
+      <button class="t-btn t-btn--ghost" data-modal-close>Close</button>
+    </div>
+    <div class="s-modal-body is-split" id="m-detail-body"></div>
+  </div>
+</div>
+
+<!-- Upgrade -->
+<div class="s-modal" id="m-upgrade" role="dialog" aria-modal="true">
+  <div class="s-modal-box">
+    <div class="s-modal-head">
+      <h2 id="m-upgrade-title">Throttle+ · supporter plan</h2>
+      <button class="t-btn t-btn--ghost" data-modal-close>Close</button>
+    </div>
+    <div class="s-modal-body">
+      <p style="color:var(--txt-2);margin:0 0 6px">Throttle is free and stays free. <b>Throttle+</b> is for buyers who want trend data, alerts, and pro filters — and who want to keep this thing alive without ads or lead-selling.</p>
+      <div class="s-plans">
+        <div class="s-plan">
+          <h4>Free</h4>
+          <div class="s-pricelarge">$0<small> / forever</small></div>
+          <ul>
+            <li>All listings, all categories, no ads</li>
+            <li>HIN + VIN + N-Number decoder</li>
+            <li>Live ADS-B aircraft tracking</li>
+            <li>Map search</li>
+            <li>Current market value + depreciation curve</li>
+            <li>3 saved searches</li>
+            <li>List your toy free (individual sellers)</li>
+            <li>Direct messaging on Throttle listings</li>
+          </ul>
+          <button class="t-btn t-btn--ghost" disabled>Current plan</button>
+        </div>
+        <div class="s-plan is-pro">
+          <h4>Throttle+</h4>
+          <div class="s-pricelarge">$15<small> / month</small></div>
+          <p style="color:var(--txt-3);font-size:12px;margin:-4px 0 10px;text-align:center">
+            also $5 weekly · $60 yearly · $250 lifetime — <a href="/pricing" style="color:var(--acc)">see all tiers →</a>
+          </p>
+          <ul>
+            <li><b>Sold-listing history</b> &amp; 24-month price trend chart</li>
+            <li><b>Price-drop alerts</b> by email &amp; push</li>
+            <li><b>Unlimited saved searches</b> with notes</li>
+            <li><b>Pro filters</b>: installed options, trim, "below market"</li>
+            <li><b>CSV export</b> (1,000 rows/search)</li>
+            <li><b>Hot Deals</b> feed updated hourly</li>
+            <li>Backer badge · vote on the roadmap</li>
+            <li>500/day decoder bulk lookups (5/day on free)</li>
+          </ul>
+          <button class="t-btn t-btn--gold" id="m-upgrade-now">Become a supporter →</button>
+          <p style="color:var(--txt-3);font-size:11px;margin:8px 0 0;text-align:center">Cancel anytime. We'll never sell your data.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- List your toy -->
+<div class="s-modal" id="m-list" role="dialog" aria-modal="true">
+  <div class="s-modal-box">
+    <div class="s-modal-head">
+      <h2>List your toy on Throttle — free in 60 seconds</h2>
+      <button class="t-btn t-btn--ghost" data-modal-close>Close</button>
+    </div>
+    <div class="s-modal-body">
+      <p style="color:var(--txt-2);margin:0 0 12px">Free for individual sellers, forever. Scan or type your HIN, VIN, or N-Number — we'll pre-fill the rest. Listings are clearly marked as <b style="color:var(--acc)">Throttle Listings</b>, and buyers contact you through our in-app messaging (your email stays private).</p>
+      <form id="m-list-form" class="s-form">
+        <div class="s-full">
+          <label>HIN, VIN, or N-Number <span style="color:var(--txt-3)">(we'll decode it)</span></label>
+          <input name="vin" placeholder="e.g. SERV1234E323 · 4XAUH7EA8RA111111 · N172SP" />
+        </div>
+        <div><label>Category</label>
+          <select name="cat">
+            <option value="boats">Boats</option><option value="pwc">PWCs</option>
+            <option value="utv">Side-by-Sides</option><option value="atv">ATVs</option>
+            <option value="motorcycle">Motorcycles</option><option value="dirtbike">Dirt Bikes</option>
+            <option value="snowmobile">Snowmobiles</option><option value="3wheel">3-Wheelers</option>
+            <option value="trailers">Trailers</option><option value="aircraft">Aircraft</option>
+          </select>
+        </div>
+        <div><label>Year</label><input type="number" name="year" placeholder="2022"/></div>
+        <div><label>Make</label><input name="make" placeholder="Sea Ray"/></div>
+        <div><label>Model</label><input name="model" placeholder="SDX 250"/></div>
+        <div><label>Asking price (USD)</label><input type="number" name="price" placeholder="42000"/></div>
+        <div><label>Hours / miles</label><input type="number" name="usage" placeholder="120"/></div>
+        <div><label>Condition</label>
+          <select name="cond"><option>New</option><option selected>Used</option><option>Certified</option></select>
+        </div>
+        <div><label>City</label><input name="city" placeholder="Tampa"/></div>
+        <div><label>State (2-letter)</label><input name="state" placeholder="FL" maxlength="2"/></div>
+        <div class="s-full"><label>Notes (optional)</label><textarea name="notes" placeholder="Garage-kept, recent service, includes trailer, etc."></textarea></div>
+        <div class="s-full"><label>Your email <span style="color:var(--txt-3)">(buyer messages routed via Throttle — never shown publicly)</span></label><input type="email" name="email" required placeholder="you@example.com"/></div>
+        <div class="s-full" style="display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:6px;flex-wrap:wrap">
+          <span style="color:var(--txt-3);font-size:12px;margin-right:auto">No fees, ever. Listings expire after 90 days unless renewed.</span>
+          <button type="button" class="t-btn t-btn--ghost" id="m-list-decode-btn">Decode to prefill</button>
+          <button type="submit" class="t-btn">Publish on Throttle</button>
+        </div>
+      </form>
+      <div id="m-list-result" style="margin-top:12px;color:var(--txt-2);font-size:13px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Message seller -->
+<div class="s-modal" id="m-msg" role="dialog" aria-modal="true">
+  <div class="s-modal-box">
+    <div class="s-modal-head">
+      <h2 id="m-msg-title">Message the seller</h2>
+      <button class="t-btn t-btn--ghost" data-modal-close>Close</button>
+    </div>
+    <div class="s-modal-body">
+      <p style="color:var(--txt-2);margin:0 0 12px">Messages route through Throttle — the seller's email stays private until they reply. We'll send you a copy of every message you send.</p>
+      <div class="s-form">
+        <div><label>Your name</label><input id="m-msg-name"/></div>
+        <div><label>Your email</label><input id="m-msg-email" type="email"/></div>
+        <div class="s-full"><label>Phone (optional)</label><input id="m-msg-phone"/></div>
+        <div class="s-full"><label>Message</label><textarea id="m-msg-body" placeholder="Hi — I'm interested in your listing. Is it still available?"></textarea></div>
+        <div class="s-full" style="display:flex;justify-content:flex-end;gap:8px">
+          <span style="color:var(--txt-3);font-size:12px;margin-right:auto">No spam. No reseller forwarding. One thread per listing.</span>
+          <button class="t-btn" id="m-msg-send">Send to seller →</button>
+        </div>
+      </div>
+      <div id="m-msg-result" style="margin-top:12px;color:var(--txt-2);font-size:13px"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Report listing modal -->
+<div class="s-modal" id="m-report" role="dialog" aria-modal="true">
+  <div class="s-modal-box" style="width:min(560px,96vw)">
+    <div class="s-modal-head">
+      <h2>Report this listing</h2>
+      <button class="t-btn t-btn--ghost" data-modal-close>Close</button>
+    </div>
+    <div class="s-modal-body">
+      <p style="color:var(--txt-2);margin:0 0 12px">Something off? Tell us — we review every report within 24 hours and remove violators.</p>
+      <div class="s-form">
+        <div class="s-full"><label>Reason</label>
+          <select id="m-report-reason">
+            <option value="">Pick a reason…</option>
+            <option>Suspected scam or fraud</option>
+            <option>Wrong make / model / year</option>
+            <option>Misleading photos</option>
+            <option>Price seems too good to be true</option>
+            <option>Seller asked for off-platform payment</option>
+            <option>Duplicate listing</option>
+            <option>Sold but still listed</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="s-full"><label>Details (optional)</label>
+          <textarea id="m-report-details" placeholder="What did you notice? Links, screenshots, anything that helps us investigate."></textarea>
+        </div>
+        <div class="s-full"><label>Your email <span style="color:var(--txt-3)">(so we can follow up if needed — never shared)</span></label>
+          <input id="m-report-email" type="email" placeholder="you@example.com"/>
+        </div>
+        <div class="s-full" style="display:flex;justify-content:flex-end;gap:8px;align-items:center">
+          <span style="color:var(--txt-3);font-size:12px;margin-right:auto">We take fraud reports seriously. Thanks for keeping the market clean.</span>
+          <button class="t-btn" id="m-report-send">Submit report →</button>
+        </div>
+      </div>
+      <div id="m-report-result" style="margin-top:12px;color:var(--txt-2);font-size:13px"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="s-foot">
+  Throttle · a free, dealer-direct marketplace ·
+  VIN decode via <a href="https://vpic.nhtsa.dot.gov/api/" target="_blank" rel="noopener">NHTSA vPIC</a> ·
+  HIN decode by USCG 33 CFR §181 rules ·
+  N-Number / FAA registry lookup via <a href="https://api.adsbdb.com" target="_blank" rel="noopener">adsbdb</a> ·
+  Map © OpenStreetMap &amp; CartoDB
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+// ============================================================
+//  THROTTLE — search page (redesigned)
+//  Same data engine; new image-forward, simpler UI.
+// ============================================================
+
+// ---------- 1. Catalogs ----------
+const CATALOG = {
+  boats: { label:"Boats", emoji:"⚓", typicalMsrp:70000,
+    msrpByMake:{ "Sea Ray":95000,"Boston Whaler":110000,"Mastercraft":145000,"Malibu":150000,"Bayliner":45000,"Lund":38000,"Tracker":32000,"Bennington":60000,"Regal":85000,"Chaparral":80000,"Cobalt":110000,"Crownline":70000,"Yamaha":65000 },
+    models:{ "Sea Ray":["SDX 250","SLX 280","SPX 210","Sundancer 320","Sundancer 370"],"Boston Whaler":["170 Montauk","210 Montauk","250 Outrage","285 Conquest"],"Mastercraft":["NXT 22","X22","X24","XStar"],"Malibu":["Wakesetter 22 LSV","Wakesetter 23 LSV","M240"],"Bayliner":["VR4","VR5","VR6","Element E18"],"Lund":["Pro-V 1875","Tyee 1875","Impact XS 1875"],"Tracker":["Pro Team 175 TXW","Targa V-19","Bass Tracker Classic"],"Bennington":["20 SLX","22 SSRX","25 QXSB"],"Regal":["LX2","LX4","LS6"],"Chaparral":["19 SSi","21 SSi","23 SSi","267 SSX"],"Cobalt":["R3","R5","R7","CS23"],"Crownline":["220 SS","225 SS","265 SS"],"Yamaha":["AR195","AR210","252SE","275SD"] },
+    retention:{ y0:1,y1:.86,y2:.78,perYear:.93,floor:.30 } },
+  pwc: { label:"PWCs / Jet Skis", emoji:"🌊", typicalMsrp:14000,
+    msrpByMake:{ "Sea-Doo":14500,"Yamaha":13800,"Kawasaki":15500 },
+    models:{ "Sea-Doo":["Spark","GTI 130","GTI SE 170","GTX 170","GTX Limited 300","RXP-X 325","RXT-X 325","Fishpro Trophy 170"],"Yamaha":["EX","EX Sport","EX Deluxe","VX","VX Cruiser","FX HO","FX Cruiser SVHO","GP1800R SVHO","GP HO"],"Kawasaki":["STX 160","Ultra 310X","Ultra 310LX","SX-R 160","Ultra 160LX-S"] },
+    retention:{ y0:1,y1:.78,y2:.66,perYear:.90,floor:.20 } },
+  utv: { label:"Side-by-Sides", emoji:"🛞", typicalMsrp:25000,
+    msrpByMake:{ "Polaris":26000,"Can-Am":28500,"Honda":22000,"Kawasaki":21000,"Yamaha":20500,"CFMOTO":16000 },
+    models:{ "Polaris":["RZR XP 1000","RZR Pro R","RZR Turbo R","Ranger 1000","Ranger XP 1000","General 1000","RZR XP 4 1000"],"Can-Am":["Maverick X3","Maverick X3 Max","Defender HD10","Defender Max XT","Commander XT-P"],"Honda":["Talon 1000R","Talon 1000X","Pioneer 1000-5","Pioneer 700"],"Kawasaki":["Teryx KRX 1000","Teryx4 LE","Mule Pro-FXT"],"Yamaha":["Wolverine RMAX2 1000","Wolverine RMAX4 1000","YXZ1000R"],"CFMOTO":["ZForce 950","ZForce 950 Sport","UForce 1000"] },
+    retention:{ y0:1,y1:.76,y2:.64,perYear:.88,floor:.22 } },
+  atv: { label:"ATVs", emoji:"🏔", typicalMsrp:9500,
+    msrpByMake:{ "Polaris":10500,"Honda":8500,"Yamaha":9000,"Can-Am":11000,"Kawasaki":8000,"Suzuki":7800 },
+    models:{ "Polaris":["Sportsman 570","Sportsman 850","Sportsman XP 1000 S","Scrambler XP 1000","Outlaw 110"],"Honda":["Rancher 420","Foreman 520","Rubicon 520","TRX450R","Recon 250"],"Yamaha":["Grizzly 700","Kodiak 450","Kodiak 700","Raptor 700R","Raptor 90"],"Can-Am":["Outlander 570","Outlander 850","Outlander 1000R","Renegade 1000R"],"Kawasaki":["Brute Force 750","Brute Force 300","KFX 90"],"Suzuki":["KingQuad 500","KingQuad 750","LT-Z90"] },
+    retention:{ y0:1,y1:.78,y2:.66,perYear:.89,floor:.20 } },
+  dirtbike: { label:"Dirt Bikes", emoji:"🏍", typicalMsrp:8500,
+    msrpByMake:{ "Honda":8500,"Yamaha":8800,"Kawasaki":8400,"Suzuki":7800,"KTM":10500,"Husqvarna":11000,"GasGas":9500,"Beta":11500 },
+    models:{
+      "Honda":["CRF50F","CRF110F","CRF125F","CRF150R","CRF250F","CRF250R","CRF250RX","CRF450R","CRF450RX","CRF450X","XR650L"],
+      "Yamaha":["TT-R110E","TT-R125LE","TT-R230","YZ65","YZ85","YZ125","YZ250","YZ250F","YZ250FX","YZ450F","YZ450FX","WR250F","WR450F"],
+      "Kawasaki":["KLX110R","KLX140G","KLX230S","KX65","KX85","KX112","KX250","KX250X","KX450","KX450X"],
+      "Suzuki":["DR-Z50","DR-Z125L","RM85","RM-Z250","RM-Z450","DR-Z400S","DR650S"],
+      "KTM":["50 SX Mini","65 SX","85 SX","125 SX","150 SX","250 SX-F","350 SX-F","450 SX-F","250 XC","450 XC-F","500 EXC-F","690 Enduro R"],
+      "Husqvarna":["TC 50","TC 65","TC 85","TC 125","FC 250","FC 350","FC 450","FE 250","FE 350","FE 501"],
+      "GasGas":["MC 50","MC 65","MC 85","MC 125","MC 250F","MC 450F","EX 250F","EC 300"],
+      "Beta":["125 RR","200 RR","250 RR","300 RR","350 RR","390 RR","430 RR","480 RR","500 RR"]
+    },
+    retention:{ y0:1,y1:.74,y2:.62,perYear:.88,floor:.20 } },
+  motorcycle: { label:"Motorcycles", emoji:"🏁", typicalMsrp:14000,
+    msrpByMake:{ "Harley-Davidson":22000,"Indian":24000,"BMW":18000,"Ducati":17000,"Triumph":15000,"Yamaha":12000,"Honda":11000,"Kawasaki":11500,"Suzuki":10500,"KTM":14500 },
+    models:{ "Harley-Davidson":["Street Glide","Road Glide","Fat Boy","Sportster S"],"Indian":["Chief","Scout","Challenger","Roadmaster"],"BMW":["R 1250 GS","S 1000 RR","R nineT"],"Ducati":["Panigale V4","Monster","Multistrada V4"],"Triumph":["Bonneville T120","Speed Triple","Tiger 900"],"Yamaha":["YZF-R1","MT-09","Tenere 700"],"Honda":["CBR1000RR-R","Africa Twin","Rebel 1100"],"Kawasaki":["Ninja ZX-10R","Z900","Versys 1000"],"Suzuki":["GSX-R1000R","V-Strom 1050","Hayabusa"],"KTM":["1290 Super Duke R","890 Adventure","RC 8C"] },
+    retention:{ y0:1,y1:.85,y2:.78,perYear:.93,floor:.30 } },
+  snowmobile: { label:"Snowmobiles", emoji:"🛷", typicalMsrp:14000,
+    msrpByMake:{ "Polaris":14500,"Ski-Doo":15000,"Arctic Cat":13500,"Yamaha":13000 },
+    models:{ "Polaris":["Indy XC","RMK Khaos","Switchback Assault"],"Ski-Doo":["Summit X","MXZ X","Renegade X-RS"],"Arctic Cat":["ZR 9000","M 8000","Riot 8000"],"Yamaha":["Sidewinder L-TX","Transporter Lite","SR Viper"] },
+    retention:{ y0:1,y1:.80,y2:.72,perYear:.90,floor:.25 } },
+  "3wheel": { label:"3-Wheelers", emoji:"🛺", typicalMsrp:30000,
+    msrpByMake:{ "Polaris":32000,"Can-Am":28000,"Vanderhall":33000 },
+    models:{ "Polaris":["Slingshot S","Slingshot SL","Slingshot R"],"Can-Am":["Ryker 600","Ryker 900","Spyder F3","Spyder RT"],"Vanderhall":["Venice","Carmel","Brawley"] },
+    retention:{ y0:1,y1:.80,y2:.72,perYear:.92,floor:.30 } },
+  trailers: { label:"Trailers", emoji:"🚚", typicalMsrp:8500,
+    msrpByMake:{ "Featherlite":12000,"Big Tex":6500,"PJ Trailers":7000,"Continental Cargo":7500,"Karavan":4500,"Load Rite":5500,"Sundowner":18000,"Aluma":9500,"Diamond C":9000,"Wells Cargo":11000,"ATC":24000 },
+    models:{ "Featherlite":["1610 Utility","3110 Stock","8525 Car Hauler","4926 Living Quarters"],"Big Tex":["10ET Utility","14LX Equipment","14ET Equipment","22GN Gooseneck","70CH Car Hauler"],"PJ Trailers":["B5 Utility","C4 Channel","CC Car Hauler","DL Deckover","GE Gooseneck Equipment"],"Continental Cargo":["Cargo Mate 6x12","Cargo Mate 7x14","Cargo Mate 8.5x24","Auto Master 8.5x28"],"Karavan":["KSC Single Snowmobile","KTT Tilt Utility","KSP PWC","KAB Aluminum Bunk"],"Load Rite":["LR-AB Aluminum Bunk","LR-V V-Bunk","Elite Pontoon","Galvanized Roller"],"Sundowner":["BP Charter","Sport Stock","Sportman Living Quarters","Pro Grade Toy Hauler"],"Aluma":["638 Utility","7712 Tilt","8118 Car","8222 Tilt"],"Diamond C":["MDT Medium Duty Tilt","HDT Heavy Duty Tilt","FMAX Gooseneck","LPX Deckover"],"Wells Cargo":["Road Force 7x14","Road Force 8.5x24","FastTrac 6x12","Auto Wagon"],"ATC":["Quest","Raven","Aero","Romulus Stacker"] },
+    retention:{ y0:1,y1:.85,y2:.78,perYear:.94,floor:.35 } },
+  racecar: { label:"Race Cars", emoji:"🏎", typicalMsrp:90000,
+    msrpByMake:{ "KTM":120000,"Radical":100000,"Caterham":75000,"Ariel":85000,"Praga":150000 },
+    models:{ "KTM":["X-Bow GT-XR","X-Bow R"],"Radical":["SR3 XX","SR10","RXC"],"Caterham":["Seven 360","Seven 420","Seven 620"],"Ariel":["Atom 4","Nomad"],"Praga":["R1","Bohema"] },
+    retention:{ y0:1,y1:.88,y2:.82,perYear:.95,floor:.40 } },
+  aircraft: { label:"Aircraft", emoji:"✈", typicalMsrp:450000,
+    msrpByMake:{ "Cessna":380000,"Piper":420000,"Beechcraft":650000,"Cirrus":750000,"Mooney":480000,"Diamond":520000,"Daher":3200000,"Embraer":5500000,"Bombardier":28000000,"Gulfstream":55000000,"Pilatus":4800000,"Honda":5500000 },
+    models:{
+      "Cessna":["152","172 Skyhawk","182 Skylane","206 Stationair","208 Caravan","310","414 Chancellor","Citation M2","Citation CJ3+","Citation Latitude"],
+      "Piper":["J-3 Cub","PA-28 Cherokee","PA-28 Warrior","PA-32 Saratoga","PA-46 Malibu","M350","M500","M600"],
+      "Beechcraft":["A36 Bonanza","B58 Baron","King Air 250","King Air 350i","Premier I"],
+      "Cirrus":["SR20","SR22","SR22T","Vision Jet SF50"],
+      "Mooney":["M20J","M20K","M20M","M20R","Acclaim Ultra"],
+      "Diamond":["DA20","DA40","DA42","DA62"],
+      "Daher":["TBM 850","TBM 940","TBM 960","Kodiak 100","Kodiak 900"],
+      "Embraer":["Phenom 100","Phenom 300"],
+      "Bombardier":["Challenger 350","Challenger 605","Global 6000","Global 7500"],
+      "Gulfstream":["G280","G500","G600","G650ER","G700"],
+      "Pilatus":["PC-12 NGX","PC-24"],
+      "Honda":["HondaJet HA-420","HondaJet Elite II"]
+    },
+    retention:{ y0:1,y1:.92,y2:.88,perYear:.97,floor:.45 } },
+};
+function emojiFor(cat){ return (CATALOG[cat]||{}).emoji || "🛠"; }
+
+const MIC = { "SER":"Sea Ray","BWC":"Boston Whaler","BAY":"Bayliner","CHP":"Chaparral","CRN":"Crownline","CBT":"Cobalt","RGP":"Regal","TRK":"Tracker","LUN":"Lund","BEN":"Bennington","MBC":"Mastercraft","MAL":"Malibu","YAM":"Yamaha","SDB":"Sea-Doo","KAW":"Kawasaki","CCB":"Carolina Skiff","BOS":"Boston Whaler","XPR":"Xpress","HST":"Hurricane","ZOD":"Zodiac","JEA":"Jeanneau","BRP":"Bombardier (Sea-Doo)","WLC":"Wellcraft","GRD":"Grady-White" };
+const HIN_MONTH = {A:"January",B:"February",C:"March",D:"April",E:"May",F:"June",G:"July",H:"August",J:"September",K:"October",L:"November",M:"December"};
+
+const REGION_BY_STATE = {"WA":"West","OR":"West","CA":"West","NV":"West","ID":"Mountain","UT":"Mountain","AZ":"Mountain","CO":"Mountain","WY":"Mountain","MT":"Mountain","NM":"Mountain","ND":"Midwest","SD":"Midwest","NE":"Midwest","KS":"Midwest","MN":"Midwest","IA":"Midwest","MO":"Midwest","WI":"Midwest","IL":"Midwest","IN":"Midwest","OH":"Midwest","MI":"Midwest","TX":"South","OK":"South","AR":"South","LA":"South","KY":"South","TN":"South","MS":"South","AL":"South","GA":"South","FL":"South","SC":"South","NC":"South","WV":"South","VA":"South","MD":"South","DC":"South","ME":"Northeast","NH":"Northeast","VT":"Northeast","MA":"Northeast","RI":"Northeast","CT":"Northeast","NY":"Northeast","NJ":"Northeast","PA":"Northeast","DE":"Northeast"};
+const STATE_LATLNG = {"FL":[27.9,-81.7],"CA":[36.8,-119.4],"TX":[31.0,-99.9],"AZ":[34.0,-111.6],"NV":[38.8,-116.4],"WA":[47.4,-121.5],"OR":[44.0,-120.5],"MN":[46.4,-94.6],"MI":[44.3,-85.4],"WI":[44.5,-89.5],"OH":[40.4,-82.9],"IL":[40.0,-89.0],"IN":[40.3,-86.1],"MO":[38.4,-92.3],"OK":[35.5,-97.5],"KY":[37.8,-84.3],"TN":[35.7,-86.7],"NC":[35.6,-79.0],"SC":[33.8,-80.9],"GA":[32.6,-83.5],"AL":[32.8,-86.8],"LA":[31.2,-92.3],"NY":[42.9,-75.5],"PA":[41.2,-77.2],"NJ":[40.2,-74.7],"MA":[42.4,-71.4],"CT":[41.6,-72.7],"ME":[45.4,-69.0],"VT":[44.0,-72.7],"VA":[37.5,-78.7],"WV":[38.6,-80.6],"MD":[39.0,-76.7],"CO":[39.0,-105.5],"UT":[39.3,-111.7],"ID":[44.4,-114.6],"MT":[46.9,-110.4],"WY":[42.8,-107.3],"NM":[34.4,-106.1],"ND":[47.5,-100.3],"SD":[44.4,-100.2],"NE":[41.5,-99.9],"KS":[38.5,-98.4],"IA":[42.0,-93.5],"AR":[34.9,-92.4],"MS":[32.7,-89.7]};
+const CITIES = {"FL":["Miami","Tampa","Orlando","Fort Lauderdale","Jacksonville","Naples","Sarasota","Pensacola","Key Largo","Destin"],"CA":["San Diego","Los Angeles","Sacramento","San Jose","Long Beach","Lake Tahoe","Ventura","Newport Beach","Oakland"],"TX":["Austin","Dallas","Houston","San Antonio","Lubbock","Galveston","Corpus Christi","Fort Worth"],"AZ":["Phoenix","Tucson","Scottsdale","Lake Havasu City","Mesa"],"NV":["Las Vegas","Reno","Lake Tahoe","Henderson"],"WA":["Seattle","Spokane","Bellingham","Tacoma"],"OR":["Portland","Bend","Eugene"],"MN":["Minneapolis","Duluth","Brainerd"],"MI":["Detroit","Traverse City","Grand Rapids","Petoskey"],"WI":["Milwaukee","Madison","Green Bay"],"OH":["Cleveland","Columbus","Cincinnati"],"IL":["Chicago","Peoria","Springfield"],"MO":["Kansas City","St. Louis","Lake of the Ozarks"],"OK":["Oklahoma City","Tulsa"],"TN":["Nashville","Knoxville","Chattanooga"],"NC":["Raleigh","Charlotte","Wilmington"],"GA":["Atlanta","Savannah","Lake Lanier"],"AL":["Birmingham","Mobile","Lake Martin"],"LA":["New Orleans","Baton Rouge","Lafayette"],"NY":["Buffalo","NYC","Lake George","Syracuse"],"PA":["Pittsburgh","Philadelphia","Erie"],"NJ":["Jersey Shore","Newark","Atlantic City"],"MA":["Boston","Cape Cod","Worcester"],"VA":["Virginia Beach","Richmond","Norfolk"],"MD":["Annapolis","Baltimore","Ocean City"],"CO":["Denver","Colorado Springs","Grand Junction"],"UT":["Salt Lake City","Lake Powell","St. George"],"ID":["Boise","Coeur d'Alene","Idaho Falls"],"MT":["Bozeman","Missoula","Whitefish"],"WY":["Cheyenne","Jackson","Casper"],"NM":["Albuquerque","Santa Fe"],"AR":["Little Rock","Bentonville"]};
+
+// ---------- 2. Sources ----------
+const SOURCES_BY_CAT = {
+  boats:    ["Throttle","BoatTrader","YachtWorld","Dealer Direct","Facebook","Craigslist"],
+  pwc:      ["Throttle","PWC Trader","Dealer Direct","BoatTrader","Facebook","Craigslist"],
+  utv:      ["Throttle","ATV Trader","Cycle Trader","Dealer Direct","Facebook","Craigslist"],
+  atv:      ["Throttle","ATV Trader","Cycle Trader","Dealer Direct","Facebook","Craigslist"],
+  dirtbike: ["Throttle","Cycle Trader","ATV Trader","Dealer Direct","Facebook","Craigslist"],
+  motorcycle:["Throttle","Cycle Trader","Dealer Direct","Facebook","Craigslist"],
+  snowmobile:["Throttle","Dealer Direct","Facebook","Craigslist"],
+  "3wheel":  ["Throttle","Cycle Trader","Dealer Direct","Facebook"],
+  trailers:  ["Throttle","TrailerTrader","Dealer Direct","Facebook","Craigslist"],
+  racecar:   ["Throttle","Dealer Direct","Facebook"],
+  aircraft:  ["Throttle","Trade-A-Plane","Controller","Dealer Direct","Facebook"],
+};
+
+// ---------- 3. Seed data ----------
+function cyrb53(str, seed=0){let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0)}
+const rand = (s)=>{let n=cyrb53(s);return()=>{n=(n*1664525+1013904223)>>>0;return n/2**32}};
+function retention(R, age){if(age<=0)return R.y0;if(age===1)return R.y1;if(age===2)return R.y2;let v=R.y2;for(let y=3;y<=age;y++)v*=R.perYear;return Math.max(R.floor,v);}
+
+const USES_HOURS = new Set(["boats","pwc","aircraft","dirtbike"]);
+const USES_MILES = new Set(["utv","atv","motorcycle","snowmobile","3wheel","racecar","trailers"]);
+const HOURS_RANGE = { boats:[0,900], pwc:[0,400], aircraft:[200,12000], dirtbike:[0,250] };
+
+function buildSeedListings(cat, n=80){
+  const C=CATALOG[cat], r=rand(cat), out=[];
+  const makes=Object.keys(C.models), states=Object.keys(STATE_LATLNG);
+  const sources = SOURCES_BY_CAT[cat] || ["Throttle","Dealer Direct","Facebook","Craigslist"];
+  for(let i=0;i<n;i++){
+    const make=makes[Math.floor(r()*makes.length)];
+    const ms=C.models[make]; const model=ms[Math.floor(r()*ms.length)];
+    const yMin = cat==="aircraft" ? 1985 : 2008;
+    const yRange = 2026 - yMin;
+    const year = yMin + Math.floor(r()*yRange);
+    const cur=2026, age=Math.max(0,cur-year);
+    const msrp=(C.msrpByMake[make]||C.typicalMsrp)*(0.85+r()*0.4);
+    const ret=retention(C.retention,age)*(0.85+r()*0.3);
+    let price=Math.round(msrp*ret/100)*100;
+    const cond = year>=cur-1 ? "New" : (r()>0.85?"Certified":"Used");
+    if(cond==="New") price=Math.round(msrp/100)*100;
+    const state=states[Math.floor(r()*states.length)];
+    const cities=CITIES[state]||["—"]; const city=cities[Math.floor(r()*cities.length)];
+    const src = r()<0.10 ? "Throttle" : sources[1+Math.floor(r()*(sources.length-1))];
+    const dom=Math.floor(r()*180)+1;
+    const sold=r()>0.92;
+    const ll=STATE_LATLNG[state]||[39.5,-98];
+    const lat=ll[0]+(r()-0.5)*1.6, lng=ll[1]+(r()-0.5)*1.6;
+    const expectedAvg = (C.msrpByMake[make]||C.typicalMsrp) * retention(C.retention,age);
+    const hot = !sold && price < expectedAvg*0.85;
+    const id=`${cat}-${i}-${cyrb53(make+model+year+state+i)}`;
+    const hRange = HOURS_RANGE[cat];
+    out.push({
+      id,cat,make,model,year,price,msrp:Math.round(msrp),cond,dom,sold,city,state,
+      region:REGION_BY_STATE[state]||"—", lat,lng,
+      src, isThrottle: src==="Throttle",
+      live: src==="Throttle" || src==="Dealer Direct",
+      hours: USES_HOURS.has(cat) && hRange ? Math.floor(hRange[0]+r()*(hRange[1]-hRange[0])) : null,
+      miles: USES_MILES.has(cat) ? Math.floor(r()*15000) : null,
+      hue: Math.floor(r()*360),
+      hot,
+      photos: [],            // seed has no photos; API listings may include them
+      url: src==="Throttle" ? "#"+id : `https://example.com/${src.toLowerCase().replace(/[^a-z]/g,"")}/${id}`,
+      sellerEmail: src==="Throttle" ? `seller-${cyrb53(id)%9999}@throttle.toys` : null,
+    });
+  }
+  return out;
+}
+
+const STATE = {
+  cat: "all",
+  listings: {},                // populated below
+  filtered: [],
+  sort: "rel",
+  query: "",
+  saved: JSON.parse(localStorage.getItem("throttle_saved")||"[]"),
+  isPro: localStorage.getItem("throttle_pro")==="1",
+  toolsOpen: false,
+  toolTab: "map",
+  map: null, mapTileLayer: null, mapListingLayer: null,
+  charts: {},
+  currentListing: null,
+};
+const CATS_ALL = ["boats","pwc","utv","atv","motorcycle","dirtbike","snowmobile","3wheel","trailers","racecar","aircraft"];
+const CATS_PICKABLE = ["all", ...CATS_ALL];
+// Seed/placeholder listings removed — search now shows only real scraper/DB results.
+// Empty categories show an empty state until the API populates them.
+const CATS_SEEDED = [];
+CATS_ALL.forEach(c => STATE.listings[c] = []);
+
+function withGeoFallback(L){
+  const hasGeo = typeof L.lat === "number" && typeof L.lng === "number" && isFinite(L.lat) && isFinite(L.lng);
+  if(hasGeo) return L;
+  const st = (L.state||"").toUpperCase();
+  const ctr = STATE_LATLNG[st];
+  if(!ctr) return L;
+  let h = 0;
+  const s = String(L.id || (L.year + L.make + L.model));
+  for(let i=0;i<s.length;i++) h = (h*31 + s.charCodeAt(i)) | 0;
+  const jLat = ((h        & 0xffff) / 0xffff - 0.5) * 1.4;
+  const jLng = (((h >> 16) & 0xffff) / 0xffff - 0.5) * 1.4;
+  return { ...L, lat: ctr[0]+jLat, lng: ctr[1]+jLng, _geoApprox: true };
+}
+
+// Normalize incoming API listing to local shape (handles photos/image fields)
+function normalizeListing(L){
+  const out = { ...L };
+  // Photos: prefer `photos[]`, then `image`, then `imageUrl`
+  if(!Array.isArray(out.photos)){
+    if(out.image) out.photos = [out.image];
+    else if(out.imageUrl) out.photos = [out.imageUrl];
+    else out.photos = [];
+  }
+  // Computed flags
+  if(out.src === "Throttle") out.isThrottle = true;
+  out.live = out.live ?? (out.src==="Throttle" || out.src==="Dealer Direct");
+  if(typeof out.hue !== "number") out.hue = Math.floor(Math.random()*360);
+  return withGeoFallback(out);
+}
+
+// ---------- 4. API fetch ----------
+const API_BASE = (window.THROTTLE_API_BASE || "https://api.throttle.toys").replace(/\/$/,"");
+fetch(`${API_BASE}/api/listings`, { cache: "no-store" })
+  .then(r => r.ok ? r.json() : [])
+  .then(items => {
+    // Always replace, even when empty — placeholders are gone and we want
+    // empty cats to render an empty state, not stale data.
+    const byCat = {};
+    CATS_ALL.forEach(c => byCat[c] = []);
+    if (Array.isArray(items)) {
+      items.forEach(i => {
+        if (byCat[i.cat]) byCat[i.cat].push(normalizeListing(i));
+      });
+    }
+    Object.entries(byCat).forEach(([cat, list]) => { STATE.listings[cat] = list; });
+    if(typeof applyFilters === "function") applyFilters();
+  })
+  .catch(()=>{ /* leave categories empty; UI shows empty state */ });
+
+// ---------- 5. Live probes ----------
+async function probeLiveSources(){
+  const status=document.getElementById("s-status"), text=document.getElementById("s-status-text");
+  let parts=[], ok=true;
+  try{
+    const r=await fetch("https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/motorcycle?format=json",{cache:"no-store"});
+    if(r.ok){ const j=await r.json(); if(j&&j.Results&&j.Results.length) parts.push(`vPIC · ${j.Results.length} powersports makes`); }
+  }catch(e){ ok=false; }
+  try{
+    const r=await fetch("https://api.adsbdb.com/v0/aircraft/N172SP",{cache:"no-store"});
+    if(r.ok) parts.push("FAA registry · N-Number lookup");
+  }catch(e){}
+  if(parts.length){ text.textContent = "live · " + parts.join(" · "); }
+  else { status.classList.add("is-warn"); text.textContent = "live sources unreachable"; ok=false; }
+}
+
+// ---------- 6. Decoders ----------
+async function decodeVIN(vin){
+  const url=`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/${encodeURIComponent(vin)}?format=json`;
+  const r=await fetch(url); if(!r.ok) throw new Error("vPIC failed");
+  const j=await r.json(); return j.Results&&j.Results[0];
+}
+async function decodeNNumber(n){
+  const reg = await fetch(`https://api.adsbdb.com/v0/aircraft/${encodeURIComponent(n)}`).then(r=>r.json()).catch(()=>null);
+  return { registry: reg && reg.response && reg.response.aircraft };
+}
+function decodeHIN(hin){
+  hin=hin.toUpperCase().replace(/\s|-/g,"");
+  if(hin.length!==12) throw new Error("HIN must be 12 characters (USCG current format)");
+  const mic=hin.slice(0,3), serial=hin.slice(3,8);
+  const monthLetter=hin[8], yearDigit=hin[9], myA=hin[10], myB=hin[11];
+  const month=HIN_MONTH[monthLetter]||"Unknown";
+  let modelYear=null;
+  if(/^\d\d$/.test(myA+myB)){ const yy=parseInt(myA+myB,10); modelYear=(yy<70?2000:1900)+yy; }
+  else if(/^\d$/.test(myA)){ const decade=(yearDigit>="0"&&yearDigit<="6")?"202":"199"; modelYear=parseInt(decade+myA,10); }
+  let certYear=null;
+  if(modelYear){ const decade=Math.floor(modelYear/10)*10; certYear=decade+parseInt(yearDigit,10); if(certYear>modelYear) certYear-=10; }
+  return { raw:hin, mic, manufacturer:MIC[mic]||null, serial, certMonth:month, certYear, modelYear, valid:true };
+}
+function classifyInput(s){
+  s=(s||"").trim().toUpperCase();
+  if(!s) return "search";
+  if(/^N[A-HJ-NPR-Z0-9]{1,5}$/.test(s)) return "N-NUMBER";
+  if(s.length===17 && /^[A-HJ-NPR-Z0-9]{17}$/.test(s)) return "VIN";
+  if(s.length===12 && /^[A-Z0-9]{12}$/.test(s)) return "HIN";
+  return "search";
+}
+
+// ---------- 7. Render helpers ----------
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+const fmt$=n=>n==null?"—":("$"+Math.round(n).toLocaleString());
+
+function throttleLogoSpan(){
+  return `<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="16" cy="16" r="9" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".7"/><circle cx="16" cy="16" r="4" fill="currentColor"/></svg>`;
+}
+function srcPill(L){
+  if(L.isThrottle) return `<span class="s-src is-throttle">${throttleLogoSpan()} Throttle</span>`;
+  return `<span class="s-src" data-src="${L.src||""}">${L.src||"Listed"}</span>`;
+}
+function imageOrFallback(L){
+  const photo = (L.photos && L.photos[0]) || L.image || null;
+  if(photo){
+    return `<img src="${photo}" alt="${L.year||""} ${L.make||""} ${L.model||""}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling&&(this.nextElementSibling.style.display='flex')"/>
+      <div class="s-img-fallback" style="display:none;background:${gradFor(L)}">
+        <div class="s-emoji">${emojiFor(L.cat)}</div>
+        <div class="s-yr">${L.year||""}</div>
+      </div>`;
+  }
+  return `<div class="s-img-fallback" style="background:${gradFor(L)}">
+    <div class="s-emoji">${emojiFor(L.cat)}</div>
+    <div class="s-yr">${L.year||""}</div>
+  </div>`;
+}
+function gradFor(L){
+  const h = typeof L.hue === "number" ? L.hue : Math.floor(Math.random()*360);
+  return `linear-gradient(135deg, hsl(${h},55%,28%) 0%, hsl(${(h+40)%360},45%,12%) 100%)`;
+}
+
+// ---------- 8. Make/model selects ----------
+function populateMakeSelect(){
+  const cat=STATE.cat;
+  const makes = cat==="all"
+    ? Array.from(new Set(CATS_ALL.flatMap(c => Object.keys((CATALOG[c]||{models:{}}).models)))).sort()
+    : Object.keys((CATALOG[cat]||{models:{}}).models);
+  $("#f-make").innerHTML = `<option value="">Any</option>` + makes.map(m=>`<option>${m}</option>`).join("");
+  populateModelSelect();
+  populateValueSelect();
+}
+function populateModelSelect(){
+  const cat=STATE.cat, make=$("#f-make").value;
+  if(!make){ $("#f-model").innerHTML = `<option value="">Any</option>`; return; }
+  const models = cat==="all"
+    ? Array.from(new Set(CATS_ALL.flatMap(c => ((CATALOG[c]||{models:{}}).models[make]) || []))).sort()
+    : ((CATALOG[cat]||{models:{}}).models[make] || []);
+  $("#f-model").innerHTML = `<option value="">Any</option>` + models.map(m=>`<option>${m}</option>`).join("");
+}
+function populateValueSelect(){
+  const cat=STATE.cat;
+  const startY = cat==="aircraft" ? 1985 : 2005;
+  const yrs=[]; for(let y=2026;y>=startY;y--) yrs.push(y);
+  $("#v-year").innerHTML = yrs.map(y=>`<option ${y===2022?"selected":""}>${y}</option>`).join("");
+  const cats = cat==="all" ? CATS_ALL : [cat];
+  const seen=new Set(), opts=[];
+  for(const c of cats){
+    const C=CATALOG[c]; if(!C) continue;
+    for(const make of Object.keys(C.models)){
+      for(const model of C.models[make]){
+        const k=make+"|"+model; if(seen.has(k)) continue; seen.add(k);
+        opts.push(`<option value="${k}">${make} ${model}</option>`);
+      }
+    }
+  }
+  $("#v-make-model").innerHTML = opts.join("");
+}
+
+// ---------- 9. Histogram range filter ----------
+const HIST = {
+  price: { min: 0, max: 200000, lo: 0, hi: 200000, step: 500 },
+  usage: { min: 0, max: 20000, lo: 0, hi: 20000, step: 50 },
+};
+function usageOf(L){
+  if(L.cat==="aircraft" || USES_HOURS.has(L.cat)) return L.hours;
+  if(USES_MILES.has(L.cat)) return L.miles;
+  return null;
+}
+function usageUnit(){
+  const c = STATE.cat;
+  if(c==="all") return "mi / hrs";
+  if(c==="aircraft" || USES_HOURS.has(c)) return "hrs";
+  return "mi";
+}
+function fmtUsage(v, c){
+  c = c || STATE.cat;
+  if(v == null || !isFinite(v)) return "—";
+  const u = (c==="all") ? "" : (c==="aircraft" || USES_HOURS.has(c) ? " hrs" : " mi");
+  return Math.round(v).toLocaleString() + u;
+}
+function fmtPriceShort(v){
+  if(v==null) return "—";
+  if(v>=1e6) return "$" + (v/1e6).toFixed(1) + "M";
+  if(v>=1000) return "$" + Math.round(v/1000) + "k";
+  return "$" + Math.round(v).toLocaleString();
+}
+// Compute histogram bin counts (24 bins)
+function binCounts(values, min, max, bins=24){
+  const counts = new Array(bins).fill(0);
+  if(max<=min) return counts;
+  const span = max - min;
+  values.forEach(v => {
+    if(v==null || !isFinite(v)) return;
+    let i = Math.floor(((v - min) / span) * bins);
+    if(i >= bins) i = bins-1;
+    if(i < 0) return;
+    counts[i]++;
+  });
+  return counts;
+}
+function rebuildHistogramDomain(unfiltered){
+  // Price domain = full listings (so user always sees the full distribution)
+  const prices = unfiltered.map(x=>x.price).filter(v => typeof v==="number" && isFinite(v) && v>0);
+  if(prices.length){
+    const pmin = 0;
+    const pmax = Math.max(Math.ceil(Math.max(...prices)/1000)*1000, 5000);
+    HIST.price.min = pmin; HIST.price.max = pmax;
+    HIST.price.step = pmax <= 50000 ? 250 : pmax <= 200000 ? 500 : pmax <= 1e6 ? 5000 : 50000;
+    if(HIST.price.lo < pmin || HIST.price.lo > pmax) HIST.price.lo = pmin;
+    if(HIST.price.hi < pmin || HIST.price.hi > pmax) HIST.price.hi = pmax;
+    if(HIST.price.lo >= HIST.price.hi){ HIST.price.lo = pmin; HIST.price.hi = pmax; }
+  }
+  const usage = unfiltered.map(usageOf).filter(v => typeof v==="number" && isFinite(v) && v>=0);
+  if(usage.length){
+    const umin = 0;
+    const umax = Math.max(Math.ceil(Math.max(...usage)/100)*100, 100);
+    HIST.usage.min = umin; HIST.usage.max = umax;
+    HIST.usage.step = umax <= 1000 ? 10 : umax <= 10000 ? 50 : 100;
+    if(HIST.usage.lo < umin || HIST.usage.lo > umax) HIST.usage.lo = umin;
+    if(HIST.usage.hi < umin || HIST.usage.hi > umax) HIST.usage.hi = umax;
+    if(HIST.usage.lo >= HIST.usage.hi){ HIST.usage.lo = umin; HIST.usage.hi = umax; }
+  } else {
+    HIST.usage.min = 0; HIST.usage.max = 100; HIST.usage.lo = 0; HIST.usage.hi = 100;
+  }
+}
+function renderHistograms(unfiltered){
+  // PRICE
+  drawHistogram("price", unfiltered.map(x=>x.price), HIST.price, fmtPriceShort);
+  $("#hist-price-lo").textContent = fmtPriceShort(HIST.price.min);
+  $("#hist-price-hi").textContent = fmtPriceShort(HIST.price.max);
+  $("#hist-price-vals").textContent = `${fmtPriceShort(HIST.price.lo)} – ${fmtPriceShort(HIST.price.hi)}`;
+  // USAGE — label changes by category
+  const usageVals = unfiltered.map(usageOf);
+  drawHistogram("usage", usageVals, HIST.usage, v => fmtUsage(v));
+  $("#hist-usage-lo").textContent = fmtUsage(HIST.usage.min);
+  $("#hist-usage-hi").textContent = fmtUsage(HIST.usage.max);
+  $("#hist-usage-vals").textContent = `${fmtUsage(HIST.usage.lo)} – ${fmtUsage(HIST.usage.hi)}`;
+  const ulabel = STATE.cat==="all" ? "Mileage / Hours"
+    : (STATE.cat==="aircraft" || USES_HOURS.has(STATE.cat)) ? "Hours" : "Mileage";
+  $("#hist-usage-label").textContent = ulabel;
+  $("#hist-usage-title").textContent = `Drag to narrow by ${ulabel.toLowerCase()}`;
+  // HEATMAP — same data, different view
+  renderHeatmap(unfiltered);
+}
+
+// ---------- 9b. Price × Usage heatmap ----------
+// Click a cell to clamp both HIST.price and HIST.usage to that cell's
+// bounding box, then re-applyFilters. Selection persists until cleared.
+const HEAT = { rows: 10, cols: 7, selected: null /* {r,c} */ };
+
+function renderHeatmap(unfiltered){
+  const grid = $("#s-heat-grid");
+  const xlabels = $("#s-heat-xlabels");
+  const titleEl = $("#heat-title");
+  const wordEl = $("#heat-usage-word");
+  if(!grid) return;
+
+  const cat = STATE.cat;
+  const usesHours = cat !== "all" && (cat === "aircraft" || USES_HOURS.has(cat));
+  const usageWord = cat === "all" ? "mileage / hours" : usesHours ? "hours" : "mileage";
+  titleEl.textContent = "Price × " + (cat === "all" ? "Usage" : usesHours ? "Hours" : "Mileage");
+  wordEl.textContent = usageWord;
+
+  // Filter listings to those with both price and usage (or count "New" if no usage)
+  const items = unfiltered.filter(L => typeof L.price === "number" && L.price > 0);
+  if(!items.length) {
+    grid.innerHTML = "<div class='s-heat-empty' style='grid-column:1/-1'>No data yet for this category.</div>";
+    xlabels.innerHTML = "";
+    $("#s-heat-clear").classList.remove("is-on");
+    return;
+  }
+
+  // Bucketize prices into HEAT.rows bands using HIST.price domain (full data range, not filtered)
+  const pMin = HIST.price.min, pMax = HIST.price.max;
+  const pSpan = Math.max(1, pMax - pMin);
+  const pStep = pSpan / HEAT.rows;
+
+  // Usage bucketing: col 0 is "New" (usage <= 5% of max OR no usage); cols 1-6 spread the remaining range
+  const uMax = Math.max(1, HIST.usage.max);
+  const usageCols = HEAT.cols;
+  // first col = "New" (low usage); remaining (cols-1) cols evenly span 0..uMax
+  const innerSpan = uMax / (usageCols - 1);
+
+  // Count cells: rows top-down highest price, cols left-right increasing usage
+  const counts = Array.from({ length: HEAT.rows }, () => new Array(usageCols).fill(0));
+  let maxCount = 0;
+  items.forEach(L => {
+    const price = L.price;
+    const usage = usageOf(L);
+    let r = HEAT.rows - 1 - Math.floor((price - pMin) / pStep);
+    if (r < 0) r = 0; if (r >= HEAT.rows) r = HEAT.rows - 1;
+    let c;
+    if(usage == null || usage <= innerSpan * 0.05) c = 0; // "New" bucket
+    else {
+      c = 1 + Math.floor(usage / innerSpan);
+      if(c >= usageCols) c = usageCols - 1;
+    }
+    counts[r][c]++;
+    if(counts[r][c] > maxCount) maxCount = counts[r][c];
+  });
+
+  // Build grid HTML — one row per price band
+  let html = "";
+  for(let r = 0; r < HEAT.rows; r++){
+    const bandHi = pMax - r * pStep;
+    html += `<div class="s-heat-lbl-y">${fmtPriceShort(bandHi)}</div>`;
+    for(let c = 0; c < usageCols; c++){
+      const n = counts[r][c];
+      const isEmpty = n === 0;
+      const isHot = n === maxCount && maxCount > 1;
+      const sel = HEAT.selected && HEAT.selected.r === r && HEAT.selected.c === c;
+      let bg = "var(--bg-2)";
+      if(!isEmpty){
+        const t = Math.min(1, n / Math.max(1, maxCount));
+        // Blend acc into bg-2 by t. Hot cell gets gold accent in CSS.
+        bg = `color-mix(in srgb, var(--acc) ${Math.round(15 + t * 70)}%, var(--bg-2))`;
+      }
+      const cls = ["s-heat-cell", isEmpty ? "is-empty" : "", isHot ? "is-hot" : "", sel ? "is-selected" : ""].filter(Boolean).join(" ");
+      const title = isEmpty ? "No listings here" : `${n} listing${n===1?"":"s"} · ${cellLabel(r, c, pStep, pMax, innerSpan, usesHours)}`;
+      html += `<button class="${cls}" data-r="${r}" data-c="${c}" style="${isEmpty||isHot?'':`background:${bg}`}" title="${title}" aria-label="${title}"></button>`;
+    }
+  }
+  grid.innerHTML = html;
+
+  // X-axis labels: col 0 = "New", others = usage upper bound rounded
+  let xhtml = "<span></span>"; // empty corner
+  for(let c = 0; c < usageCols; c++){
+    if(c === 0) xhtml += `<span class="is-new">New</span>`;
+    else {
+      const hi = innerSpan * c;
+      xhtml += `<span>${shortUsage(hi, usesHours)}</span>`;
+    }
+  }
+  xlabels.innerHTML = xhtml;
+
+  // Wire click handlers
+  grid.querySelectorAll(".s-heat-cell:not(.is-empty)").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const r = +btn.dataset.r, c = +btn.dataset.c;
+      // Toggle selection: clicking same cell again clears
+      if(HEAT.selected && HEAT.selected.r === r && HEAT.selected.c === c){
+        HEAT.selected = null;
+        // Restore full ranges
+        HIST.price.lo = HIST.price.min; HIST.price.hi = HIST.price.max;
+        HIST.usage.lo = HIST.usage.min; HIST.usage.hi = HIST.usage.max;
+      } else {
+        HEAT.selected = { r, c };
+        const bandHi = pMax - r * pStep;
+        const bandLo = Math.max(pMin, bandHi - pStep);
+        HIST.price.lo = Math.round(bandLo);
+        HIST.price.hi = Math.round(bandHi);
+        if(c === 0){ HIST.usage.lo = 0; HIST.usage.hi = Math.round(innerSpan * 0.05); }
+        else {
+          HIST.usage.lo = Math.round(innerSpan * (c - 1));
+          HIST.usage.hi = Math.round(innerSpan * c);
+        }
+      }
+      $("#s-heat-clear").classList.toggle("is-on", !!HEAT.selected);
+      applyFilters();
+    });
+  });
+}
+
+function cellLabel(r, c, pStep, pMax, innerSpan, usesHours){
+  const bandHi = pMax - r * pStep;
+  const bandLo = Math.max(0, bandHi - pStep);
+  const priceStr = `${fmtPriceShort(bandLo)}–${fmtPriceShort(bandHi)}`;
+  const unit = usesHours ? "hrs" : "mi";
+  const useStr = c === 0 ? "New / barely-used" :
+    `${shortUsage(innerSpan * (c - 1), usesHours)}–${shortUsage(innerSpan * c, usesHours)}`;
+  return `${priceStr} · ${useStr}`;
+}
+
+function shortUsage(v, usesHours){
+  if(!isFinite(v)) return "—";
+  v = Math.round(v);
+  if(v >= 1000) return Math.round(v / 1000) + "k";
+  return String(v);
+}
+function drawHistogram(key, values, range, fmt){
+  const bins = 24;
+  const counts = binCounts(values, range.min, range.max, bins);
+  const max = Math.max(1, ...counts);
+  const bars = counts.map((c, i) => {
+    const lo = range.min + (i/bins)*(range.max-range.min);
+    const hi = range.min + ((i+1)/bins)*(range.max-range.min);
+    const inRange = hi > range.lo && lo < range.hi;
+    const h = Math.round((c/max)*100);
+    return `<div class="s-hist-bar ${inRange?"is-in":""}" style="height:${Math.max(3, h)}%" title="${fmt(lo)} – ${fmt(hi)}: ${c}"></div>`;
+  }).join("");
+  const container = $(`#hist-${key}`);
+  if(!container) return;
+  container.querySelector(".s-hist-bars").innerHTML = bars;
+  // Update slider attrs + thumbs
+  const span = range.max - range.min;
+  if(span > 0){
+    const lo = container.querySelector('input[data-t="lo"]');
+    const hi = container.querySelector('input[data-t="hi"]');
+    [lo, hi].forEach(el => { el.min = range.min; el.max = range.max; el.step = range.step; });
+    lo.value = range.lo; hi.value = range.hi;
+    const fill = container.querySelector(".s-hist-fill");
+    const lPct = ((range.lo - range.min)/span)*100;
+    const hPct = ((range.hi - range.min)/span)*100;
+    fill.style.left = lPct + "%";
+    fill.style.width = Math.max(0, hPct - lPct) + "%";
+  }
+}
+function wireHistogramSliders(){
+  $$(".s-hist-range input[type='range']").forEach(input => {
+    input.addEventListener("input", () => {
+      const key = input.dataset.h; const which = input.dataset.t;
+      const range = HIST[key];
+      let v = parseFloat(input.value);
+      if(which==="lo"){
+        if(v > range.hi - range.step) v = range.hi - range.step;
+        range.lo = v;
+      } else {
+        if(v < range.lo + range.step) v = range.lo + range.step;
+        range.hi = v;
+      }
+      applyFilters();
+    });
+  });
+}
+
+// ---------- 9b. Filtering ----------
+function applyFilters(){
+  const cat=STATE.cat;
+  const all = cat==="all"
+    ? CATS_ALL.reduce((acc,c) => acc.concat(STATE.listings[c]||[]), [])
+    : (STATE.listings[cat]||[]);
+  const make=$("#f-make").value, model=$("#f-model").value;
+  const yf=parseInt($("#f-year-from").value)||0, yt=parseInt($("#f-year-to").value)||9999;
+  // Update histogram domain from the full set (cat-filtered, but not yet sliced)
+  rebuildHistogramDomain(all);
+  const pmin = HIST.price.lo, pmax = HIST.price.hi;
+  const umin = HIST.usage.lo, umax = HIST.usage.hi;
+  const cond=$("#f-cond").value, reg=$("#f-region").value;
+  const throttleOnly=$("#f-throttle").checked;
+  // Plus-locked filters: always off for free users
+  const hotOnly = STATE.isPro && $("#f-hot").checked;
+  const soldOn  = STATE.isPro && $("#f-sold").checked;
+  const q = (STATE.query||"").trim().toLowerCase();
+
+  let r = all.filter(L => {
+    if(make && L.make!==make) return false;
+    if(model && L.model!==model) return false;
+    if(L.year < yf || L.year > yt) return false;
+    if(L.price < pmin || L.price > pmax) return false;
+    const u = usageOf(L);
+    if(u != null && (u < umin || u > umax)) return false;
+    if(cond && L.cond !== cond) return false;
+    if(reg && L.region !== reg) return false;
+    if(!soldOn && L.sold) return false;
+    if(hotOnly && !L.hot) return false;
+    if(throttleOnly && !L.isThrottle) return false;
+    if(q && !((L.make||"")+" "+(L.model||"")+" "+(L.year||"")+" "+(L.city||"")+" "+(L.state||"")).toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  switch(STATE.sort){
+    case "price-asc":  r.sort((a,b)=>a.price-b.price); break;
+    case "price-desc": r.sort((a,b)=>b.price-a.price); break;
+    case "year-desc":  r.sort((a,b)=>b.year-a.year); break;
+    // "Freshest listings" — order by the moment we first saw the listing in
+    // our scraper (first_seen_at desc). Falls back to dom for legacy items.
+    case "dom-asc":    r.sort((a,b)=>(b.first_seen_at||0)-(a.first_seen_at||0) || (a.dom||0)-(b.dom||0)); break;
+    case "dom-desc":   r.sort((a,b)=>(a.first_seen_at||0)-(b.first_seen_at||0) || (b.dom||0)-(a.dom||0)); break;
+    default:
+      r.sort((a,b)=>(b.isThrottle-a.isThrottle)||(b.live-a.live)||(b.hot-a.hot)||(a.dom-b.dom)||(a.price-b.price));
+  }
+  STATE.filtered = r;
+  renderHistograms(all);
+  renderQuickChips();
+  renderListings(); renderMap(); renderPulse();
+}
+
+// ---------- 9c. Quick filter chips (active filters above grid) ----------
+function renderQuickChips(){
+  const el = $("#s-quick"); if(!el) return;
+  const chips = [];
+  if(STATE.cat && STATE.cat !== "all"){
+    const C = CATALOG[STATE.cat];
+    chips.push({k:"cat", label:`${(C&&C.emoji)||""} ${(C&&C.label)||STATE.cat}`});
+  }
+  const make = $("#f-make").value, model = $("#f-model").value;
+  if(make) chips.push({k:"make", label:make});
+  if(model) chips.push({k:"model", label:model});
+  const yf=$("#f-year-from").value, yt=$("#f-year-to").value;
+  if(yf||yt) chips.push({k:"year", label:`Year ${yf||"any"}–${yt||"any"}`});
+  if(HIST.price.lo > HIST.price.min || HIST.price.hi < HIST.price.max){
+    chips.push({k:"price", label:`${fmtPriceShort(HIST.price.lo)} – ${fmtPriceShort(HIST.price.hi)}`});
+  }
+  if(HIST.usage.lo > HIST.usage.min || HIST.usage.hi < HIST.usage.max){
+    chips.push({k:"usage", label:`${fmtUsage(HIST.usage.lo)} – ${fmtUsage(HIST.usage.hi)}`});
+  }
+  if($("#f-cond").value)   chips.push({k:"cond",   label:$("#f-cond").value});
+  if($("#f-region").value) chips.push({k:"region", label:$("#f-region").value});
+  if($("#f-throttle").checked) chips.push({k:"throttle", label:"⚡ Throttle only"});
+  if(STATE.query)          chips.push({k:"q",      label:`"${STATE.query}"`});
+
+  if(!chips.length){
+    el.innerHTML = `<span style="color:var(--txt-3);font-size:12px;padding:6px 4px">Showing all listings — refine with filters →</span>`;
+    return;
+  }
+  el.innerHTML = chips.map(c =>
+    `<button class="s-quick-chip is-active" data-k="${c.k}">${c.label} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6l-12 12"/></svg></button>`
+  ).join("") + `<button class="s-quick-clear" id="s-quick-clear">Clear all</button>`;
+  el.querySelectorAll(".s-quick-chip").forEach(b => b.addEventListener("click", () => clearOneFilter(b.dataset.k)));
+  const clr = $("#s-quick-clear"); if(clr) clr.addEventListener("click", clearAllFilters);
+}
+function clearOneFilter(k){
+  switch(k){
+    case "cat": selectCat("all"); return;
+    case "make": $("#f-make").value=""; populateModelSelect(); break;
+    case "model": $("#f-model").value=""; break;
+    case "year": $("#f-year-from").value=""; $("#f-year-to").value=""; break;
+    case "price": HIST.price.lo = HIST.price.min; HIST.price.hi = HIST.price.max; break;
+    case "usage": HIST.usage.lo = HIST.usage.min; HIST.usage.hi = HIST.usage.max; break;
+    case "cond": $("#f-cond").value=""; break;
+    case "region": $("#f-region").value=""; break;
+    case "throttle": $("#f-throttle").checked=false; break;
+    case "q": STATE.query=""; $("#s-search-input").value=""; break;
+  }
+  applyFilters();
+}
+
+// ---------- 10. Render listings ----------
+function renderListings(){
+  const grid=$("#s-grid"); $("#s-count").textContent = STATE.filtered.length.toLocaleString();
+  if(!STATE.filtered.length){
+    grid.innerHTML=`
+      <div class="s-empty">
+        <div class="s-empty-emoji">🔎</div>
+        <h3>No listings match those filters.</h3>
+        <p>Try removing some filters, or pick a different category.</p>
+        <button class="t-btn" onclick="clearAllFilters()">Clear filters</button>
+      </div>`;
+    return;
+  }
+  const cards = STATE.filtered.slice(0,240).map(L => {
+    const savings = L.msrp && L.msrp>0
+      ? (L.price<L.msrp ? `<span class="s-savings">${Math.round((1-L.price/L.msrp)*100)}% off MSRP</span>`
+                       : (L.price>L.msrp ? `<span class="s-savings is-bad">+${Math.round((L.price/L.msrp-1)*100)}% over</span>` : ""))
+      : "";
+    const usage = L.cat==="aircraft"
+      ? `${(L.hours||0).toLocaleString()} hrs airframe`
+      : (USES_HOURS.has(L.cat) ? `${(L.hours||0).toLocaleString()} hrs` : `${(L.miles||0).toLocaleString()} mi`);
+    let stateTag = "";
+    if(L.sold) stateTag = `<span class="s-tag is-sold">Sold</span>`;
+    else if(L.cond==="New") stateTag = `<span class="s-tag is-new">New</span>`;
+    else if(L.hot) stateTag = `<span class="s-tag is-hot">Hot deal</span>`;
+    return `
+    <article class="s-card ${L.isThrottle?"is-throttle":""}" data-id="${L.id}">
+      <div class="s-img">
+        ${imageOrFallback(L)}
+        <div class="s-badges-tl">${srcPill(L)}</div>
+        <div class="s-badges-tr">${stateTag}</div>
+        <div class="s-badges-bl">
+          <span class="s-dom">${L.dom}d on market</span>
+        </div>
+      </div>
+      <div class="s-body">
+        <div class="s-title">${L.year} ${L.make} ${L.model}</div>
+        <div class="s-pricerow">
+          <span class="s-price">${fmt$(L.price)}</span>
+          ${savings}
+        </div>
+        <div class="s-meta">
+          <span>${usage}</span>
+          <span class="s-dotsep">·</span>
+          <span>${L.cond}</span>
+        </div>
+        <div class="s-loc">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${L.city}, ${L.state} · ${L.region}
+        </div>
+      </div>
+    </article>`;
+  }).join("");
+  grid.innerHTML = cards;
+  grid.querySelectorAll(".s-card").forEach(c => c.addEventListener("click", ()=> openDetail(c.dataset.id)));
+}
+
+// ---------- 11. Map ----------
+function renderMap(){
+  if(!STATE.toolsOpen) return;
+  const Lflt = window.L;
+  if(!STATE.map){
+    STATE.map = Lflt.map("s-map", { zoomControl:true, attributionControl:true }).setView([39.5,-98], 3.5);
+    setMapTile();
+  }
+  if(STATE.mapListingLayer) STATE.map.removeLayer(STATE.mapListingLayer);
+  const lg = Lflt.layerGroup();
+  STATE.filtered.slice(0,400).forEach(L_ => {
+    const color = L_.sold ? "#ffb84d" : (L_.isThrottle ? "#7CF1FF" : "#9aa3ad");
+    const r = L_.isThrottle ? 6 : 5;
+    const m = Lflt.circleMarker([L_.lat, L_.lng], { radius:r, color, fillColor:color, fillOpacity:.85, weight: L_.isThrottle?2:1 });
+    m.bindTooltip(`${L_.isThrottle?"⚡ Throttle · ":""}${L_.year} ${L_.make} ${L_.model}<br><b>${fmt$(L_.price)}</b> · ${L_.city}, ${L_.state}`, { direction:"top" });
+    m.on("click", ()=> openDetail(L_.id));
+    lg.addLayer(m);
+  });
+  lg.addTo(STATE.map);
+  STATE.mapListingLayer = lg;
+}
+function setMapTile(){
+  if(!STATE.map) return;
+  if(STATE.mapTileLayer) STATE.map.removeLayer(STATE.mapTileLayer);
+  const url = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png";
+  STATE.mapTileLayer = L.tileLayer(url, { attribution:"&copy; OpenStreetMap & CartoDB", maxZoom:19 }).addTo(STATE.map);
+}
+
+function renderPulse(){
+  const r=STATE.filtered;
+  if(!r.length){ $("#s-pulse").innerHTML=`<dt>—</dt><dd>—</dd>`; return; }
+  const avg=r.reduce((s,x)=>s+x.price,0)/r.length;
+  const med=r.map(x=>x.price).sort((a,b)=>a-b)[Math.floor(r.length/2)];
+  const dom=r.reduce((s,x)=>s+x.dom,0)/r.length;
+  const live=r.filter(x=>x.live).length;
+  const sold=r.filter(x=>x.sold).length;
+  const hot=r.filter(x=>x.hot).length;
+  const thr=r.filter(x=>x.isThrottle).length;
+  $("#s-pulse").innerHTML=`
+    <dt>Avg price</dt><dd>${fmt$(avg)}</dd>
+    <dt>Median</dt><dd>${fmt$(med)}</dd>
+    <dt>Avg days on market</dt><dd>${dom.toFixed(0)} days</dd>
+    <dt>Throttle listings</dt><dd>${thr} of ${r.length}</dd>
+    <dt>Live pulls</dt><dd>${live}</dd>
+    <dt>Hot deals</dt><dd>${hot}</dd>
+    <dt>Sold</dt><dd>${sold}</dd>`;
+}
+
+// ---------- 12. Tools tabs ----------
+function setToolTab(t){
+  STATE.toolTab=t;
+  $$("#s-tools .s-tools-head button[data-tab]").forEach(b => b.classList.toggle("is-active", b.dataset.tab===t));
+  $$("#s-tools [data-pane]").forEach(p => p.hidden = p.dataset.pane!==t);
+  if(t==="map" && STATE.map) setTimeout(()=> STATE.map.invalidateSize(), 50);
+  if(t==="trend"){
+    if(!STATE.isPro) renderTrendLocked();
+    else drawTrend();
+  }
+}
+function renderTrendLocked(){
+  const tpl = $("#s-trend-locked-tpl");
+  $("#s-trend-content").innerHTML = "";
+  if(tpl){
+    const clone = tpl.content.cloneNode(true);
+    $("#s-trend-content").appendChild(clone);
+  }
+  const unlock = $("#s-trend-unlock");
+  if(unlock) unlock.addEventListener("click", () => openUpgrade("Trend & sold-history charts"));
+  const pane = $("#s-trend-content .s-plus-pane");
+  if(pane) pane.addEventListener("click", () => openUpgrade("Trend & sold-history charts"));
+  setTimeout(()=>{
+    const ctx = document.getElementById("s-trend-locked-chart");
+    if(!ctx) return;
+    const labels=[], data=[]; let v=42000;
+    for(let i=23;i>=0;i--){ const d=new Date(); d.setMonth(d.getMonth()-i); labels.push(d.toLocaleString("en-US",{month:"short"})); v*=(0.985+Math.random()*0.012); data.push(Math.round(v)); }
+    if(STATE.charts.trendLocked) STATE.charts.trendLocked.destroy();
+    STATE.charts.trendLocked = new Chart(ctx, {
+      type:"line",
+      data:{ labels, datasets:[{ label:"Sold trend", data, borderColor:"#7CF1FF", backgroundColor:"rgba(124,241,255,.12)", tension:.4, fill:true, pointRadius:0 }] },
+      options:{ plugins:{ legend:{ display:false }}, scales:{ x:{ ticks:{ color:"#5a5e66" }, grid:{ display:false }}, y:{ ticks:{ color:"#5a5e66", callback:v=>"$"+(v/1000).toFixed(0)+"k" }, grid:{ color:"#1c1f25" }}}}
+    });
+  }, 20);
+}
+function openTools(){
+  STATE.toolsOpen = true;
+  $("#s-layout").classList.add("has-tools");
+  $("#s-tools-btn").classList.add("is-active");
+  if(window.innerWidth < 1024) $("#s-scrim").classList.add("is-on");
+  setTimeout(()=> { renderMap(); if(STATE.map) STATE.map.invalidateSize(); }, 100);
+}
+function closeTools(){
+  STATE.toolsOpen = false;
+  $("#s-layout").classList.remove("has-tools");
+  $("#s-tools-btn").classList.remove("is-active");
+  $("#s-scrim").classList.remove("is-on");
+}
+
+// ---------- 13. Value engine ----------
+function renderValue(){
+  const cat = STATE.cat==="all" ? "boats" : STATE.cat;
+  const C = CATALOG[cat] || CATALOG.boats;
+  const yr=parseInt($("#v-year").value);
+  const [make, model] = ($("#v-make-model").value||"|").split("|");
+  const cond=$("#v-cond").value;
+  const condMul = { "Excellent":1.10, "Good":1.00, "Fair":0.85 }[cond];
+  const msrp=(C.msrpByMake[make]||C.typicalMsrp);
+  const age=Math.max(0, 2026-yr); const baseRet=retention(C.retention, age);
+  const avg=msrp*baseRet*condMul;
+  $("#v-title").textContent = `${yr} ${make} ${model}`;
+  $("#v-cond-badge").textContent = cond;
+  $("#v-cond-badge").className = "s-pill " + (cond==="Excellent"?"is-good":cond==="Fair"?"is-bad":"");
+  $("#v-low").textContent = fmt$(avg*0.88);
+  $("#v-avg").textContent = fmt$(avg);
+  $("#v-high").textContent = fmt$(avg*1.14);
+  drawDepCurve(C, msrp);
+}
+function drawDepCurve(C, msrp){
+  const ctx=document.getElementById("v-chart");
+  if(STATE.charts.dep) STATE.charts.dep.destroy();
+  const yspan = STATE.cat==="aircraft" ? 25 : 15;
+  const labels=[], a=[], b=[];
+  for(let age=0;age<=yspan;age++){ labels.push(2026-age); a.push(Math.round(msrp*retention(C.retention,age))); b.push(Math.round(msrp*retention(C.retention,age)*1.1)); }
+  STATE.charts.dep = new Chart(ctx, {
+    type:"line",
+    data:{ labels: labels.reverse(), datasets:[
+      { label:"Avg market value", data:a.reverse(), borderColor:"#7CF1FF", backgroundColor:"rgba(124,241,255,.12)", tension:.3, fill:true, pointRadius:2 },
+      { label:"Top condition",    data:b.reverse(), borderColor:"#5dd39e", borderDash:[4,4], pointRadius:0, tension:.3 }
+    ]},
+    options:{ plugins:{ legend:{ labels:{ color:"#a8acb4" }}}, scales:{ x:{ ticks:{ color:"#5a5e66" }, grid:{ color:"#1c1f25" }}, y:{ ticks:{ color:"#5a5e66", callback:v=>"$"+(v>=1e6?(v/1e6).toFixed(1)+"M":(v/1000).toFixed(0)+"k") }, grid:{ color:"#1c1f25" }}}}
+  });
+}
+function drawTrend(){
+  const cat = STATE.cat==="all" ? "boats" : STATE.cat;
+  const C = CATALOG[cat] || CATALOG.boats;
+  const make=$("#f-make").value || Object.keys(C.models)[0];
+  const model=$("#f-model").value || C.models[make][0];
+  const r=rand(make+model+cat);
+  const labels=[], data=[]; let v=(C.msrpByMake[make]||C.typicalMsrp)*0.7;
+  for(let i=23;i>=0;i--){ const d=new Date(); d.setMonth(d.getMonth()-i); labels.push(d.toLocaleString("en-US",{month:"short",year:"2-digit"})); v*=(0.985+r()*0.012); data.push(Math.round(v)); }
+  $("#s-trend-content").innerHTML = `
+    <div class="s-section-ttl"><span>${make} ${model} · 24-month sold trend <span class="s-pill is-gold">PRO</span></span></div>
+    <canvas id="s-trend-chart" height="220"></canvas>
+    <div class="s-section-ttl">Recent comparable sales</div>
+    <table style="width:100%;font-size:13px;border-collapse:collapse">
+      <tr style="color:var(--txt-3);text-align:left;border-bottom:1px solid var(--line)"><th style="padding:6px 0">Year</th><th>${cat==="aircraft"||USES_HOURS.has(cat)?"Hrs":"Mi"}</th><th>Sold</th><th>Days</th></tr>
+      ${[...Array(6)].map(()=>{const yr=2026-Math.floor(r()*8); const u=Math.floor(r()*1200); const sp=Math.round(v*(0.85+r()*0.3)); const days=Math.floor(r()*120)+10; return `<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px 0">${yr}</td><td>${u.toLocaleString()}</td><td style="color:var(--good)">${fmt$(sp)}</td><td>${days}d</td></tr>`}).join("")}
+    </table>`;
+  setTimeout(()=>{
+    const ctx=document.getElementById("s-trend-chart"); if(STATE.charts.trend) STATE.charts.trend.destroy();
+    STATE.charts.trend = new Chart(ctx, {
+      type:"line",
+      data:{ labels, datasets:[{ label:"Avg sold price", data, borderColor:"#7CF1FF", backgroundColor:"rgba(124,241,255,.10)", tension:.4, fill:true, pointRadius:0 }] },
+      options:{ plugins:{ legend:{ display:false }}, scales:{ x:{ ticks:{ color:"#5a5e66", maxRotation:0, autoSkip:true, maxTicksLimit:8 }, grid:{ display:false }}, y:{ ticks:{ color:"#5a5e66", callback:v=>"$"+(v/1000).toFixed(0)+"k" }, grid:{ color:"#1c1f25" }}}}
+    });
+  }, 20);
+}
+
+// ---------- 14. Inline decoder ----------
+async function runDecoder(){
+  const raw = $("#s-search-input").value.trim();
+  const kind = classifyInput(raw);
+  if(kind==="search"){
+    STATE.query = raw;
+    $("#s-decoder").classList.remove("is-open");
+    applyFilters();
+    return;
+  }
+  const panel = $("#s-decoder");
+  panel.classList.add("is-open");
+  panel.innerHTML = `<h4>Decoding ${kind}…</h4><div style="color:var(--txt-2)">Reaching ${kind==="VIN"?"NHTSA":kind==="N-NUMBER"?"FAA registry":"USCG rules engine"}…</div>`;
+  try{
+    if(kind==="HIN"){
+      const d=decodeHIN(raw);
+      panel.innerHTML = `
+        <h4>HIN decoded · ${d.raw}</h4>
+        <dl>
+          <div><dt>Manufacturer (MIC)</dt><dd><b>${d.mic}</b> · ${d.manufacturer||"<span style='color:var(--txt-3)'>not in MIC dictionary</span>"}</dd></div>
+          <div><dt>Serial</dt><dd>${d.serial}</dd></div>
+          <div><dt>Certified</dt><dd>${d.certMonth} ${d.certYear??"—"}</dd></div>
+          <div><dt>Model year</dt><dd><b>${d.modelYear??"—"}</b></dd></div>
+        </dl>
+        <div style="margin-top:12px"><button class="t-btn" id="s-decoder-search">See ${d.manufacturer||"matching"} ${d.modelYear??""} listings →</button></div>`;
+      const btn = $("#s-decoder-search");
+      if(btn) btn.onclick = ()=>{
+        STATE.query = `${d.manufacturer||""} ${d.modelYear||""}`.trim();
+        $("#s-search-input").value = STATE.query;
+        selectCat("boats"); applyFilters();
+      };
+    } else if(kind==="N-NUMBER"){
+      const d=await decodeNNumber(raw); const a=d.registry||{};
+      panel.innerHTML = `
+        <h4>FAA registry · ${raw.toUpperCase()}</h4>
+        <dl>
+          <div><dt>Manufacturer</dt><dd><b>${a.manufacturer||"—"}</b></dd></div>
+          <div><dt>Type</dt><dd>${a.type||"—"} <span style="color:var(--txt-3)">(ICAO ${a.icao_type||"—"})</span></dd></div>
+          <div><dt>Mode-S hex</dt><dd>${a.mode_s||"—"}</dd></div>
+          <div><dt>Registered owner</dt><dd>${a.registered_owner||"<span style='color:var(--txt-3)'>—</span>"}</dd></div>
+          <div><dt>Country</dt><dd>${a.registered_owner_country_name||"—"}</dd></div>
+        </dl>
+        <p style="margin-top:10px;color:var(--txt-2);font-size:12px">Use this to confirm the seller actually owns the aircraft, and that the listed make/model matches the registered airframe.</p>
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+          <button class="t-btn" id="s-decoder-search">See ${a.manufacturer||"matching"} listings →</button>
+          <a href="https://registry.faa.gov/aircraftinquiry/Search/NNumberResult?nNumberTxt=${encodeURIComponent(raw.replace(/^N/i,""))}" target="_blank" rel="noopener" class="t-btn t-btn--ghost">Open full FAA record →</a>
+        </div>`;
+      const btn = $("#s-decoder-search");
+      if(btn) btn.onclick = ()=>{
+        STATE.query = (a.manufacturer||"").toString();
+        $("#s-search-input").value = STATE.query;
+        selectCat("aircraft"); applyFilters();
+      };
+    } else {
+      const r=await decodeVIN(raw);
+      const k=(label,v)=>v&&v!==""?`<div><dt>${label}</dt><dd>${v}</dd></div>`:"";
+      panel.innerHTML = `
+        <h4>VIN decoded · NHTSA vPIC</h4>
+        <dl>
+          ${k("Make",r.Make)}${k("Model",r.Model)}${k("Model year",r.ModelYear)}${k("Type",r.VehicleType)}${k("Body",r.BodyClass)}
+          ${k("Engine",[r.DisplacementL&&r.DisplacementL+"L",r.EngineCylinders&&r.EngineCylinders+"-cyl",r.FuelTypePrimary].filter(Boolean).join(" · "))}
+          ${k("Plant",[r.PlantCity,r.PlantState,r.PlantCountry].filter(Boolean).join(", "))}
+          ${k("Trim",r.Trim)}${k("Drive",r.DriveType)}
+        </dl>
+        ${r.ErrorCode&&r.ErrorCode!=="0"?`<div style="margin-top:8px;color:var(--warn);font-size:12px">vPIC notes: ${r.ErrorText||""}</div>`:""}
+        <div style="margin-top:12px"><button class="t-btn" id="s-decoder-search">See ${r.Make||"matching"} ${r.ModelYear||""} listings →</button></div>`;
+      const btn = $("#s-decoder-search");
+      if(btn) btn.onclick = ()=>{
+        STATE.query = `${r.Make||""} ${r.Model||""} ${r.ModelYear||""}`.trim();
+        $("#s-search-input").value = STATE.query;
+        applyFilters();
+      };
+    }
+  }catch(e){
+    panel.innerHTML = `<h4>Decode failed</h4><div style="color:var(--bad)">${e.message}.</div>`;
+  }
+}
+function updateSearchKindHint(){
+  const v = $("#s-search-input").value;
+  const k = classifyInput(v);
+  $("#s-search-kind").textContent = k==="search" ? "search" : k;
+  $("#s-search-kind").style.color = k==="search" ? "var(--txt-2)" : "var(--acc)";
+}
+
+// ---------- 15. Detail modal — in-depth listing view (visor.vin-style) ----------
+// Short-link helpers: stable 6-char base36 hash from full listing id → throttle.toys/v/<short>
+function shortIdFor(id){
+  let h = 0;
+  const s = String(id||"");
+  for(let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) | 0; }
+  h = h < 0 ? -h : h;
+  return ("000000" + h.toString(36)).slice(-6);
+}
+function findListingByShortId(short){
+  for(const c of CATS_ALL){
+    const list = STATE.listings[c]||[];
+    for(const L of list){ if(shortIdFor(L.id)===short) return L; }
+  }
+  return null;
+}
+
+function openDetail(id){
+  const buckets = STATE.cat==="all"
+    ? CATS_ALL.map(c => STATE.listings[c]||[])
+    : [STATE.listings[STATE.cat]||[]];
+  let L=null;
+  for(const b of buckets){ L=b.find(x=>x.id===id); if(L) break; }
+  if(!L){
+    // Try a global lookup in case the cat filter is narrowed
+    for(const c of CATS_ALL){ L=(STATE.listings[c]||[]).find(x=>x.id===id); if(L) break; }
+  }
+  if(!L) return;
+  STATE.currentListing = L;
+
+  const photos = (L.photos && L.photos.length) ? L.photos : [];
+  const cat = L.cat;
+  const usageLabel = cat==="aircraft" ? "Airframe hrs"
+    : USES_HOURS.has(cat) ? "Hours" : "Miles";
+  const usageVal = USES_HOURS.has(cat) || cat==="aircraft"
+    ? (L.hours!=null ? L.hours.toLocaleString() : "—")
+    : (L.miles!=null ? L.miles.toLocaleString() : "—");
+
+  // Market position: where does this listing's price land vs. similar (same cat/make/model)?
+  const sameCat = (STATE.listings[cat]||[]);
+  const similar = sameCat.filter(x => x.make===L.make && x.model===L.model && !x.sold);
+  let mp = null;
+  if(similar.length >= 3){
+    const prices = similar.map(x=>x.price).sort((a,b)=>a-b);
+    const min = prices[0], max = prices[prices.length-1];
+    const med = prices[Math.floor(prices.length/2)];
+    const avg = prices.reduce((s,v)=>s+v,0)/prices.length;
+    const pct = max>min ? Math.max(0, Math.min(100, ((L.price-min)/(max-min))*100)) : 50;
+    const vsAvg = (L.price/avg - 1);
+    const verdict = vsAvg <= -0.10 ? { cls:"is-good", txt: `${Math.round(-vsAvg*100)}% below avg — strong deal` }
+                  : vsAvg <= -0.03 ? { cls:"is-good", txt: `${Math.round(-vsAvg*100)}% below average` }
+                  : vsAvg <=  0.03 ? { cls:"is-warn", txt: "Right around average" }
+                  : vsAvg <=  0.10 ? { cls:"is-warn", txt: `${Math.round(vsAvg*100)}% above average` }
+                  :                 { cls:"is-bad",  txt: `${Math.round(vsAvg*100)}% above avg — pricey` };
+    mp = { min, max, med, avg, pct, verdict, count: similar.length };
+  }
+
+  const short = shortIdFor(L.id);
+  const shortUrl = `${location.protocol}//${location.host==="localhost"?"throttle.toys":location.host}/v/${short}`;
+
+  const titleHtml = `${L.year} ${L.make} ${L.model} ${L.isThrottle?'<span class="s-pill is-gold" style="margin-left:8px">⚡ Throttle</span>':""}`;
+  $("#m-detail-title").innerHTML = titleHtml;
+  $("#m-detail-price").textContent = fmt$(L.price);
+
+  const galleryMain = photos[0]
+    ? `<img src="${photos[0]}" alt="${L.year} ${L.make} ${L.model}" id="s-gallery-main-img" loading="eager"/>`
+    : imageOrFallback(L);
+  const galleryThumbs = photos.length > 1
+    ? `<div class="s-gallery-thumbs">${photos.slice(0,8).map((p,i) => `<button class="${i===0?"is-active":""}" data-thumb="${i}"><img src="${p}" alt="photo ${i+1}" loading="lazy"/></button>`).join("")}</div>`
+    : "";
+
+  const contactBtn = L.isThrottle
+    ? `<button class="t-btn" id="m-detail-msg">💬 Message seller</button>`
+    : `<a href="${L.url}" target="_blank" rel="noopener" class="t-btn">View on ${L.src} →</a>`;
+
+  const condPill = L.cond==="New" ? '<span class="s-pill is-good">New</span>'
+                 : L.cond==="Certified" ? '<span class="s-pill is-good">Certified pre-owned</span>'
+                 : '<span class="s-pill">Used</span>';
+
+  const marketPosHtml = mp ? `
+    <div class="s-market-pos">
+      <div class="s-market-pos-head">
+        <span class="s-mp-label">Market position · ${mp.count} similar listings</span>
+        <span class="s-mp-verdict ${mp.verdict.cls}">${mp.verdict.txt}</span>
+      </div>
+      <div class="s-mp-bar">
+        <div class="s-mp-fill"></div>
+        <div class="s-mp-dot" style="left:${mp.pct.toFixed(0)}%"></div>
+      </div>
+      <div class="s-mp-bar-labels">
+        <span>${fmt$(mp.min)}</span>
+        <span>Avg ${fmt$(mp.avg)}</span>
+        <span>${fmt$(mp.max)}</span>
+      </div>
+    </div>` : "";
+
+  const notesHtml = L.notes ? `
+    <div class="s-detail-section">
+      <h4>Seller's notes</h4>
+      <p style="margin:0;color:var(--txt);line-height:1.6;white-space:pre-wrap">${(L.notes||"").replace(/</g,"&lt;")}</p>
+    </div>` : "";
+
+  $("#m-detail-body").className = "s-modal-body";
+  $("#m-detail-body").innerHTML = `
+    <div class="s-detail-grid">
+      <div class="s-gallery">
+        <div class="s-gallery-main">${galleryMain}</div>
+        ${galleryThumbs}
+      </div>
+
+      <div class="s-detail-side">
+        <div class="s-detail-price-block">
+          <div class="s-price-large">${fmt$(L.price)}</div>
+          <div class="s-price-sub">
+            ${L.msrp && L.msrp>0
+              ? (L.price<L.msrp
+                  ? `<span style="color:var(--good)">${Math.round((1-L.price/L.msrp)*100)}% off original MSRP</span> · MSRP ${fmt$(L.msrp)}`
+                  : `+${Math.round((L.price/L.msrp-1)*100)}% over MSRP ${fmt$(L.msrp)}`)
+              : ""}
+          </div>
+          <div class="s-detail-meta-row" style="margin-top:10px">
+            ${condPill}
+            ${L.sold?'<span class="s-pill is-bad">SOLD</span>':''}
+            ${L.hot?'<span class="s-pill is-gold">HOT DEAL</span>':''}
+            ${srcPill(L)}
+            ${L.live?'<span class="s-pill is-good">live</span>':''}
+          </div>
+          <div class="s-action-row">
+            ${contactBtn}
+            <button class="t-btn t-btn--ghost" id="m-detail-value">Estimate value</button>
+          </div>
+          <div class="s-action-row" style="margin-top:6px">
+            <button class="t-btn t-btn--ghost" id="m-detail-alert" style="flex:1">
+              ${STATE.isPro ? "🔔 Price-drop alert" : "🔔 Alerts (Plus)"}
+            </button>
+            <button class="t-btn t-btn--ghost" id="m-detail-save" style="flex:1">
+              ☆ Save listing
+            </button>
+          </div>
+        </div>
+
+        <div class="s-share-box">
+          <label>Share</label>
+          <input id="m-detail-share-url" value="${shortUrl}" readonly onclick="this.select()"/>
+          <button class="s-share-copy" id="m-detail-share-copy" title="Copy link">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>
+            Copy
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="s-detail-section" style="margin-top:18px">
+      <h4>Specifications</h4>
+      <dl class="s-spec-grid">
+        <div class="s-spec-item"><dt>Year</dt><dd>${L.year||"—"}</dd></div>
+        <div class="s-spec-item"><dt>Make</dt><dd>${L.make||"—"}</dd></div>
+        <div class="s-spec-item"><dt>Model</dt><dd>${L.model||"—"}</dd></div>
+        <div class="s-spec-item"><dt>${usageLabel}</dt><dd>${usageVal}</dd></div>
+        <div class="s-spec-item"><dt>Condition</dt><dd>${L.cond||"—"}</dd></div>
+        <div class="s-spec-item"><dt>Days on market</dt><dd>${L.dom||0}d</dd></div>
+        <div class="s-spec-item"><dt>Location</dt><dd>${L.city||"—"}, ${L.state||"—"}</dd></div>
+        <div class="s-spec-item"><dt>Region</dt><dd>${L.region||"—"}</dd></div>
+        <div class="s-spec-item"><dt>Category</dt><dd>${(CATALOG[cat]||{}).label || cat}</dd></div>
+        <div class="s-spec-item"><dt>Source</dt><dd>${L.isThrottle?"Throttle (direct seller)":L.src||"External"}</dd></div>
+      </dl>
+    </div>
+
+    ${marketPosHtml ? `<div class="s-detail-section" style="margin-top:14px">
+      <h4>How this price compares</h4>
+      ${marketPosHtml}
+    </div>` : ""}
+
+    ${notesHtml}
+
+    <div class="s-detail-foot">
+      <span class="s-listed-id">ID · ${short}</span>
+      <span class="s-dotsep">·</span>
+      <span>Listed ${L.dom||0} day${L.dom===1?"":"s"} ago</span>
+      <span style="flex:1"></span>
+      <button class="s-report-btn" id="m-detail-report">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v17M4 4h14l-3 5 3 5H4"/></svg>
+        Report listing
+      </button>
+    </div>`;
+
+  // Wire actions
+  const valueBtn = $("#m-detail-value");
+  if(valueBtn) valueBtn.onclick = ()=>{
+    closeAllModals(); openTools(); setToolTab("value");
+    $("#v-year").value=L.year; $("#v-make-model").value=`${L.make}|${L.model}`; $("#v-cond").value="Good"; renderValue();
+  };
+  const msgBtn = $("#m-detail-msg");
+  if(msgBtn) msgBtn.onclick = ()=> openMessageModal(L);
+  const alertBtn = $("#m-detail-alert");
+  if(alertBtn) alertBtn.onclick = ()=>{
+    if(!STATE.isPro){ openUpgrade("Price-drop alerts are a Throttle+ feature."); return; }
+    alert("Alert created. We'll email you if this listing's price drops.");
+  };
+  const saveBtn = $("#m-detail-save");
+  if(saveBtn) saveBtn.onclick = ()=>{
+    const k = "throttle_savedListings";
+    let arr = []; try { arr = JSON.parse(localStorage.getItem(k)||"[]"); } catch(e){}
+    if(!arr.includes(L.id)){ arr.unshift(L.id); arr = arr.slice(0,200); localStorage.setItem(k, JSON.stringify(arr)); }
+    saveBtn.innerHTML = "★ Saved";
+    saveBtn.disabled = true;
+  };
+  const reportBtn = $("#m-detail-report");
+  if(reportBtn) reportBtn.onclick = ()=> openReportModal(L);
+
+  // Gallery thumbs
+  $$("#m-detail-body .s-gallery-thumbs button").forEach(b => b.addEventListener("click", () => {
+    const i = parseInt(b.dataset.thumb);
+    const main = document.getElementById("s-gallery-main-img");
+    if(main) main.src = photos[i];
+    $$("#m-detail-body .s-gallery-thumbs button").forEach(x => x.classList.toggle("is-active", x===b));
+  }));
+
+  // Copy short link
+  const copyBtn = $("#m-detail-share-copy");
+  const urlInput = $("#m-detail-share-url");
+  if(copyBtn && urlInput) copyBtn.onclick = ()=>{
+    const txt = urlInput.value;
+    const done = ()=>{
+      const old = copyBtn.innerHTML;
+      copyBtn.innerHTML = "✓ Copied";
+      copyBtn.classList.add("is-copied");
+      setTimeout(()=>{ copyBtn.innerHTML = old; copyBtn.classList.remove("is-copied"); }, 1500);
+    };
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(txt).then(done, ()=>{ urlInput.select(); document.execCommand("copy"); done(); });
+    } else {
+      urlInput.select(); try { document.execCommand("copy"); done(); } catch(e){}
+    }
+  };
+
+  // Update browser URL (no reload) so the in-depth view is shareable
+  try {
+    const u = new URL(location.href);
+    u.searchParams.delete("v"); // legacy
+    history.replaceState({ listing: L.id }, "", `/v/${short}`);
+  } catch(e){}
+
+  $("#m-detail").classList.add("is-on");
+}
+
+function openReportModal(L){
+  STATE.currentListing = L;
+  $("#m-report-result").textContent = "";
+  $("#m-report-reason").value = "";
+  $("#m-report-details").value = "";
+  $("#m-report").classList.add("is-on");
+}
+function openMessageModal(L){
+  STATE.currentListing = L;
+  $("#m-msg-title").innerHTML = `Message about <b>${L.year} ${L.make} ${L.model}</b>`;
+  $("#m-msg-body").value = `Hi — I'm interested in your ${L.year} ${L.make} ${L.model} listed for ${fmt$(L.price)} in ${L.city}, ${L.state}. Is it still available?`;
+  $("#m-msg-result").textContent = "";
+  closeAllModals();
+  $("#m-msg").classList.add("is-on");
+}
+
+// ---------- 16. Saved searches ----------
+function snapshotFilters(){
+  return {
+    cat: STATE.cat, q: STATE.query,
+    make: $("#f-make").value, model: $("#f-model").value,
+    yf: $("#f-year-from").value, yt: $("#f-year-to").value,
+    pmin: HIST.price.lo, pmax: HIST.price.hi,
+    umin: HIST.usage.lo, umax: HIST.usage.hi,
+    cond: $("#f-cond").value, region: $("#f-region").value,
+    throttleOnly: $("#f-throttle").checked,
+    sort: STATE.sort
+  };
+}
+function applySnapshot(s){
+  selectCat(s.cat||"all");
+  $("#f-make").value = s.make||""; populateModelSelect(); $("#f-model").value = s.model||"";
+  $("#f-year-from").value = s.yf||""; $("#f-year-to").value = s.yt||"";
+  if(typeof s.pmin === "number"){ HIST.price.lo = s.pmin; HIST.price.hi = s.pmax; }
+  if(typeof s.umin === "number"){ HIST.usage.lo = s.umin; HIST.usage.hi = s.umax; }
+  $("#f-cond").value = s.cond||""; $("#f-region").value = s.region||"";
+  $("#f-throttle").checked = !!s.throttleOnly;
+  STATE.sort = s.sort||"rel"; $("#s-sort").value = STATE.sort;
+  STATE.query = s.q||""; $("#s-search-input").value = STATE.query;
+  applyFilters();
+}
+function renderSaved(){
+  const el=$("#s-saved"), q=$("#s-saved-quota");
+  q.textContent = STATE.isPro ? `${STATE.saved.length} saved · unlimited (Throttle+)` : `${STATE.saved.length} / 3 saved on free`;
+  if(!STATE.saved.length){ el.innerHTML = `<div style="color:var(--txt-3);font-size:12px;margin-top:6px">No saved searches yet.</div>`; return; }
+  el.innerHTML = STATE.saved.map((s,i)=>`<span class="s-chip" data-i="${i}">${labelSearch(s)}<button data-del="${i}">×</button></span>`).join("");
+  el.querySelectorAll(".s-chip").forEach(c => c.addEventListener("click", e => {
+    if(e.target.dataset.del!==undefined){
+      STATE.saved.splice(parseInt(e.target.dataset.del),1);
+      localStorage.setItem("throttle_saved", JSON.stringify(STATE.saved));
+      renderSaved();
+    } else {
+      applySnapshot(STATE.saved[parseInt(c.dataset.i)]);
+    }
+  }));
+}
+function labelSearch(s){
+  const C = CATALOG[s.cat]; const p=[C?C.label.split(" ")[0]:(s.cat||"All")];
+  if(s.q) p.push(`"${s.q}"`);
+  if(s.make) p.push(s.make);
+  if(s.model) p.push(s.model);
+  if(s.yf||s.yt) p.push(`${s.yf||""}-${s.yt||""}`);
+  if(s.region) p.push(s.region);
+  if(s.throttleOnly) p.push("Throttle");
+  return p.join(" · ");
+}
+
+// ---------- 17. Category & helpers ----------
+function selectCat(cat){
+  STATE.cat = cat;
+  const sel = $("#f-cat");
+  if(sel && sel.value !== cat) sel.value = cat;
+  // Heatmap's bucket math depends on category — wipe any pinned cell.
+  HEAT.selected = null;
+  const clearBtn = $("#s-heat-clear"); if(clearBtn) clearBtn.classList.remove("is-on");
+  populateMakeSelect();
+  // Reset histogram ranges so new category recomputes from fresh data
+  HIST.price.lo = 0; HIST.price.hi = Infinity;
+  HIST.usage.lo = 0; HIST.usage.hi = Infinity;
+  applyFilters();
+  // Pin the ranges to the new computed max
+  HIST.price.lo = HIST.price.min; HIST.price.hi = HIST.price.max;
+  HIST.usage.lo = HIST.usage.min; HIST.usage.hi = HIST.usage.max;
+  applyFilters();
+}
+function clearAllFilters(){
+  $("#f-make").value = ""; populateModelSelect(); $("#f-model").value="";
+  $("#f-year-from").value=""; $("#f-year-to").value="";
+  $("#f-cond").value=""; $("#f-region").value="";
+  $("#f-throttle").checked=false;
+  HIST.price.lo = HIST.price.min; HIST.price.hi = HIST.price.max;
+  HIST.usage.lo = HIST.usage.min; HIST.usage.hi = HIST.usage.max;
+  STATE.query=""; $("#s-search-input").value="";
+  $("#s-decoder").classList.remove("is-open");
+  applyFilters();
+}
+
+function openUpgrade(reason){
+  $("#m-upgrade-title").textContent = reason ? `Throttle+ · ${reason}` : "Throttle+ · supporter plan";
+  $("#m-upgrade").classList.add("is-on");
+}
+function closeAllModals(){
+  $$(".s-modal").forEach(m => m.classList.remove("is-on"));
+  // Restore URL when leaving the detail view
+  try {
+    if(location.pathname.startsWith("/v/")){
+      history.replaceState({}, "", "/search" + location.search);
+    }
+  } catch(e){}
+}
+
+// Report submission
+function wireReportSubmit(){
+  const btn = $("#m-report-send"); if(!btn) return;
+  btn.addEventListener("click", async ()=>{
+    const out = $("#m-report-result");
+    const reason = $("#m-report-reason").value;
+    const details = $("#m-report-details").value.trim();
+    const email = $("#m-report-email").value.trim();
+    if(!reason){ out.style.color="var(--bad)"; out.textContent="Pick a reason first."; return; }
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      out.style.color="var(--bad)"; out.textContent="That email doesn't look right.";
+      return;
+    }
+    const L = STATE.currentListing;
+    if(!L){ out.style.color="var(--bad)"; out.textContent="No listing in context."; return; }
+
+    btn.disabled = true;
+    const originalLabel = btn.textContent;
+    btn.textContent = "Submitting…";
+    out.style.color = "var(--txt-2)";
+    out.textContent = "Sending report…";
+
+    try {
+      const r = await fetch(`${API_BASE}/api/reports`, {
+        method: "POST",
+        headers: { "content-type":"application/json" },
+        body: JSON.stringify({ listingId: L.id, reason, details, email })
+      });
+      if(r.ok){
+        out.style.color = "var(--good)";
+        out.innerHTML = `✓ Thanks. We logged your report on the <b>${L.year} ${L.make} ${L.model}</b> listing (#${shortIdFor(L.id)}). Our trust team reviews every report within 24 hours.`;
+        setTimeout(closeAllModals, 2200);
+      } else if(r.status === 429){
+        out.style.color = "var(--bad)";
+        out.textContent = "You're submitting reports too quickly. Try again in a minute.";
+      } else {
+        let msg = "Couldn't submit report.";
+        try { const j = await r.json(); if(j && j.error) msg = j.error; } catch(_){}
+        out.style.color = "var(--bad)";
+        out.textContent = msg;
+      }
+    } catch(e){
+      out.style.color = "var(--bad)";
+      out.textContent = "Network error — please try again.";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  });
+}
+wireReportSubmit();
+
+// If user lands on /v/<short>, open that listing once data is ready
+function tryOpenFromShortLink(){
+  const m = location.pathname.match(/^\/v\/([a-z0-9]{4,8})$/i);
+  if(!m) return;
+  const short = m[1].toLowerCase();
+  const L = findListingByShortId(short);
+  if(L) openDetail(L.id);
+}
+// Run once on boot and again after API data lands (which can take a moment)
+setTimeout(tryOpenFromShortLink, 300);
+setTimeout(tryOpenFromShortLink, 1500);
+
+// ---------- 18. Wiring ----------
+$("#f-cat").addEventListener("change", e => selectCat(e.target.value));
+$$("#s-tools .s-tools-head button[data-tab]").forEach(b => b.addEventListener("click", ()=> setToolTab(b.dataset.tab)));
+
+// Heatmap controls
+$("#s-heat-clear").addEventListener("click", () => {
+  HEAT.selected = null;
+  HIST.price.lo = HIST.price.min; HIST.price.hi = HIST.price.max;
+  HIST.usage.lo = HIST.usage.min; HIST.usage.hi = HIST.usage.max;
+  $("#s-heat-clear").classList.remove("is-on");
+  applyFilters();
+});
+$("#s-heat-tip-x").addEventListener("click", () => {
+  $("#s-heat-tip").style.display = "none";
+  try { localStorage.setItem("throttle_heat_tip", "0"); } catch(e) {}
+});
+try {
+  if(localStorage.getItem("throttle_heat_tip") === "0"){
+    const tip = $("#s-heat-tip"); if(tip) tip.style.display = "none";
+  }
+} catch(e) {}
+
+["f-make","f-model","f-year-from","f-year-to","f-cond","f-region","f-throttle"]
+  .forEach(id => $("#"+id).addEventListener("input", applyFilters));
+wireHistogramSliders();
+$$(".s-plus-lock").forEach(el => {
+  el.addEventListener("click", () => {
+    const feat = el.dataset.feature || "this feature";
+    openUpgrade(feat);
+  });
+});
+$("#f-make").addEventListener("change", ()=>{ populateModelSelect(); applyFilters(); });
+$("#s-sort").addEventListener("change", e => { STATE.sort=e.target.value; applyFilters(); });
+
+$("#s-search-form").addEventListener("submit", e => { e.preventDefault(); runDecoder(); });
+$("#s-search-input").addEventListener("input", ()=>{
+  updateSearchKindHint();
+  if(classifyInput($("#s-search-input").value)==="search"){
+    STATE.query = $("#s-search-input").value.trim();
+    applyFilters();
+  }
+});
+$$(".s-sample").forEach(b => b.addEventListener("click", ()=>{
+  $("#s-search-input").value = b.dataset.v; updateSearchKindHint(); runDecoder();
+}));
+
+$("#s-filters-btn").addEventListener("click", ()=>{
+  $("#s-filters").classList.add("is-open"); $("#s-scrim").classList.add("is-on");
+});
+$("#s-filters-close").addEventListener("click", ()=>{
+  $("#s-filters").classList.remove("is-open"); if(!STATE.toolsOpen) $("#s-scrim").classList.remove("is-on");
+});
+$("#s-tools-btn").addEventListener("click", ()=> STATE.toolsOpen ? closeTools() : openTools());
+$("#s-tools-close").addEventListener("click", closeTools);
+$("#s-scrim").addEventListener("click", ()=>{
+  $("#s-filters").classList.remove("is-open");
+  closeTools();
+  $("#s-scrim").classList.remove("is-on");
+});
+
+$("#s-clear-btn").addEventListener("click", clearAllFilters);
+$("#s-save-btn").addEventListener("click", ()=>{
+  if(!STATE.isPro && STATE.saved.length>=3){ openUpgrade("Free tier saves up to 3 searches. Throttle+ is unlimited."); return; }
+  STATE.saved.unshift(snapshotFilters());
+  STATE.saved = STATE.saved.slice(0, STATE.isPro?100:3);
+  localStorage.setItem("throttle_saved", JSON.stringify(STATE.saved));
+  renderSaved();
+});
+
+$$("[data-modal-close]").forEach(b => b.addEventListener("click", closeAllModals));
+$$(".s-modal").forEach(m => m.addEventListener("click", e => { if(e.target===m) closeAllModals(); }));
+
+$("#nav-upgrade-btn").addEventListener("click", ()=> openUpgrade());
+$("#nav-list-btn").addEventListener("click", ()=> $("#m-list").classList.add("is-on"));
+
+$("#m-upgrade-now").addEventListener("click", ()=>{
+  STATE.isPro=true; localStorage.setItem("throttle_pro","1");
+  alert("Welcome aboard, supporter. Throttle+ is unlocked on this device.");
+  closeAllModals(); refreshProUI(); applyFilters();
+});
+
+$("#v-go").addEventListener("click", ()=>{ openTools(); setToolTab("value"); renderValue(); });
+
+$("#m-list-decode-btn").addEventListener("click", async ()=>{
+  const f=$("#m-list-form"); const v=f.vin.value.trim();
+  if(!v){ $("#m-list-result").textContent="Enter a HIN, VIN, or N-Number first."; return; }
+  $("#m-list-result").textContent="Decoding…";
+  try{
+    const k = classifyInput(v);
+    if(k==="HIN"){
+      const d=decodeHIN(v); if(d.manufacturer) f.make.value=d.manufacturer; if(d.modelYear) f.year.value=d.modelYear;
+      $("#m-list-result").textContent = `Decoded: ${d.manufacturer||d.mic} · model year ${d.modelYear??"?"}`;
+    } else if(k==="N-NUMBER"){
+      const d=await decodeNNumber(v); const a=d.registry||{};
+      if(a.manufacturer) f.make.value=a.manufacturer; if(a.type) f.model.value=a.type; f.cat.value="aircraft";
+      $("#m-list-result").textContent = `Decoded: ${a.manufacturer||""} ${a.type||""}`;
+    } else {
+      const r=await decodeVIN(v);
+      if(r.Make) f.make.value=r.Make; if(r.Model) f.model.value=r.Model; if(r.ModelYear) f.year.value=r.ModelYear;
+      $("#m-list-result").textContent = `Decoded: ${r.Make||""} ${r.Model||""} ${r.ModelYear||""}`.trim();
+    }
+  }catch(e){ $("#m-list-result").textContent = "Decode failed: "+e.message; }
+});
+
+$("#m-list-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const f=e.target;
+  const cat=f.cat.value, r=rand(f.vin.value+f.email.value+Date.now());
+  const state=(f.state.value||"").toUpperCase();
+  const ll=STATE_LATLNG[state]||[39.5,-98];
+  const item = {
+    id: `thr-${Date.now()}-${Math.floor(r()*1e6)}`,
+    cat, make:f.make.value, model:f.model.value, year:parseInt(f.year.value)||2020,
+    price:parseInt(f.price.value)||0, msrp:parseInt(f.price.value)||0, cond:f.cond.value,
+    dom:0, sold:false, city:f.city.value, state, region:REGION_BY_STATE[state]||"—",
+    lat:ll[0]+(r()-0.5)*0.4, lng:ll[1]+(r()-0.5)*0.4,
+    src:"Throttle", isThrottle:true, live:true,
+    hours: USES_HOURS.has(cat)?(parseInt(f.usage.value)||0):null,
+    miles: USES_MILES.has(cat)?(parseInt(f.usage.value)||0):null,
+    hue: Math.floor(r()*360), hot:false, photos: [], url:"#",
+    notes:f.notes.value, sellerEmail:f.email.value,
+  };
+  if(STATE.listings[cat]) STATE.listings[cat].unshift(item);
+  $("#m-list-result").innerHTML = `<span style="color:var(--good)">✓ Throttle Listing published.</span> Buyer messages will route to <b>${f.email.value}</b>. Your email stays private.`;
+  if(STATE.cat===cat || STATE.cat==="all") applyFilters();
+  setTimeout(closeAllModals, 1400);
+  f.reset();
+});
+
+$("#m-msg-send").addEventListener("click", ()=>{
+  const out=$("#m-msg-result");
+  const email=$("#m-msg-email").value.trim(), body=$("#m-msg-body").value.trim();
+  if(!email||!body){ out.style.color="var(--bad)"; out.textContent="Email and message are required."; return; }
+  const L = STATE.currentListing;
+  out.style.color="var(--good)";
+  out.innerHTML = `✓ Sent. We routed your message to the seller of <b>${L.year} ${L.make} ${L.model}</b>. Copy at <b>${email}</b>.`;
+  setTimeout(closeAllModals, 1800);
+});
+
+function refreshProUI(){
+  $("#nav-upgrade-btn").textContent = STATE.isPro ? "✓ Throttle+ active" : "Throttle+ · $15/mo";
+  $("#nav-upgrade-btn").classList.toggle("t-btn--gold", !STATE.isPro);
+  $("#nav-upgrade-btn").classList.toggle("t-btn--ghost", STATE.isPro);
+  renderSaved();
+}
+
+// ---------- 19. Boot ----------
+(function bootCatFromURL(){
+  let initialCat="all";
+  try{
+    const qs=new URLSearchParams(location.search);
+    const c=(qs.get("cat")||"").toLowerCase();
+    const q=(qs.get("q")||"").trim();
+    if(c && CATS_PICKABLE.includes(c)) initialCat=c;
+    if(q){ STATE.query = q; $("#s-search-input").value = q; updateSearchKindHint(); }
+  }catch(e){}
+  selectCat(initialCat);
+})();
+renderSaved();
+refreshProUI();
+probeLiveSources();
+
+try {
+  const account = localStorage.getItem("throttle_account");
+  if(account){
+    const link = $("#nav-account-link");
+    if(link){ link.textContent="My account"; link.href="/account/"; }
+  }
+} catch(e){}
+
+window.throttle = {
+  ingest: (cat, items) => {
+    if(!STATE.listings[cat]) return;
+    items.forEach(it => {
+      if(!it.id) it.id = `live-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+      STATE.listings[cat].push(normalizeListing(it));
+    });
+    if(STATE.cat===cat || STATE.cat==="all") applyFilters();
+  },
+  getState: ()=> STATE,
+  setPro: v => { STATE.isPro=!!v; localStorage.setItem("throttle_pro", v?"1":"0"); refreshProUI(); applyFilters(); },
+};
+</script>
+</body>
+</html>

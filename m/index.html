@@ -1,0 +1,1204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>(function(){try{var qs=new URLSearchParams(location.search);if(qs.has("desktop")){localStorage.setItem("throttle_force_desktop","1");location.replace("/")}}catch(e){}})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#08090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Throttle">
+<title>Throttle — find your dream toy</title>
+<meta name="description" content="Free dealer-direct marketplace for boats, PWCs, side-by-sides, ATVs, motorcycles, dirt bikes, snowmobiles, 3-wheelers, race cars, and aircraft.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/m/manifest.webmanifest">
+<link rel="canonical" href="https://throttle.toys/m/">
+<link rel="preconnect" href="https://api.throttle.toys">
+<link rel="preconnect" href="https://vpic.nhtsa.dot.gov">
+<link rel="stylesheet" href="/assets/throttle.css?v=2">
+<style>
+  /* =========================================================
+     /m — Throttle mobile app shell.
+     App-store-style layout: Today rail, category icon grid,
+     editorial cards, live market card, bottom tab bar.
+     Designed for ≤ 480px portrait. Tap targets ≥ 44px.
+     ========================================================= */
+
+  :root {
+    --tab-h: 64px;
+    --header-h: 52px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --m-radius: 18px;
+    --m-radius-sm: 12px;
+    --m-tile: 22px;
+  }
+
+  html, body {
+    background: var(--bg);
+    overscroll-behavior-y: contain;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  body {
+    padding-top: calc(var(--header-h) + var(--safe-top));
+    padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 24px);
+    font-size: 15px;
+  }
+  /* Hide desktop chrome that throttle.css may inject */
+  .t-header, .t-foot, .t-nav, .t-section, .t-hero, .t-foot-cols { display: none !important; }
+
+  /* ---------- App-style sticky header ---------- */
+  .m-header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    height: calc(var(--header-h) + var(--safe-top));
+    padding: var(--safe-top) 14px 0;
+    display: flex; align-items: center; gap: 10px;
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    backdrop-filter: saturate(160%) blur(16px);
+    -webkit-backdrop-filter: saturate(160%) blur(16px);
+    border-bottom: 1px solid var(--line);
+  }
+  .m-logo {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--txt); font-weight: 800; font-size: 17px; letter-spacing: -0.01em;
+  }
+  .m-logo svg { width: 22px; height: 22px; }
+  .m-header-spacer { flex: 1; }
+  .m-icon-btn {
+    width: 38px; height: 38px; display: inline-grid; place-items: center;
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 50%;
+    color: var(--txt-2); position: relative;
+    transition: background .12s ease, color .12s ease, transform .12s ease;
+  }
+  .m-icon-btn:active { transform: scale(.92); background: var(--bg-3); color: var(--txt); }
+  .m-icon-btn svg { width: 18px; height: 18px; }
+  .m-icon-btn .m-dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--bad); border: 2px solid var(--bg);
+    display: none;
+  }
+  .m-icon-btn .m-dot.is-on { display: block; }
+
+  /* ---------- Page sections ---------- */
+  .m-screen { display: none; }
+  .m-screen.is-active { display: block; animation: mFade .3s ease; }
+  @keyframes mFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .m-h-row {
+    display: flex; align-items: end; justify-content: space-between;
+    padding: 8px 18px 12px;
+  }
+  .m-h-row h2 {
+    margin: 0; font-size: 22px; font-weight: 800;
+    letter-spacing: -0.025em; color: var(--txt);
+  }
+  .m-h-row .m-h-eyebrow {
+    color: var(--acc); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .m-h-row a { color: var(--acc); font-size: 13px; font-weight: 600; }
+
+  /* ---------- Greeting ---------- */
+  .m-greet { padding: 18px 18px 6px; }
+  .m-greet .m-date {
+    color: var(--txt-3); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .m-greet h1 {
+    margin: 4px 0 0; font-size: 30px; font-weight: 800;
+    letter-spacing: -0.03em; color: var(--txt); line-height: 1.05;
+  }
+  .m-greet h1 .muted { color: var(--txt-2); font-weight: 700; }
+
+  /* ---------- Search pill (App Store style) ---------- */
+  .m-searchbar {
+    margin: 14px 18px 18px;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 14px; padding: 11px 14px;
+    color: var(--txt-3); font-size: 15px; width: calc(100% - 36px);
+    transition: border-color .15s ease;
+  }
+  .m-searchbar:active { background: var(--bg-3); }
+  .m-searchbar svg { width: 18px; height: 18px; flex-shrink: 0; opacity: .8; }
+  .m-searchbar .m-search-text { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: left; }
+  .m-searchbar .m-search-kbd {
+    font-size: 10px; font-weight: 700; padding: 3px 7px;
+    background: var(--bg-3); border-radius: 6px; color: var(--txt-2);
+    letter-spacing: 0.1em;
+  }
+
+  /* ---------- Featured "Today" hero card ---------- */
+  .m-rail {
+    display: flex; gap: 12px;
+    padding: 0 18px 6px;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .m-rail::-webkit-scrollbar { display: none; }
+  .m-rail > * { scroll-snap-align: start; flex-shrink: 0; }
+
+  .m-feature {
+    width: calc(100vw - 36px); max-width: 460px;
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: var(--m-radius); overflow: hidden;
+    display: block; color: var(--txt);
+    position: relative;
+    transition: transform .12s ease;
+  }
+  .m-feature:active { transform: scale(.985); }
+  .m-feature .m-feature-art {
+    aspect-ratio: 16/10;
+    background:
+      radial-gradient(120% 80% at 0% 0%, color-mix(in srgb, var(--acc) 32%, transparent), transparent 60%),
+      radial-gradient(120% 80% at 100% 100%, color-mix(in srgb, var(--gold) 18%, transparent), transparent 60%),
+      linear-gradient(135deg, var(--bg-3), var(--bg-2));
+    position: relative; overflow: hidden;
+  }
+  .m-feature .m-feature-art svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .55; }
+  .m-feature .m-feature-tag {
+    position: absolute; top: 14px; left: 14px;
+    background: rgba(8,9,11,.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    color: var(--acc); font-size: 11px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 6px 10px; border-radius: 999px;
+  }
+  .m-feature .m-feature-body { padding: 16px 18px 18px; }
+  .m-feature h3 {
+    margin: 0 0 6px; font-size: 19px; font-weight: 800;
+    letter-spacing: -0.02em; color: var(--txt); line-height: 1.2;
+  }
+  .m-feature p { margin: 0 0 14px; color: var(--txt-2); font-size: 13.5px; line-height: 1.5; }
+  .m-feature .m-feature-meta {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .m-feature .m-feature-price {
+    color: var(--txt); font-weight: 800; font-size: 16px; letter-spacing: -0.01em;
+  }
+  .m-feature .m-feature-price .m-feature-msrp {
+    color: var(--txt-3); font-weight: 500; font-size: 12px; text-decoration: line-through; margin-left: 6px;
+  }
+  .m-feature .m-cta {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--acc); color: var(--acc-ink);
+    font-weight: 800; font-size: 13px;
+    padding: 9px 14px; border-radius: 999px;
+  }
+
+  /* ---------- App-icon category rail ---------- */
+  .m-icons-rail {
+    display: grid; grid-auto-flow: column;
+    grid-auto-columns: 78px; gap: 16px;
+    padding: 6px 18px 18px;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .m-icons-rail::-webkit-scrollbar { display: none; }
+  .m-icon-tile {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: var(--txt); scroll-snap-align: start;
+    transition: transform .12s ease;
+  }
+  .m-icon-tile:active { transform: scale(.93); }
+  .m-icon-tile .m-icon-art {
+    width: 70px; height: 70px;
+    border-radius: var(--m-tile);
+    display: grid; place-items: center;
+    font-size: 32px;
+    box-shadow: 0 6px 14px -8px rgba(0,0,0,.6);
+    position: relative; overflow: hidden;
+  }
+  .m-icon-tile .m-icon-art::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255,255,255,.14), transparent 40%, transparent 60%, rgba(0,0,0,.18));
+    pointer-events: none;
+  }
+  .m-icon-tile .m-icon-label {
+    font-size: 11.5px; font-weight: 600; color: var(--txt-2);
+    text-align: center; line-height: 1.2; max-width: 78px;
+  }
+  /* Per-category tints */
+  .m-cat-boats     .m-icon-art { background: linear-gradient(135deg, #1aa3ff, #0a4f8f); }
+  .m-cat-pwc       .m-icon-art { background: linear-gradient(135deg, #ff5e8a, #b3275a); }
+  .m-cat-utv       .m-icon-art { background: linear-gradient(135deg, #ffd166, #c47a00); }
+  .m-cat-atv       .m-icon-art { background: linear-gradient(135deg, #ff8a3d, #c33b00); }
+  .m-cat-motorcycle .m-icon-art { background: linear-gradient(135deg, #6a5cff, #2a1f9e); }
+  .m-cat-dirtbike  .m-icon-art { background: linear-gradient(135deg, #5dd39e, #167751); }
+  .m-cat-snowmobile .m-icon-art { background: linear-gradient(135deg, #7CF1FF, #1a8499); }
+  .m-cat-3wheel    .m-icon-art { background: linear-gradient(135deg, #ff9c66, #b04a18); }
+  .m-cat-trailers  .m-icon-art { background: linear-gradient(135deg, #a3a380, #4f4e36); }
+  .m-cat-racecar   .m-icon-art { background: linear-gradient(135deg, #ff4d4d, #7a0d0d); }
+  .m-cat-aircraft  .m-icon-art { background: linear-gradient(135deg, #b9c2d6, #4b5366); }
+  .m-cat-card.m-cat-boats     .m-cat-card-icon { background: linear-gradient(135deg, #1aa3ff, #0a4f8f); }
+  .m-cat-card.m-cat-pwc       .m-cat-card-icon { background: linear-gradient(135deg, #ff5e8a, #b3275a); }
+  .m-cat-card.m-cat-utv       .m-cat-card-icon { background: linear-gradient(135deg, #ffd166, #c47a00); }
+  .m-cat-card.m-cat-atv       .m-cat-card-icon { background: linear-gradient(135deg, #ff8a3d, #c33b00); }
+  .m-cat-card.m-cat-motorcycle .m-cat-card-icon { background: linear-gradient(135deg, #6a5cff, #2a1f9e); }
+  .m-cat-card.m-cat-dirtbike  .m-cat-card-icon { background: linear-gradient(135deg, #5dd39e, #167751); }
+  .m-cat-card.m-cat-snowmobile .m-cat-card-icon { background: linear-gradient(135deg, #7CF1FF, #1a8499); }
+  .m-cat-card.m-cat-3wheel    .m-cat-card-icon { background: linear-gradient(135deg, #ff9c66, #b04a18); }
+  .m-cat-card.m-cat-trailers  .m-cat-card-icon { background: linear-gradient(135deg, #a3a380, #4f4e36); }
+  .m-cat-card.m-cat-racecar   .m-cat-card-icon { background: linear-gradient(135deg, #ff4d4d, #7a0d0d); }
+  .m-cat-card.m-cat-aircraft  .m-cat-card-icon { background: linear-gradient(135deg, #b9c2d6, #4b5366); }
+
+  /* ---------- Listing rail ---------- */
+  .m-listing {
+    width: 220px;
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: var(--m-radius-sm); overflow: hidden;
+    color: var(--txt); display: block;
+    transition: transform .12s ease;
+  }
+  .m-listing:active { transform: scale(.97); }
+  .m-listing .m-listing-art {
+    aspect-ratio: 4/3;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--acc) 30%, var(--bg-3)), var(--bg-2));
+  }
+  .m-listing .m-listing-body { padding: 10px 12px 12px; }
+  .m-listing .m-listing-cat {
+    color: var(--acc); font-size: 10px; font-weight: 800;
+    letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .m-listing h4 {
+    margin: 0 0 4px; font-size: 14px; font-weight: 700;
+    letter-spacing: -0.01em; color: var(--txt); line-height: 1.25;
+    overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+  .m-listing .m-listing-price { margin-top: 8px; color: var(--txt); font-weight: 800; font-size: 14px; }
+  .m-listing .m-listing-meta { color: var(--txt-3); font-size: 11px; margin-top: 2px; }
+
+  /* ---------- Live market card ---------- */
+  .m-market-card {
+    margin: 0 18px 24px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--acc) 10%, var(--bg-1)), var(--bg-1));
+    border: 1px solid var(--line);
+    border-radius: var(--m-radius);
+    padding: 18px;
+  }
+  .m-market-card .m-market-eyebrow {
+    color: var(--acc); font-size: 11px; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .m-market-card .m-market-eyebrow .m-pulse {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--good); box-shadow: 0 0 0 0 rgba(93,211,158,.5);
+    animation: mPulse 1.6s infinite;
+  }
+  @keyframes mPulse {
+    0% { box-shadow: 0 0 0 0 rgba(93,211,158,.6); }
+    70% { box-shadow: 0 0 0 6px rgba(93,211,158,0); }
+    100% { box-shadow: 0 0 0 0 rgba(93,211,158,0); }
+  }
+  .m-market-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .m-stat {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: var(--m-radius-sm); padding: 12px 14px;
+  }
+  .m-stat .m-stat-val {
+    color: var(--txt); font-weight: 800; font-size: 22px;
+    letter-spacing: -0.025em; line-height: 1.1;
+  }
+  .m-stat .m-stat-label {
+    color: var(--txt-3); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.06em; margin-top: 4px;
+  }
+
+  /* ---------- Editorial post cards ---------- */
+  .m-posts { padding: 0 18px; display: grid; gap: 12px; }
+  .m-post-card {
+    display: grid; grid-template-columns: 92px 1fr; gap: 12px;
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: var(--m-radius-sm); overflow: hidden;
+    color: var(--txt); transition: transform .12s ease;
+  }
+  .m-post-card:active { transform: scale(.985); }
+  .m-post-card .m-post-art {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--acc) 20%, var(--bg-3)), var(--bg-2));
+    min-height: 92px;
+  }
+  .m-post-card .m-post-body { padding: 10px 14px 12px 0; min-width: 0; }
+  .m-post-card .m-post-tag {
+    color: var(--acc); font-size: 10px; font-weight: 800;
+    letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .m-post-card h4 {
+    margin: 0; font-size: 14px; font-weight: 700; letter-spacing: -0.01em;
+    color: var(--txt); line-height: 1.3;
+    overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+  .m-post-card .m-post-meta { color: var(--txt-3); font-size: 11px; margin-top: 6px; }
+
+  /* ---------- Browse-all category grid ---------- */
+  .m-cat-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+    padding: 6px 18px 24px;
+  }
+  .m-cat-card {
+    display: flex; flex-direction: column; gap: 10px;
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: var(--m-radius-sm);
+    padding: 14px; min-height: 120px;
+    color: var(--txt); position: relative; overflow: hidden;
+    transition: transform .12s ease;
+  }
+  .m-cat-card:active { transform: scale(.97); }
+  .m-cat-card .m-cat-card-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: grid; place-items: center; font-size: 22px;
+    box-shadow: 0 4px 10px -6px rgba(0,0,0,.6);
+  }
+  .m-cat-card .m-cat-card-name {
+    color: var(--txt); font-size: 14px; font-weight: 800; letter-spacing: -0.01em;
+  }
+  .m-cat-card .m-cat-card-sub { color: var(--txt-3); font-size: 11px; line-height: 1.4; }
+
+  /* ---------- Search overlay ---------- */
+  .m-search-overlay {
+    position: fixed; inset: 0; z-index: 80;
+    background: var(--bg);
+    display: none; flex-direction: column;
+    padding-top: var(--safe-top);
+  }
+  .m-search-overlay.is-open { display: flex; }
+  .m-search-overlay .m-search-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .m-search-overlay .m-search-input {
+    flex: 1; background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 12px; padding: 11px 14px;
+    color: var(--txt); font-size: 15px;
+    font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: 0.04em; outline: none;
+  }
+  .m-search-overlay .m-search-input:focus { border-color: var(--acc); }
+  .m-search-overlay .m-search-input::placeholder { color: var(--txt-3); letter-spacing: 0; font-family: inherit; }
+  .m-search-overlay .m-cancel {
+    background: transparent; border: 0; color: var(--acc);
+    font-weight: 700; font-size: 15px; padding: 8px 4px;
+  }
+  .m-search-body {
+    padding: 14px 18px 24px;
+    overflow-y: auto; flex: 1;
+    -webkit-overflow-scrolling: touch;
+  }
+  .m-search-hint {
+    color: var(--txt-3); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .m-search-suggest h5 {
+    margin: 18px 0 8px; color: var(--txt-3); font-size: 11px;
+    letter-spacing: 0.18em; text-transform: uppercase; font-weight: 800;
+  }
+  .m-search-suggest a {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1px solid var(--line);
+    color: var(--txt); font-size: 15px; font-weight: 600;
+  }
+  .m-search-suggest a:active { color: var(--acc); }
+  .m-search-suggest a .m-arrow { color: var(--txt-3); font-size: 13px; }
+
+  /* In-place decode panel */
+  .m-decode {
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: var(--m-radius-sm); padding: 16px;
+    margin-bottom: 14px; display: none;
+  }
+  .m-decode.is-open { display: block; }
+  .m-decode .m-decode-kind {
+    color: var(--acc); font-size: 10px; font-weight: 800;
+    letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .m-decode h3 {
+    margin: 0 0 10px; font-size: 17px; font-weight: 800;
+    letter-spacing: -0.015em; color: var(--txt);
+  }
+  .m-decode dl { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 14px; margin: 0 0 12px; }
+  .m-decode dt { color: var(--txt-3); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
+  .m-decode dd { margin: 0; color: var(--txt); font-size: 14px; font-weight: 700; }
+  .m-decode-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .m-decode-actions .m-pill-btn {
+    flex: 1; text-align: center;
+    background: var(--acc); color: var(--acc-ink);
+    border-radius: 999px; padding: 10px 14px;
+    font-weight: 700; font-size: 13px;
+  }
+  .m-decode-actions .m-pill-btn.is-ghost { background: var(--bg-2); color: var(--txt); border: 1px solid var(--line-2); }
+  .m-decode-error { color: var(--bad); font-size: 13px; margin-bottom: 12px; }
+
+  /* ---------- Account screen ---------- */
+  .m-account-card {
+    margin: 0 18px 18px;
+    background: var(--bg-1); border: 1px solid var(--line);
+    border-radius: var(--m-radius); padding: 22px 18px;
+    text-align: center;
+  }
+  .m-account-card .m-avatar {
+    width: 68px; height: 68px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--acc), var(--acc-2));
+    color: var(--acc-ink); font-weight: 800; font-size: 26px;
+    display: grid; place-items: center; margin: 0 auto 12px;
+  }
+  .m-account-card h3 { margin: 0 0 4px; font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+  .m-account-card .m-account-sub { color: var(--txt-3); font-size: 13px; margin-bottom: 14px; }
+  .m-account-actions { display: flex; gap: 10px; justify-content: center; }
+  .m-account-actions a {
+    flex: 1; max-width: 140px;
+    padding: 10px 14px; border-radius: 999px;
+    font-size: 13px; font-weight: 700; text-align: center;
+  }
+  .m-account-actions .m-action-primary { background: var(--acc); color: var(--acc-ink); }
+  .m-account-actions .m-action-ghost { background: var(--bg-2); color: var(--txt); border: 1px solid var(--line-2); }
+  .m-list { margin: 0 18px 14px; display: grid; gap: 1px; background: var(--line); border-radius: var(--m-radius-sm); overflow: hidden; }
+  .m-list a {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-1); padding: 14px 16px;
+    color: var(--txt); font-size: 15px; font-weight: 600;
+  }
+  .m-list a:active { background: var(--bg-2); }
+  .m-list a .m-list-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--bg-3); display: inline-grid; place-items: center;
+    margin-right: 12px; font-size: 15px;
+  }
+  .m-list a .m-list-arrow { color: var(--txt-3); }
+
+  /* ---------- Bottom tab bar ---------- */
+  .m-tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    height: calc(var(--tab-h) + var(--safe-bottom));
+    padding-bottom: var(--safe-bottom);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    backdrop-filter: saturate(160%) blur(18px);
+    -webkit-backdrop-filter: saturate(160%) blur(18px);
+    border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: repeat(5, 1fr);
+  }
+  .m-tab {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; padding: 8px 4px;
+    background: transparent; border: 0;
+    color: var(--txt-3); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.04em;
+    transition: color .12s ease, transform .1s ease;
+  }
+  .m-tab svg { width: 22px; height: 22px; }
+  .m-tab:active { transform: scale(.92); }
+  .m-tab.is-active { color: var(--acc); }
+  .m-tab .m-tab-pin {
+    width: 4px; height: 4px; border-radius: 50%; background: var(--acc);
+    margin-top: 2px; opacity: 0;
+  }
+  .m-tab.is-active .m-tab-pin { opacity: 1; }
+
+  /* ---------- Mini footer ---------- */
+  .m-foot { margin-top: 24px; padding: 18px; color: var(--txt-3); font-size: 11px; text-align: center; line-height: 1.6; }
+  .m-foot a { color: var(--txt-2); margin: 0 6px; }
+
+  /* ---------- Empty state ---------- */
+  .m-empty {
+    margin: 24px 18px; padding: 36px 18px;
+    background: var(--bg-1); border: 1px dashed var(--line-2);
+    border-radius: var(--m-radius); text-align: center;
+  }
+  .m-empty .m-empty-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--bg-2); display: grid; place-items: center;
+    margin: 0 auto 12px; font-size: 24px;
+  }
+  .m-empty h4 { margin: 0 0 6px; font-size: 16px; font-weight: 800; }
+  .m-empty p { margin: 0 0 14px; color: var(--txt-2); font-size: 13px; }
+  .m-empty a {
+    display: inline-block; background: var(--acc); color: var(--acc-ink);
+    border-radius: 999px; padding: 10px 18px;
+    font-weight: 700; font-size: 13px;
+  }
+
+  /* Desktop preview note (this page is mobile-only) */
+  @media (min-width: 769px) {
+    body::before {
+      content: "Mobile-only view. Open on a phone or visit / for desktop.";
+      display: block; padding: 14px 16px; text-align: center;
+      background: var(--bg-2); color: var(--txt-2); font-size: 13px;
+      border-bottom: 1px solid var(--line);
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ====================== HEADER ====================== -->
+<header class="m-header">
+  <a class="m-logo" href="/m/" aria-label="Throttle home">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="lg" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#7CF1FF"/>
+          <stop offset="1" stop-color="#4cd6e8"/>
+        </linearGradient>
+      </defs>
+      <circle cx="16" cy="16" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/>
+      <circle cx="16" cy="16" r="9" fill="none" stroke="url(#lg)" stroke-width="2" opacity=".7"/>
+      <circle cx="16" cy="16" r="4" fill="url(#lg)"/>
+    </svg>
+    Throttle
+  </a>
+  <span class="m-header-spacer"></span>
+  <button class="m-icon-btn" id="m-bell-btn" aria-label="Notifications">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    <span class="m-dot" id="m-bell-dot" aria-hidden="true"></span>
+  </button>
+  <button class="m-icon-btn" id="m-account-btn" aria-label="Account">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </button>
+</header>
+
+<!-- ====================== HOME / TODAY ====================== -->
+<main id="m-screen-home" class="m-screen is-active">
+
+  <section class="m-greet">
+    <div class="m-date" id="m-date">— · TODAY ON THROTTLE</div>
+    <h1>Find your<br/><span class="muted">dream toy.</span></h1>
+  </section>
+
+  <button class="m-searchbar" id="m-open-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <span class="m-search-text">HIN · VIN · N-Number · or make/model</span>
+    <span class="m-search-kbd">↑↓</span>
+  </button>
+
+  <div class="m-h-row">
+    <div>
+      <div class="m-h-eyebrow">Today</div>
+      <h2>Editor's pick</h2>
+    </div>
+    <a href="/blog">All →</a>
+  </div>
+  <div class="m-rail" aria-label="Featured today">
+    <a class="m-feature" href="/blog">
+      <div class="m-feature-art">
+        <svg viewBox="0 0 460 280" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M0 200 Q120 160 230 200 T460 190 L460 280 L0 280 Z" fill="rgba(124,241,255,0.18)"/>
+          <path d="M0 230 Q140 200 260 230 T460 220 L460 280 L0 280 Z" fill="rgba(124,241,255,0.10)"/>
+          <circle cx="380" cy="80" r="36" fill="rgba(255,209,102,0.55)"/>
+        </svg>
+      </div>
+      <span class="m-feature-tag">Reviews</span>
+      <div class="m-feature-body">
+        <h3>2024 KTM 250 Duke — what the market thinks</h3>
+        <p>The cheapest live KTM 250 Duke on Throttle just dropped in Katy, TX. Below MSRP, with retention favoring the buyer.</p>
+        <div class="m-feature-meta">
+          <div class="m-feature-price">$4,499 <span class="m-feature-msrp">$5,499 MSRP</span></div>
+          <span class="m-cta">Read</span>
+        </div>
+      </div>
+    </a>
+    <a class="m-feature" href="/blog">
+      <div class="m-feature-art" style="background: radial-gradient(120% 80% at 0% 0%, rgba(255,138,61,.4), transparent 60%), radial-gradient(120% 80% at 100% 100%, rgba(255,77,77,.3), transparent 60%), linear-gradient(135deg, #1a1f26, #14171c);">
+        <svg viewBox="0 0 460 280" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M0 220 L460 180 L460 280 L0 280 Z" fill="rgba(255,138,61,0.22)"/>
+          <circle cx="100" cy="120" r="28" fill="rgba(255,209,102,0.4)"/>
+        </svg>
+      </div>
+      <span class="m-feature-tag">New toys</span>
+      <div class="m-feature-body">
+        <h3>2026 Sea-Doo lineup — RXP-X 325 vs GP1800R SVHO</h3>
+        <p>Two flagship PWCs are at dealer floors. Power, hull, electronics, and which one holds value better.</p>
+        <div class="m-feature-meta">
+          <div class="m-feature-price">From $18,999</div>
+          <span class="m-cta">Compare</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="m-h-row">
+    <div>
+      <div class="m-h-eyebrow">Browse</div>
+      <h2>Categories</h2>
+    </div>
+    <a href="#" data-tab="browse">All →</a>
+  </div>
+  <nav class="m-icons-rail" aria-label="Quick categories">
+    <a class="m-icon-tile m-cat-boats" href="/search?cat=boats"><span class="m-icon-art" aria-hidden="true">🚤</span><span class="m-icon-label">Boats</span></a>
+    <a class="m-icon-tile m-cat-pwc" href="/search?cat=pwc"><span class="m-icon-art" aria-hidden="true">🌊</span><span class="m-icon-label">Jet Skis</span></a>
+    <a class="m-icon-tile m-cat-utv" href="/search?cat=utv"><span class="m-icon-art" aria-hidden="true">🛻</span><span class="m-icon-label">Side-by-Sides</span></a>
+    <a class="m-icon-tile m-cat-atv" href="/search?cat=atv"><span class="m-icon-art" aria-hidden="true">🏔️</span><span class="m-icon-label">ATVs</span></a>
+    <a class="m-icon-tile m-cat-motorcycle" href="/search?cat=motorcycle"><span class="m-icon-art" aria-hidden="true">🏍️</span><span class="m-icon-label">Motorcycles</span></a>
+    <a class="m-icon-tile m-cat-dirtbike" href="/search?cat=dirtbike"><span class="m-icon-art" aria-hidden="true">🏁</span><span class="m-icon-label">Dirt Bikes</span></a>
+    <a class="m-icon-tile m-cat-snowmobile" href="/search?cat=snowmobile"><span class="m-icon-art" aria-hidden="true">❄️</span><span class="m-icon-label">Snowmobiles</span></a>
+    <a class="m-icon-tile m-cat-3wheel" href="/search?cat=3wheel"><span class="m-icon-art" aria-hidden="true">🛺</span><span class="m-icon-label">3-Wheelers</span></a>
+    <a class="m-icon-tile m-cat-trailers" href="/search?cat=trailers"><span class="m-icon-art" aria-hidden="true">🚚</span><span class="m-icon-label">Trailers</span></a>
+    <a class="m-icon-tile m-cat-racecar" href="/search?cat=racecar"><span class="m-icon-art" aria-hidden="true">🏎️</span><span class="m-icon-label">Race Cars</span></a>
+    <a class="m-icon-tile m-cat-aircraft" href="/search?cat=aircraft"><span class="m-icon-art" aria-hidden="true">✈️</span><span class="m-icon-label">Aircraft</span></a>
+  </nav>
+
+  <div class="m-h-row">
+    <div>
+      <div class="m-h-eyebrow">Top picks</div>
+      <h2>Hot listings</h2>
+    </div>
+    <a href="/search">All →</a>
+  </div>
+  <div class="m-rail" id="m-listings-rail" aria-label="Top listings">
+    <a class="m-listing" href="/search?cat=motorcycle">
+      <div class="m-listing-art" style="background: linear-gradient(135deg, #6a5cff, #2a1f9e);"></div>
+      <div class="m-listing-body">
+        <div class="m-listing-cat">Motorcycle</div>
+        <h4>2024 KTM 250 Duke — Wild West Motoplex</h4>
+        <div class="m-listing-price">$4,499</div>
+        <div class="m-listing-meta">Katy, TX · 18% below market</div>
+      </div>
+    </a>
+    <a class="m-listing" href="/search?cat=utv">
+      <div class="m-listing-art" style="background: linear-gradient(135deg, #ffd166, #c47a00);"></div>
+      <div class="m-listing-body">
+        <div class="m-listing-cat">Side-by-Side</div>
+        <h4>2025 Polaris RZR XP 1000 — Holiday Powersports</h4>
+        <div class="m-listing-price">$22,499</div>
+        <div class="m-listing-meta">Mesquite, TX · Below MSRP</div>
+      </div>
+    </a>
+    <a class="m-listing" href="/search?cat=pwc">
+      <div class="m-listing-art" style="background: linear-gradient(135deg, #ff5e8a, #b3275a);"></div>
+      <div class="m-listing-body">
+        <div class="m-listing-cat">PWC</div>
+        <h4>2026 Sea-Doo RXP-X 325 — RideNow</h4>
+        <div class="m-listing-price">$18,999</div>
+        <div class="m-listing-meta">Phoenix, AZ · New arrival</div>
+      </div>
+    </a>
+    <a class="m-listing" href="/search?cat=boats">
+      <div class="m-listing-art" style="background: linear-gradient(135deg, #1aa3ff, #0a4f8f);"></div>
+      <div class="m-listing-body">
+        <div class="m-listing-cat">Boat</div>
+        <h4>2023 Sea Ray SDX 250 — MarineMax</h4>
+        <div class="m-listing-price">$98,500</div>
+        <div class="m-listing-meta">Sarasota, FL · Certified</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="m-h-row">
+    <div>
+      <div class="m-h-eyebrow">Live data</div>
+      <h2>What the market's doing</h2>
+    </div>
+  </div>
+  <div class="m-market-card" id="m-market">
+    <div class="m-market-eyebrow"><span class="m-pulse"></span>Refreshed every few minutes</div>
+    <div class="m-market-grid">
+      <div class="m-stat"><div class="m-stat-val" id="ms-total">—</div><div class="m-stat-label">Active listings</div></div>
+      <div class="m-stat"><div class="m-stat-val" id="ms-cats">—</div><div class="m-stat-label">Categories live</div></div>
+      <div class="m-stat"><div class="m-stat-val" id="ms-median">—</div><div class="m-stat-label">Median price</div></div>
+      <div class="m-stat"><div class="m-stat-val" id="ms-dealers">—</div><div class="m-stat-label">Dealers connected</div></div>
+    </div>
+  </div>
+
+  <div class="m-h-row">
+    <div>
+      <div class="m-h-eyebrow">From the journal</div>
+      <h2>What's new</h2>
+    </div>
+    <a href="/blog">All →</a>
+  </div>
+  <div class="m-posts">
+    <a class="m-post-card" href="/blog/decoding-hin/">
+      <div class="m-post-art" style="background: linear-gradient(135deg, #1aa3ff, #0a4f8f);"></div>
+      <div class="m-post-body">
+        <div class="m-post-tag">Buyer's guide</div>
+        <h4>Decoding HIN: what every boat buyer should check before signing</h4>
+        <div class="m-post-meta">4 min read</div>
+      </div>
+    </a>
+    <a class="m-post-card" href="/blog">
+      <div class="m-post-art" style="background: linear-gradient(135deg, #ff5e8a, #b3275a);"></div>
+      <div class="m-post-body">
+        <div class="m-post-tag">New toys</div>
+        <h4>2026 Sea-Doo lineup hits dealers — RXP-X vs GP1800R</h4>
+        <div class="m-post-meta">5 min read</div>
+      </div>
+    </a>
+    <a class="m-post-card" href="/blog">
+      <div class="m-post-art" style="background: linear-gradient(135deg, #6a5cff, #2a1f9e);"></div>
+      <div class="m-post-body">
+        <div class="m-post-tag">Reviews</div>
+        <h4>2024 KTM 250 Duke — the value play of the quarter</h4>
+        <div class="m-post-meta">3 min read</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="m-h-row">
+    <div>
+      <div class="m-h-eyebrow">Why Throttle</div>
+      <h2>Built for buyers.</h2>
+    </div>
+  </div>
+  <div class="m-posts">
+    <div class="m-post-card" style="grid-template-columns: 56px 1fr;">
+      <div class="m-post-art" style="background: linear-gradient(135deg, #7CF1FF, #1a8499); display: grid; place-items: center; min-height: 56px;"><span style="font-size: 22px;">⚡</span></div>
+      <div class="m-post-body" style="padding: 12px 14px 12px 0;"><h4>One search, the whole market.</h4><div class="m-post-meta">Dealer feeds, OEM inventory, and Throttle sellers — in one query.</div></div>
+    </div>
+    <div class="m-post-card" style="grid-template-columns: 56px 1fr;">
+      <div class="m-post-art" style="background: linear-gradient(135deg, #ffd166, #c47a00); display: grid; place-items: center; min-height: 56px;"><span style="font-size: 22px;">⌗</span></div>
+      <div class="m-post-body" style="padding: 12px 14px 12px 0;"><h4>Honest market value.</h4><div class="m-post-meta">Retention curves, sold trends, "below market" detection.</div></div>
+    </div>
+    <div class="m-post-card" style="grid-template-columns: 56px 1fr;">
+      <div class="m-post-art" style="background: linear-gradient(135deg, #5dd39e, #167751); display: grid; place-items: center; min-height: 56px;"><span style="font-size: 22px;">✓</span></div>
+      <div class="m-post-body" style="padding: 12px 14px 12px 0;"><h4>No leads sold. No dealer ads.</h4><div class="m-post-meta">Free for sellers and dealers in beta.</div></div>
+    </div>
+  </div>
+
+  <div class="m-foot">
+    <div><a href="/about">About</a> · <a href="/pricing">Pricing</a> · <a href="/dealers">For dealers</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></div>
+    <div style="margin-top: 8px;">© 2026 Throttle · Beta · <a href="/?desktop=1">Desktop site</a></div>
+  </div>
+</main>
+
+<!-- ====================== BROWSE TAB ====================== -->
+<main id="m-screen-browse" class="m-screen">
+  <section class="m-greet">
+    <div class="m-date">EVERYTHING YOU CAN RIDE</div>
+    <h1>Browse</h1>
+  </section>
+  <button class="m-searchbar" data-open-search>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <span class="m-search-text">Search categories or models</span>
+  </button>
+
+  <div class="m-cat-grid">
+    <a class="m-cat-card m-cat-boats" href="/search?cat=boats"><span class="m-cat-card-icon">🚤</span><span class="m-cat-card-name">Boats</span><span class="m-cat-card-sub">Bowriders, fishing, cruisers, wake, pontoons.</span></a>
+    <a class="m-cat-card m-cat-pwc" href="/search?cat=pwc"><span class="m-cat-card-icon">🌊</span><span class="m-cat-card-name">PWCs · Jet Skis</span><span class="m-cat-card-sub">Sea-Doo, WaveRunner, Kawasaki.</span></a>
+    <a class="m-cat-card m-cat-utv" href="/search?cat=utv"><span class="m-cat-card-icon">🛻</span><span class="m-cat-card-name">Side-by-Sides</span><span class="m-cat-card-sub">RZR, Maverick, Talon, Teryx, Wolverine.</span></a>
+    <a class="m-cat-card m-cat-atv" href="/search?cat=atv"><span class="m-cat-card-icon">🏔️</span><span class="m-cat-card-name">ATVs</span><span class="m-cat-card-sub">Sportsman, Outlander, Grizzly, Foreman.</span></a>
+    <a class="m-cat-card m-cat-motorcycle" href="/search?cat=motorcycle"><span class="m-cat-card-icon">🏍️</span><span class="m-cat-card-name">Motorcycles</span><span class="m-cat-card-sub">Indian, Harley, BMW, Ducati, Triumph.</span></a>
+    <a class="m-cat-card m-cat-dirtbike" href="/search?cat=dirtbike"><span class="m-cat-card-icon">🏁</span><span class="m-cat-card-name">Dirt Bikes</span><span class="m-cat-card-sub">CRF, YZ, KX, KTM SX-F, Husqvarna.</span></a>
+    <a class="m-cat-card m-cat-snowmobile" href="/search?cat=snowmobile"><span class="m-cat-card-icon">❄️</span><span class="m-cat-card-name">Snowmobiles</span><span class="m-cat-card-sub">Polaris, Ski-Doo, Yamaha, Arctic Cat.</span></a>
+    <a class="m-cat-card m-cat-3wheel" href="/search?cat=3wheel"><span class="m-cat-card-icon">🛺</span><span class="m-cat-card-name">3-Wheelers</span><span class="m-cat-card-sub">Slingshot, Spyder, Ryker, Vanderhall.</span></a>
+    <a class="m-cat-card m-cat-trailers" href="/search?cat=trailers"><span class="m-cat-card-icon">🚚</span><span class="m-cat-card-name">Trailers</span><span class="m-cat-card-sub">Featherlite, Big Tex, PJ, Sundowner, ATC.</span></a>
+    <a class="m-cat-card m-cat-racecar" href="/search?cat=racecar"><span class="m-cat-card-icon">🏎️</span><span class="m-cat-card-name">Race Cars</span><span class="m-cat-card-sub">X-Bow, Radical, Caterham, Ariel Atom.</span></a>
+    <a class="m-cat-card m-cat-aircraft" href="/search?cat=aircraft"><span class="m-cat-card-icon">✈️</span><span class="m-cat-card-name">Aircraft</span><span class="m-cat-card-sub">Cessna, Piper, Cirrus, Beechcraft.</span></a>
+  </div>
+
+  <div class="m-h-row" style="padding-top: 18px;">
+    <div>
+      <div class="m-h-eyebrow">Find by VIN/HIN</div>
+      <h2>Got a number?</h2>
+    </div>
+  </div>
+  <div style="padding: 0 18px 24px;">
+    <div class="m-post-card" style="grid-template-columns: 1fr; padding: 16px;">
+      <div class="m-post-body" style="padding: 0;">
+        <p style="margin: 0 0 10px; color: var(--txt-2); font-size: 13.5px; line-height: 1.5;">Got a HIN, VIN, or N-Number? Tap below to decode it instantly and see what it's worth.</p>
+        <button class="m-pill-btn" data-open-search style="background: var(--acc); color: var(--acc-ink); border: 0; border-radius: 999px; padding: 11px 18px; font-weight: 800; font-size: 13px;">Decode a number →</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ====================== SAVED TAB ====================== -->
+<main id="m-screen-saved" class="m-screen">
+  <section class="m-greet">
+    <div class="m-date">YOUR SHORT LIST</div>
+    <h1>Saved</h1>
+  </section>
+  <div id="m-saved-empty" class="m-empty">
+    <div class="m-empty-icon">⭐</div>
+    <h4>Nothing saved yet</h4>
+    <p>Tap the star on any listing to keep it here. We'll alert you when prices drop.</p>
+    <a href="/search">Start browsing →</a>
+  </div>
+</main>
+
+<!-- ====================== ACCOUNT TAB ====================== -->
+<main id="m-screen-account" class="m-screen">
+  <section class="m-greet">
+    <div class="m-date">YOUR THROTTLE</div>
+    <h1 id="m-account-title">Welcome</h1>
+  </section>
+
+  <div class="m-account-card" id="m-account-card-anon">
+    <div class="m-avatar">T</div>
+    <h3>Sign in to Throttle</h3>
+    <div class="m-account-sub">Save listings, message dealers, list your toys for free.</div>
+    <div class="m-account-actions">
+      <a class="m-action-primary" href="/signin">Login</a>
+      <a class="m-action-ghost" href="/signup">Sign up</a>
+    </div>
+  </div>
+
+  <div class="m-account-card" id="m-account-card-user" style="display: none;">
+    <div class="m-avatar" id="m-user-avatar">?</div>
+    <h3 id="m-user-name">—</h3>
+    <div class="m-account-sub" id="m-user-email">—</div>
+    <div class="m-account-actions">
+      <a class="m-action-primary" href="/account">My account</a>
+      <a class="m-action-ghost" href="/list">Sell something</a>
+    </div>
+  </div>
+
+  <div class="m-list">
+    <a href="/account/listings"><span><span class="m-list-icon">📋</span>My listings</span><span class="m-list-arrow">›</span></a>
+    <a href="/account/messages"><span><span class="m-list-icon">💬</span>Messages</span><span class="m-list-arrow">›</span></a>
+    <a href="/list"><span><span class="m-list-icon">＋</span>Sell something</span><span class="m-list-arrow">›</span></a>
+    <a href="/dealers"><span><span class="m-list-icon">🏪</span>For dealers</span><span class="m-list-arrow">›</span></a>
+  </div>
+
+  <div class="m-list">
+    <a href="/pricing"><span><span class="m-list-icon">⚡</span>Throttle+ pricing</span><span class="m-list-arrow">›</span></a>
+    <a href="/blog"><span><span class="m-list-icon">📰</span>What's new</span><span class="m-list-arrow">›</span></a>
+    <a href="/roadmap"><span><span class="m-list-icon">🗺️</span>Roadmap</span><span class="m-list-arrow">›</span></a>
+    <a href="/about"><span><span class="m-list-icon">ℹ️</span>About</span><span class="m-list-arrow">›</span></a>
+  </div>
+
+  <div class="m-list">
+    <a href="/terms"><span><span class="m-list-icon">📄</span>Terms</span><span class="m-list-arrow">›</span></a>
+    <a href="/privacy"><span><span class="m-list-icon">🔒</span>Privacy</span><span class="m-list-arrow">›</span></a>
+    <a href="/?desktop=1"><span><span class="m-list-icon">🖥️</span>Use desktop site</span><span class="m-list-arrow">›</span></a>
+  </div>
+
+  <div class="m-foot">© 2026 Throttle · Beta · v2.0</div>
+</main>
+
+<!-- ====================== SEARCH OVERLAY ====================== -->
+<aside class="m-search-overlay" id="m-search-overlay" aria-hidden="true">
+  <div class="m-search-head">
+    <input
+      class="m-search-input"
+      id="m-search-input"
+      type="text"
+      inputmode="latin"
+      spellcheck="false"
+      autocapitalize="characters"
+      placeholder="HIN · VIN · N-Number · or '2024 Sea Ray SDX 250'"
+      aria-label="Search HIN, VIN, N-Number, or keywords"
+    />
+    <button class="m-cancel" id="m-cancel-search">Cancel</button>
+  </div>
+  <div class="m-search-body">
+    <div class="m-search-hint" id="m-search-hint">12-char HIN · 17-char VIN · N-Number · or any make/model</div>
+    <div class="m-decode" id="m-decode" aria-live="polite"></div>
+    <div class="m-search-suggest">
+      <h5>Recent searches</h5>
+      <div id="m-recent">
+        <span style="color: var(--txt-3); font-size: 13px;">Nothing yet — try a make and model.</span>
+      </div>
+      <h5>Trending</h5>
+      <a href="/search?q=2024+KTM+250+Duke">2024 KTM 250 Duke<span class="m-arrow">›</span></a>
+      <a href="/search?q=Sea-Doo+RXP-X+325">Sea-Doo RXP-X 325<span class="m-arrow">›</span></a>
+      <a href="/search?q=Polaris+RZR+XP+1000">Polaris RZR XP 1000<span class="m-arrow">›</span></a>
+      <a href="/search?q=Sea+Ray+SDX+250">Sea Ray SDX 250<span class="m-arrow">›</span></a>
+      <a href="/search?q=Cessna+172">Cessna 172<span class="m-arrow">›</span></a>
+      <h5>Browse all</h5>
+      <a href="/search">Open the marketplace<span class="m-arrow">›</span></a>
+    </div>
+  </div>
+</aside>
+
+<!-- ====================== TAB BAR ====================== -->
+<nav class="m-tabbar" aria-label="Tabs">
+  <button class="m-tab is-active" data-tab="home" aria-label="Home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 12 9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
+    <span>Home</span><span class="m-tab-pin"></span>
+  </button>
+  <button class="m-tab" data-tab="browse" aria-label="Browse">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span>Browse</span><span class="m-tab-pin"></span>
+  </button>
+  <button class="m-tab" data-tab="search" aria-label="Search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <span>Search</span><span class="m-tab-pin"></span>
+  </button>
+  <button class="m-tab" data-tab="saved" aria-label="Saved">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z"/></svg>
+    <span>Saved</span><span class="m-tab-pin"></span>
+  </button>
+  <button class="m-tab" data-tab="account" aria-label="Account">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+    <span>Account</span><span class="m-tab-pin"></span>
+  </button>
+</nav>
+
+<script>
+(function(){
+  'use strict';
+  var $ = function(s, r){ return (r||document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+  var API_BASE = "https://api.throttle.toys";
+
+  // Date stamp
+  try {
+    var d = new Date();
+    var dow = ["SUN","MON","TUE","WED","THU","FRI","SAT"][d.getDay()];
+    var mon = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][d.getMonth()];
+    $("#m-date").textContent = dow + ", " + mon + " " + d.getDate() + " · TODAY ON THROTTLE";
+  } catch(e){}
+
+  // ---------- Tabs ----------
+  function activate(tab){
+    $$(".m-screen").forEach(function(s){ s.classList.remove("is-active"); });
+    var screen = $("#m-screen-" + tab);
+    if (screen) screen.classList.add("is-active");
+    $$(".m-tab").forEach(function(b){ b.classList.toggle("is-active", b.dataset.tab === tab); });
+    if (tab === "search") openSearch();
+    window.scrollTo({ top: 0, behavior: "instant" });
+    try { history.replaceState({tab:tab}, "", "#" + tab); } catch(e){}
+  }
+  $$(".m-tab").forEach(function(b){
+    b.addEventListener("click", function(){ activate(b.dataset.tab); });
+  });
+  $$("[data-tab]").forEach(function(a){
+    if (!a.classList.contains("m-tab")) {
+      a.addEventListener("click", function(e){ e.preventDefault(); activate(a.dataset.tab); });
+    }
+  });
+  $("#m-account-btn").addEventListener("click", function(e){ e.preventDefault(); activate("account"); });
+
+  var initialTab = (location.hash || "").replace("#","") || "home";
+  if (["home","browse","saved","account"].indexOf(initialTab) === -1) initialTab = "home";
+  activate(initialTab);
+
+  // ---------- Search overlay ----------
+  function openSearch(){
+    var ov = $("#m-search-overlay");
+    ov.classList.add("is-open");
+    ov.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+    setTimeout(function(){ $("#m-search-input").focus(); }, 60);
+  }
+  function closeSearch(){
+    var ov = $("#m-search-overlay");
+    ov.classList.remove("is-open");
+    ov.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+    var active = $(".m-tab.is-active");
+    if (active && active.dataset.tab === "search") activate("home");
+  }
+  $("#m-open-search").addEventListener("click", openSearch);
+  $$("[data-open-search]").forEach(function(b){ b.addEventListener("click", openSearch); });
+  $("#m-cancel-search").addEventListener("click", closeSearch);
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && $("#m-search-overlay").classList.contains("is-open")) closeSearch();
+  });
+
+  // ---------- Smart classification ----------
+  function classify(raw){
+    var v = (raw||"").trim().toUpperCase().replace(/[\s-]/g,"");
+    if (!v) return { kind:"empty" };
+    if (/^N[A-Z0-9]{1,5}$/.test(v) && !/[IO]/.test(v)) return { kind:"nnumber", value:v };
+    if (/^[A-HJ-NPR-Z0-9]{17}$/.test(v)) return { kind:"vin", value:v };
+    if (/^[A-Z]{3}[A-Z0-9]{9}$/.test(v) && v.length===12) return { kind:"hin", value:v };
+    return { kind:"freetext", value: raw.trim() };
+  }
+  function escapeHTML(s){ return String(s).replace(/[&<>"']/g, function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+
+  function showDecode(html){ var el=$("#m-decode"); el.innerHTML=html; el.classList.add("is-open"); }
+  function clearDecode(){ var el=$("#m-decode"); el.classList.remove("is-open"); el.innerHTML=""; }
+
+  async function decodeVIN(vin){
+    var r = await fetch("https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/" + encodeURIComponent(vin) + "?format=json");
+    if (!r.ok) throw new Error("vPIC unavailable");
+    var j = await r.json();
+    return j.Results && j.Results[0];
+  }
+  async function decodeNNumber(n){
+    try {
+      var r = await fetch("https://api.adsbdb.com/v0/aircraft/" + encodeURIComponent(n));
+      if (!r.ok) return null;
+      var j = await r.json();
+      return j.response && j.response.aircraft;
+    } catch(e){ return null; }
+  }
+  function decodeHIN(hin){
+    var MIC = {"SER":"Sea Ray","BWC":"Boston Whaler","BAY":"Bayliner","CHP":"Chaparral","CRN":"Crownline","CBT":"Cobalt","RGP":"Regal","TRK":"Tracker","LUN":"Lund","BEN":"Bennington","MBC":"Mastercraft","MAL":"Malibu","YAM":"Yamaha","SDB":"Sea-Doo","KAW":"Kawasaki","BRP":"Bombardier (Sea-Doo)","WLC":"Wellcraft","GRD":"Grady-White"};
+    var HIN_MONTH = {A:"January",B:"February",C:"March",D:"April",E:"May",F:"June",G:"July",H:"August",J:"September",K:"October",L:"November",M:"December"};
+    if (hin.length !== 12) throw new Error("HIN must be 12 characters");
+    return {
+      manufacturer: MIC[hin.slice(0,3)] || hin.slice(0,3) + " (unknown manufacturer code)",
+      builtMonth: HIN_MONTH[hin.slice(8,9)] || hin.slice(8,9),
+      builtYearDigit: hin.slice(9,10),
+      modelYear: "20" + hin.slice(10,12)
+    };
+  }
+
+  function pushRecent(label, href){
+    try {
+      var arr = JSON.parse(localStorage.getItem("throttle_recent") || "[]");
+      arr.unshift({ label: label, href: href, ts: Date.now() });
+      arr = arr.slice(0, 8);
+      localStorage.setItem("throttle_recent", JSON.stringify(arr));
+      renderRecent();
+    } catch(e){}
+  }
+  function renderRecent(){
+    var box = $("#m-recent"); if (!box) return;
+    var arr = [];
+    try { arr = JSON.parse(localStorage.getItem("throttle_recent") || "[]"); } catch(e){}
+    if (!arr.length) {
+      box.innerHTML = '<span style="color: var(--txt-3); font-size: 13px;">Nothing yet — try a make and model.</span>';
+      return;
+    }
+    box.innerHTML = arr.map(function(r){
+      return '<a href="' + escapeHTML(r.href) + '">' + escapeHTML(r.label) + '<span class="m-arrow">›</span></a>';
+    }).join("");
+  }
+  renderRecent();
+
+  $("#m-search-input").addEventListener("keydown", async function(e){
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    var raw = e.target.value;
+    var k = classify(raw);
+    if (k.kind === "empty") return;
+
+    if (k.kind === "freetext") {
+      var href = "/search?q=" + encodeURIComponent(k.value);
+      pushRecent(k.value, href);
+      window.location.href = href;
+      return;
+    }
+
+    showDecode(
+      '<div class="m-decode-kind">Decoding ' + escapeHTML(k.kind.toUpperCase()) + '</div>' +
+      '<h3>' + escapeHTML(k.value) + '</h3>' +
+      '<p style="color:var(--txt-3); font-size: 13px; margin: 4px 0 0;">One sec…</p>'
+    );
+
+    try {
+      if (k.kind === "vin") {
+        var r = await decodeVIN(k.value);
+        if (!r || !r.Make) throw new Error("No data for that VIN");
+        var year = r.ModelYear || "—", make = r.Make || "—", model = r.Model || "—", typ = r.VehicleType || "";
+        showDecode(
+          '<div class="m-decode-kind">VIN decoded</div>' +
+          '<h3>' + escapeHTML(year + " " + make + " " + model) + '</h3>' +
+          '<dl><div><dt>Year</dt><dd>' + escapeHTML(year) + '</dd></div>' +
+          '<div><dt>Make</dt><dd>' + escapeHTML(make) + '</dd></div>' +
+          '<div><dt>Model</dt><dd>' + escapeHTML(model) + '</dd></div>' +
+          '<div><dt>Type</dt><dd>' + escapeHTML(typ) + '</dd></div></dl>' +
+          '<div class="m-decode-actions">' +
+            '<a class="m-pill-btn" href="/search?q=' + encodeURIComponent(year + " " + make + " " + model) + '">See on the market →</a>' +
+            '<a class="m-pill-btn is-ghost" href="/list?vin=' + encodeURIComponent(k.value) + '">List one</a>' +
+          '</div>'
+        );
+        pushRecent(year + " " + make + " " + model, "/search?q=" + encodeURIComponent(year + " " + make + " " + model));
+      } else if (k.kind === "hin") {
+        var d = decodeHIN(k.value);
+        showDecode(
+          '<div class="m-decode-kind">HIN decoded</div>' +
+          '<h3>' + escapeHTML(d.modelYear + " " + d.manufacturer) + '</h3>' +
+          '<dl><div><dt>Manufacturer</dt><dd>' + escapeHTML(d.manufacturer) + '</dd></div>' +
+          '<div><dt>Model year</dt><dd>' + escapeHTML(d.modelYear) + '</dd></div>' +
+          '<div><dt>Built</dt><dd>' + escapeHTML(d.builtMonth) + ' 201' + escapeHTML(d.builtYearDigit) + '–202' + escapeHTML(d.builtYearDigit) + '</dd></div></dl>' +
+          '<div class="m-decode-actions">' +
+            '<a class="m-pill-btn" href="/search?q=' + encodeURIComponent(d.manufacturer + " " + d.modelYear) + '&cat=boats">See on the market →</a>' +
+            '<a class="m-pill-btn is-ghost" href="/list?hin=' + encodeURIComponent(k.value) + '">List one</a>' +
+          '</div>'
+        );
+        pushRecent(d.modelYear + " " + d.manufacturer, "/search?q=" + encodeURIComponent(d.manufacturer + " " + d.modelYear) + "&cat=boats");
+      } else if (k.kind === "nnumber") {
+        var a = await decodeNNumber(k.value);
+        if (!a) throw new Error("No FAA registry data");
+        var ac = a.aircraft || a;
+        var owner = a.registered_owner || ac.owner || "Owner data restricted";
+        var type = ac.type || ac.icao_type_code || "—";
+        var mfr = ac.manufacturer || "—";
+        showDecode(
+          '<div class="m-decode-kind">N-Number decoded</div>' +
+          '<h3>' + escapeHTML(k.value + " — " + mfr + " " + type) + '</h3>' +
+          '<dl><div><dt>Manufacturer</dt><dd>' + escapeHTML(mfr) + '</dd></div>' +
+          '<div><dt>Type</dt><dd>' + escapeHTML(type) + '</dd></div>' +
+          '<div><dt>Registered owner</dt><dd>' + escapeHTML(owner) + '</dd></div></dl>' +
+          '<div class="m-decode-actions">' +
+            '<a class="m-pill-btn" href="/search?q=' + encodeURIComponent(mfr + " " + type) + '&cat=aircraft">See on the market →</a>' +
+            '<a class="m-pill-btn is-ghost" href="/list?nnumber=' + encodeURIComponent(k.value) + '">List one</a>' +
+          '</div>'
+        );
+        pushRecent(k.value + " " + mfr + " " + type, "/search?q=" + encodeURIComponent(mfr + " " + type) + "&cat=aircraft");
+      }
+    } catch(err){
+      showDecode(
+        '<div class="m-decode-kind">Decode failed</div>' +
+        '<h3>' + escapeHTML(k.value) + '</h3>' +
+        '<p class="m-decode-error">' + escapeHTML(err.message) + '.</p>' +
+        '<div class="m-decode-actions"><a class="m-pill-btn is-ghost" href="/search?q=' + encodeURIComponent(k.value) + '">Free-text search instead →</a></div>'
+      );
+    }
+  });
+
+  var hintEl = $("#m-search-hint");
+  $("#m-search-input").addEventListener("input", function(e){
+    var k = classify(e.target.value);
+    var labels = {
+      vin: "✓ Looks like a VIN — we'll decode via NHTSA",
+      hin: "✓ Looks like a HIN — we'll decode via USCG MIC table",
+      nnumber: "✓ Looks like an N-Number — we'll decode via FAA registry",
+      freetext: "We'll search the market for that",
+      empty: "12-char HIN · 17-char VIN · N-Number · or any make/model"
+    };
+    hintEl.textContent = labels[k.kind] || labels.empty;
+    if (k.kind === "empty") clearDecode();
+  });
+
+  // ---------- Account state (mirrors desktop) ----------
+  function refreshAccount(){
+    var user = null;
+    try { user = JSON.parse(localStorage.getItem("throttle_user") || "null"); } catch(e){}
+    var anon = $("#m-account-card-anon");
+    var u = $("#m-account-card-user");
+    var bell = $("#m-bell-dot");
+    if (user && (user.email || user.name)) {
+      anon.style.display = "none"; u.style.display = "block";
+      var name = user.name || (user.email ? user.email.split("@")[0] : "You");
+      $("#m-user-name").textContent = name;
+      $("#m-user-email").textContent = user.email || "";
+      $("#m-user-avatar").textContent = (name[0] || "T").toUpperCase();
+      $("#m-account-title").textContent = "Hi, " + name.split(" ")[0];
+      var unread = parseInt(localStorage.getItem("throttle_unread") || "0", 10);
+      if (unread > 0) bell.classList.add("is-on");
+    }
+  }
+  refreshAccount();
+
+  // ---------- Live market stats ----------
+  function fmt$(n){ return n == null || isNaN(n) ? "—" : "$" + Math.round(n).toLocaleString(); }
+  fetch(API_BASE + "/api/listings", { cache: "no-store" })
+    .then(function(r){ return r.ok ? r.json() : []; })
+    .then(function(items){
+      if (!Array.isArray(items)) items = [];
+      var total = items.length;
+      var cats = {}; items.forEach(function(i){ if (i.cat) cats[i.cat] = 1; });
+      var dealers = {}; items.forEach(function(i){ if (i.src && i.src !== "Throttle") dealers[i.src] = 1; });
+      var prices = items.map(function(i){ return i.price; }).filter(function(p){ return p && p > 0; }).sort(function(a,b){ return a-b; });
+      var median = prices.length ? prices[Math.floor(prices.length/2)] : null;
+      $("#ms-total").textContent = total ? total.toLocaleString() : "Soon";
+      $("#ms-cats").textContent = Object.keys(cats).length ? Object.keys(cats).length + " / 10" : "—";
+      $("#ms-median").textContent = fmt$(median);
+      $("#ms-dealers").textContent = Object.keys(dealers).length || "1+";
+
+      // Hydrate top picks rail with up to 6 real listings
+      if (items.length) {
+        var rail = $("#m-listings-rail");
+        var top = items.filter(function(i){ return i.price && i.title; }).slice(0, 6);
+        if (top.length) {
+          rail.innerHTML = top.map(function(i){
+            var cat = (i.cat || "").toUpperCase();
+            return '<a class="m-listing" href="' + (i.url || "/search") + '">' +
+              '<div class="m-listing-art"></div>' +
+              '<div class="m-listing-body">' +
+                '<div class="m-listing-cat">' + escapeHTML(cat) + '</div>' +
+                '<h4>' + escapeHTML(i.title) + '</h4>' +
+                '<div class="m-listing-price">' + fmt$(i.price) + '</div>' +
+                '<div class="m-listing-meta">' + escapeHTML([i.location || "", i.src || ""].filter(Boolean).join(" · ")) + '</div>' +
+              '</div>' +
+            '</a>';
+          }).join(""
