@@ -1,0 +1,58 @@
+name: PR preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write     # post the preview URL as a PR comment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository  # skip forks
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Deploy to /public_html/preview/${{ github.event.pull_request.number }}/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          server-dir: /public_html/preview/${{ github.event.pull_request.number }}/
+          local-dir: ./
+          state-name: .ftp-deploy-sync-state-preview-${{ github.event.pull_request.number }}.json
+          dangerous-clean-slate: true     # OK to wipe stale preview files
+          log-level: minimal
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            **/docs/**
+            **/node_modules/**
+            **/.DS_Store
+            **/*.md
+            package*.json
+            .htmlhintrc
+            .stylelintrc.json
+
+      - name: Comment preview URL on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = `https://throttle.toys/preview/${{ github.event.pull_request.number }}/`;
+            const body = `🚀 **Preview deployed:** ${url}\n\nReview both desktop and mobile views before merging.`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
