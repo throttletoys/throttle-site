@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Remove preview directory via FTPS
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         if: false  # disabled until SSH access is provisioned; manual cleanup acceptable for now
         with:
           host: ${{ secrets.FTP_SERVER }}
