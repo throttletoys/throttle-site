@@ -8,11 +8,11 @@ Throttle.toys is split across three independent layers, each in its own home:
 ┌──────────────────────────────────────────────────────────────────────┐
 │  1. STATIC FRONT-END (this repo)                                      │
 │     github.com/throttletoys/throttle-site                             │
-│     → deploys via FTPS to cPanel /home/throfoxv/public_html/          │
+│     → deploys via FTPS to cPanel /home/<cpanel-user>/public_html/          │
 │     → served by LiteSpeed/Apache at throttle.toys                     │
 │                                                                       │
 │  2. API SERVER (separate, not yet on GitHub)                          │
-│     cPanel Node.js app at /home/throfoxv/nodeapps/throttle-api/       │
+│     cPanel Node.js app at /home/<cpanel-user>/nodeapps/throttle-api/       │
 │     → Node.js 20, Express-style, MySQL via mysql2                     │
 │     → served at api.throttle.toys                                     │
 │     → /api/listings, /api/ingest, /api/trends, etc.                   │
@@ -29,7 +29,7 @@ Each tier can be updated independently. The front-end never touches the DB direc
 ## Where files live on cPanel
 
 ```
-/home/throfoxv/
+/home/<cpanel-user>/
 ├── public_html/              ← This repo's deploy target (deploy.yml writes here)
 │   ├── index.html            ← Mirrored from this repo
 │   ├── search.html           ← Mirrored from this repo
@@ -73,7 +73,7 @@ You: git push origin main
 │ Job steps:                 │
 │  1. actions/checkout@v4    │
 │  2. FTPS connect to        │
-│     server395.web-hosting  │
+│     <cpanel-host>.web-hosting  │
 │  3. Diff local vs remote   │
 │  4. Upload changed files   │
 │     to /public_html/       │
@@ -157,7 +157,7 @@ We're a 1–3 person team shipping marketing+marketplace HTML. The cost of "set 
 
 | Thing | Where it lives | Why separate |
 |---|---|---|
-| Node.js API source | cPanel `/home/throfoxv/nodeapps/` | Different deploy lifecycle, lives on the server |
+| Node.js API source | cPanel `/home/<cpanel-user>/nodeapps/` | Different deploy lifecycle, lives on the server |
 | Scraper pipeline | `throttletoys/throttle-scrapers` | Different audience (engineers), different cadence |
 | DB schema | cPanel phpMyAdmin + scraper repo `schema.sql` | Schema changes are infrequent + risky |
 | Admin debug scripts | cPanel server-only | Should never be publicly indexed |

@@ -19,7 +19,7 @@ The front-end of [throttle.toys](https://throttle.toys) — a free, dealer-direc
                          ▼
               ┌─────────────────────┐
               │  cPanel             │
-              │  /home/throfoxv/    │
+              │  /home/<cpanel-user>/    │
               │    public_html/     │  ← Live files served by Apache
               └──────────┬──────────┘
                          │  HTTPS
@@ -30,7 +30,7 @@ The front-end of [throttle.toys](https://throttle.toys) — a free, dealer-direc
 ## Quick links
 
 - **Live site:** [throttle.toys](https://throttle.toys)
-- **API repo:** lives separately on cPanel (`/home/throfoxv/nodeapps/throttle-api/`) — not in GitHub yet
+- **API repo:** lives separately on cPanel (`/home/<cpanel-user>/nodeapps/throttle-api/`) — not in GitHub yet
 - **Scraper repo:** [throttletoys/throttle-scrapers](https://github.com/throttletoys/throttle-scrapers)
 - **Designer onboarding:** [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Architecture details:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
@@ -63,8 +63,8 @@ The API at `https://api.throttle.toys` is always live, so your local site hits t
 
 | Secret | Purpose | How to rotate |
 |---|---|---|
-| `FTP_SERVER` | cPanel FTPS hostname (`server395.web-hosting.com`) | cPanel → FTP Accounts |
-| `FTP_USERNAME` | `throfoxv` (main FTP user) | Same |
+| `FTP_SERVER` | cPanel FTPS hostname (set in cPanel → General → Server Info) | cPanel → FTP Accounts |
+| `FTP_USERNAME` | `deploy@throttle.toys` (least-privilege sub-account chrooted to `/public_html/`) | Same |
 | `FTP_PASSWORD` | FTP password | cPanel → FTP Accounts → Change Password |
 
 Set under repo Settings → Secrets and variables → Actions.
