@@ -1,31 +1,70 @@
-name: Deploy to throttle.toys
+name: Deploy to production
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 concurrency:
-  group: deploy-site
+  group: deploy-production
   cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: production    # opt-in to GH "environments" for protected secrets
     steps:
       - uses: actions/checkout@v4
 
-      - name: FTP deploy to public_html
+      - name: FTPS deploy to /public_html/
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps                       # FTPS over TLS (not plain FTP)
           server-dir: /public_html/
           local-dir: ./
+          state-name: .ftp-deploy-sync-state.json
+          # IMPORTANT: dangerous-clean-slate is OFF.
+          # We never want a deleted-in-repo file to remove a server-only file.
+          dangerous-clean-slate: false
+          log-level: standard
           exclude: |
             **/.git*
             **/.git*/**
             **/.github/**
+            **/docs/**
             **/node_modules/**
             **/.DS_Store
+            **/Thumbs.db
             README.md
+            CONTRIBUTING.md
+            CODEOWNERS
+            package.json
+            package-lock.json
+            .htmlhintrc
+            .stylelintrc.json
+            **/*.md
+            # Server-only debug + admin scripts (NEVER overwrite):
+            _audit.php
+            _b.php
+            _clean.php
+            _kill.php
+            _pb.php
+            _pb2.php
+            _wf.php
+            _yp.php
+
+      - name: Post-deploy smoke test
+        run: |
+          set -e
+          echo "Testing production endpoints…"
+          for url in https://throttle.toys/ \
+                     https://throttle.toys/search \
+                     https://throttle.toys/pricing \
+                     https://throttle.toys/about; do
+            code=$(curl -o /dev/null -s -w "%{http_code}" --max-time 15 "$url")
+            echo "$code  $url"
+            [ "$code" = "200" ] || { echo "::error::$url returned $code"; exit 1; }
+          done
