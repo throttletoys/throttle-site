@@ -1,0 +1,12 @@
+# Auto-request reviews for changes to sensitive paths.
+# Format: <path>   <github-username-or-team>
+
+# Default: anyone with write can review
+*                       @throttletoys
+
+# High-impact files require Ed's sign-off
+.htaccess               @throttletoys
+.github/workflows/      @throttletoys
+docs/SECURITY.md        @throttletoys
+package.json            @throttletoys
+package-lock.json       @throttletoys
