@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Listing issue or marketplace report
+    url: https://throttle.toys/report
+    about: Report a problem with a specific toy listing on the live site
