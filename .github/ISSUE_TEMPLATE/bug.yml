@@ -1,0 +1,39 @@
+name: Bug report
+description: Something on the live site looks broken or behaves unexpectedly.
+title: "[bug] "
+labels: ["bug", "triage"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What's wrong?
+      placeholder: Pricing page typo on line 23; "List your toy" button overflows on mobile; etc.
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: URL where you saw it
+      placeholder: https://throttle.toys/pricing
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device / browser
+      options:
+        - Desktop Chrome
+        - Desktop Safari
+        - Desktop Firefox
+        - Desktop Edge
+        - iOS Safari
+        - Android Chrome
+        - Other (specify in description)
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot (drag-drop into this textarea)
