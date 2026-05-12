@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnp.*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Server-only (deploy excludes these too)
+error_log
+_audit.php
+_b.php
+_clean.php
+_kill.php
+_pb.php
+_pb2.php
+_wf.php
+_yp.php
+
+# Backup zips that shouldn't be tracked
+*.zip
+*.tar.gz
+*.bak
+
+# Dotenv / secrets
+.env
+.env.*
+!.env.example
+
+# Local preview
+.cache/
+dist/
+build/
+
+# FTP-Deploy state file (workflow-managed)
+.ftp-deploy-sync-state.json
