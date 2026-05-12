@@ -1,0 +1,29 @@
+name: Broken links
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 13 * * 1'   # Mondays 13:00 UTC
+  workflow_dispatch:
+
+jobs:
+  lychee:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run lychee link checker
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: >-
+            --no-progress
+            --max-redirects 5
+            --max-retries 2
+            --timeout 20
+            --exclude-mail
+            --exclude '^(http://localhost|http://127\.0\.0\.1|https://api\.throttle\.toys)'
+            './**/*.html'
+            './**/*.md'
+          fail: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
