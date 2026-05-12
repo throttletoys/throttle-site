@@ -1646,6 +1646,14 @@ function normalizeListing(L){
   if(out.src === "Throttle") out.isThrottle = true;
   out.live = out.live ?? (out.src==="Throttle" || out.src==="Dealer Direct");
   if(typeof out.hue !== "number") out.hue = Math.floor(Math.random()*360);
+  // Days-on-market: count from first_seen_at (when WE first saw the unit).
+  // Dealer-supplied posted_at gets restamped on every feed refresh so it
+  // always reads 0 — this is our own counter for a real DOM datalake.
+  // Stops at last_seen_at once sold (dealer removes the unit from the feed).
+  if(out.first_seen_at){
+    const endAt = out.sold && out.last_seen_at ? out.last_seen_at : Math.floor(Date.now()/1000);
+    out.dom = Math.max(0, Math.floor((endAt - out.first_seen_at) / 86400));
+  }
   return withGeoFallback(out);
 }
 
@@ -3040,20 +3048,4 @@ try {
     const link = $("#nav-account-link");
     if(link){ link.textContent="My account"; link.href="/account/"; }
   }
-} catch(e){}
-
-window.throttle = {
-  ingest: (cat, items) => {
-    if(!STATE.listings[cat]) return;
-    items.forEach(it => {
-      if(!it.id) it.id = `live-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
-      STATE.listings[cat].push(normalizeListing(it));
-    });
-    if(STATE.cat===cat || STATE.cat==="all") applyFilters();
-  },
-  getState: ()=> STATE,
-  setPro: v => { STATE.isPro=!!v; localStorage.setItem("throttle_pro", v?"1":"0"); refreshProUI(); applyFilters(); },
-};
-</script>
-</body>
-</html>
+} catch(e
