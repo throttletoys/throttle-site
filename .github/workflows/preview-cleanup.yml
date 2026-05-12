@@ -1,0 +1,22 @@
+name: PR preview cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove preview directory via FTPS
+        uses: appleboy/ssh-action@v1.0.3
+        if: false  # disabled until SSH access is provisioned; manual cleanup acceptable for now
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          script: rm -rf /home/throfoxv/public_html/preview/${{ github.event.pull_request.number }}/
+
+      - name: Note
+        if: always()
+        run: echo "Preview at /preview/${{ github.event.pull_request.number }}/ kept for 7 days then manually purged."
