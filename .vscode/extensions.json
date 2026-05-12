@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "mkaufman.HTMLHint",
+    "stylelint.vscode-stylelint",
+    "EditorConfig.EditorConfig",
+    "ritwickdey.LiveServer"
+  ]
+}
