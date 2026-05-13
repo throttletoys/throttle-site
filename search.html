@@ -1646,13 +1646,18 @@ function normalizeListing(L){
   if(out.src === "Throttle") out.isThrottle = true;
   out.live = out.live ?? (out.src==="Throttle" || out.src==="Dealer Direct");
   if(typeof out.hue !== "number") out.hue = Math.floor(Math.random()*360);
-  // Days-on-market: count from first_seen_at (when WE first saw the unit).
-  // Dealer-supplied posted_at gets restamped on every feed refresh so it
-  // always reads 0 — this is our own counter for a real DOM datalake.
-  // Stops at last_seen_at once sold (dealer removes the unit from the feed).
+  // Days-on-market — Visor pattern:
+  //  • Prefer dealer's posted_at IF it's a real listing date (≥1 day older
+  //    than first_seen_at). Otherwise scrapers default it to now() and it's
+  //    not meaningful — fall back to first_seen_at (when WE first saw it).
+  //  • +1 so a unit scraped today shows "1 day on market" not "0d".
+  //  • Once sold, freeze at last_seen_at (dealer pulls the unit from feed).
   if(out.first_seen_at){
+    const pa = out.posted_at || 0;
+    const fs = out.first_seen_at;
+    const startAt = (pa && (fs - pa) > 86400) ? pa : fs;
     const endAt = out.sold && out.last_seen_at ? out.last_seen_at : Math.floor(Date.now()/1000);
-    out.dom = Math.max(0, Math.floor((endAt - out.first_seen_at) / 86400));
+    out.dom = Math.max(1, Math.floor((endAt - startAt) / 86400) + 1);
   }
   return withGeoFallback(out);
 }
@@ -3039,13 +3044,3 @@ function refreshProUI(){
   selectCat(initialCat);
 })();
 renderSaved();
-refreshProUI();
-probeLiveSources();
-
-try {
-  const account = localStorage.getItem("throttle_account");
-  if(account){
-    const link = $("#nav-account-link");
-    if(link){ link.textContent="My account"; link.href="/account/"; }
-  }
-} catch(e
